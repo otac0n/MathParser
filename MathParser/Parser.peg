@@ -1,0 +1,34 @@
+﻿@namespace MathParser
+@classname Parser
+@using System.Linq.Expressions
+
+math <Expression>
+  = _ value:additive _ EOF { value }
+
+additive <Expression> -memoize
+    = left:additive _ "+" _ right:multiplicative { Expression.Add(left, right) }
+    / left:additive _ "-" _ right:multiplicative { Expression.Subtract(left, right) }
+    / multiplicative
+
+multiplicative <Expression> -memoize
+    = left:multiplicative _ "*" _ right:power { Expression.Multiply(left, right) }
+    / left:multiplicative _ "/" _ right:power { Expression.Divide(left, right) }
+    / power
+
+power <Expression>
+    = left:primary _ "^" _ right:power { Expression.Power(left, right) }
+    / primary
+
+primary <Expression> -memoize
+    = decimal
+    / "-" _ primary:primary { Expression.Negate(primary) }
+    / "(" _ additive:additive _ ")" { additive }
+
+decimal <Expression>
+    = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
+
+_ = [ \t\r\n]*
+
+EOF
+  = !.
+  / unexpected:. #error{ "Unexpected character '" + unexpected + "'." }
