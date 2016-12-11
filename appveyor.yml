@@ -1,0 +1,18 @@
+os: Visual Studio 2015
+configuration: Release
+install:
+  - "C:\\ProgramData\\chocolatey\\bin;%PATH%"
+  - choco install gitversion.portable -pre -y
+before_build:
+  - nuget restore
+  - gitversion /l console /output buildserver
+build:
+  project: MathParser.sln
+cache:
+  - packages -> **\packages.config
+skip_commits:
+  files:
+    - .gitattributes
+    - .gitignore
+    - CodeMaid.config
+    - license.md
