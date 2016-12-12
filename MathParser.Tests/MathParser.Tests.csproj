@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -42,6 +42,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MathParser\MathParser.csproj">
@@ -54,6 +55,8 @@
       <Link>CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
     <None Include="packages.config" />
+    <Compile Include="ExpressionRendererTests.cs" />
+    <Compile Include="ImageUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
@@ -66,6 +69,39 @@
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAConstantExpression_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenADivisionExpression_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets2_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAMultiplicationExpression_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAnAdditionExpression_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAPowerExpression_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAPowerTower_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenASubtractionExpression_ReturnExpectedValues.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
