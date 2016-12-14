@@ -215,27 +215,22 @@ namespace MathParser
                 this.Visit(node.Right);
                 var right = this.root;
 
+                if (NeedsLeftBrackets(node.NodeType, node.Left))
+                {
+                    left = new BrackedVisualNode("(", left, ")");
+                }
+
+                if (NeedsRightBrackets(node.NodeType, node.Right))
+                {
+                    right = new BrackedVisualNode("(", right, ")");
+                }
+
                 if (node.NodeType == ExpressionType.Power)
                 {
-                    if (NeedsBrackets(node.NodeType, node.Left))
-                    {
-                        left = new BrackedVisualNode("(", left, ")");
-                    }
-
                     this.root = new PowerVisualNode(left, right);
                 }
                 else
                 {
-                    if (NeedsBrackets(node.NodeType, node.Left))
-                    {
-                        left = new BrackedVisualNode("(", left, ")");
-                    }
-
-                    if (NeedsBrackets(node.NodeType, node.Right))
-                    {
-                        right = new BrackedVisualNode("(", right, ")");
-                    }
-
                     string op;
                     switch (node.NodeType)
                     {
@@ -270,7 +265,22 @@ namespace MathParser
 
             protected override Expression VisitConstant(ConstantExpression node)
             {
-                this.root = new StringVisualNode(node.Value);
+                string text = null;
+
+                if (node.Value is double)
+                {
+                    var value = (double)node.Value;
+                    if (value == Math.PI * 2)
+                    {
+                        text = "τ";
+                    }
+                    else if (value == Math.PI)
+                    {
+                        text = "π";
+                    }
+                }
+
+                this.root = new StringVisualNode(text ?? node.Value?.ToString() ?? "null");
                 return node;
             }
 
@@ -293,7 +303,7 @@ namespace MathParser
                 return outer == ExpressionType.Power;
             }
 
-            private static bool NeedsBrackets(ExpressionType outer, Expression inner)
+            private static bool NeedsLeftBrackets(ExpressionType outer, Expression inner)
             {
                 if (IsAdditiveExpressionType(outer))
                 {
@@ -310,6 +320,22 @@ namespace MathParser
                 {
                     var binaryExpression = inner as BinaryExpression;
                     return binaryExpression != null && (IsAdditiveExpressionType(inner.NodeType) || IsMultiplicativeExpressionType(inner.NodeType) || IsPowerExpressionType(inner.NodeType));
+                }
+
+                return false;
+            }
+
+            private static bool NeedsRightBrackets(ExpressionType outer, Expression inner)
+            {
+                if (IsAdditiveExpressionType(outer))
+                {
+                    return false;
+                }
+
+                if (IsMultiplicativeExpressionType(outer))
+                {
+                    var binaryExpression = inner as BinaryExpression;
+                    return binaryExpression != null && (IsAdditiveExpressionType(inner.NodeType) || IsMultiplicativeExpressionType(inner.NodeType));
                 }
 
                 return false;

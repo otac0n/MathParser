@@ -21,11 +21,16 @@ power <Expression>
 
 primary <Expression> -memoize
     = decimal
+    / namedConstant
     / "-" _ primary:primary { Expression.Negate(primary) }
     / "(" _ additive:additive _ ")" { additive }
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
+
+namedConstant <Expression>
+    = "τ" { Expression.Constant(2 * Math.PI) }
+    / "π" { Expression.Constant(Math.PI) }
 
 _ = [ \t\r\n]*
 

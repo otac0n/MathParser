@@ -5,6 +5,7 @@ namespace MathParser.Tests
     using System;
     using System.Drawing;
     using System.Drawing.Drawing2D;
+    using System.Drawing.Text;
     using System.IO;
     using System.Reflection;
     using NUnit.Framework;
@@ -66,6 +67,38 @@ namespace MathParser.Tests
             using (var scope = new TestScope(220, 50))
             {
                 var expression = scope.Parser.Parse("((1+2)^(3+4))^5");
+
+                float baseline;
+                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
+
+                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
+                scope.HighlightBaseline(size, baseline);
+                scope.WriteAndAssertResult();
+            }
+        }
+
+        [Test]
+        public void MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets3_ReturnExpectedValues()
+        {
+            using (var scope = new TestScope(220, 40))
+            {
+                var expression = scope.Parser.Parse("1+2/(2*4)");
+
+                float baseline;
+                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
+
+                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
+                scope.HighlightBaseline(size, baseline);
+                scope.WriteAndAssertResult();
+            }
+        }
+
+        [Test]
+        public void MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues()
+        {
+            using (var scope = new TestScope(80, 40))
+            {
+                var expression = scope.Parser.Parse("τ+π");
 
                 float baseline;
                 var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
@@ -172,9 +205,10 @@ namespace MathParser.Tests
             {
                 this.bitmap = new Bitmap(width, height);
                 this.Graphics = Graphics.FromImage(this.bitmap);
+                this.Graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
                 this.Renderer = new ExpressionRenderer()
                 {
-                    Font = new Font("Microsoft Sans Serif", 20, FontStyle.Regular),
+                    Font = new Font("Calibri", 20, FontStyle.Regular),
                     Brush = Brushes.Black,
                 };
                 this.Parser = new Parser();
@@ -230,8 +264,9 @@ namespace MathParser.Tests
             public void WriteAndAssertResult()
             {
                 var test = TestContext.CurrentContext.Test;
-                var actualPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ActualResults", test.ClassName, test.MethodName + ".png");
-                var expectedPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ExpectedResults", test.ClassName, test.MethodName + ".png");
+                var testPath = Path.Combine(test.ClassName, test.MethodName + ".png");
+                var actualPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ActualResults", testPath);
+                var expectedPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ExpectedResults", testPath);
                 Directory.CreateDirectory(Path.GetDirectoryName(actualPath));
                 this.bitmap.Save(actualPath);
 
