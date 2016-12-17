@@ -76,7 +76,7 @@ namespace MathParser
                 float[] baselines;
                 SizeF[] sizes;
                 float baseline;
-                var size = this.MeasureInternal(g, font, out baseline, out sizes, out baselines);
+                this.MeasureInternal(g, font, out baseline, out sizes, out baselines);
 
                 var offset = SizeF.Empty;
                 var nodes = this.Nodes.Length;
@@ -154,11 +154,8 @@ namespace MathParser
 
                 var bracketFont = GetBracketFont(g, font, size);
 
-                var leftBracketSize = g.MeasureString(this.LeftBracket, bracketFont);
-                var rightBracketSize = g.MeasureString(this.RightBracket, bracketFont);
-
                 g.DrawString(this.LeftBracket, bracketFont, brush, topLeft);
-                topLeft.X += leftBracketSize.Width;
+                topLeft.X += g.MeasureString(this.LeftBracket, bracketFont).Width;
 
                 this.Node.Draw(g, font, brush, topLeft);
                 topLeft.X += size.Width;
