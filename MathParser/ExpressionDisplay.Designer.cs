@@ -39,8 +39,8 @@
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "ExpressionDisplay";
-            this.ShowInTaskbar = false;
             this.Text = "Math";
+            this.TopMost = true;
             this.ResumeLayout(false);
 
         }
