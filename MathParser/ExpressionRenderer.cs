@@ -151,8 +151,7 @@ namespace MathParser
             {
                 float baseline;
                 var size = this.Node.Measure(g, font, out baseline);
-
-                var bracketFont = GetBracketFont(g, font, size);
+                var bracketFont = GetBracketFont(g, font, baseline);
 
                 g.DrawString(this.LeftBracket, bracketFont, brush, topLeft);
                 topLeft.X += g.MeasureString(this.LeftBracket, bracketFont).Width;
@@ -166,27 +165,28 @@ namespace MathParser
             public override SizeF Measure(Graphics g, Font font, out float baseline)
             {
                 var size = this.Node.Measure(g, font, out baseline);
-
-                var bracketFont = GetBracketFont(g, font, size);
+                var bracketFont = GetBracketFont(g, font, baseline);
 
                 var leftBracketSize = g.MeasureString(this.LeftBracket, bracketFont);
                 var rightBracketSize = g.MeasureString(this.RightBracket, bracketFont);
 
                 size.Width += leftBracketSize.Width + rightBracketSize.Width;
+                size.Height = Math.Max(size.Height, Math.Max(leftBracketSize.Height, rightBracketSize.Height));
 
                 return size;
             }
 
-            private static Font GetBracketFont(Graphics g, Font font, SizeF contentSize)
+            private static Font GetBracketFont(Graphics g, Font font, float contentBaseline)
             {
-                var normalSize = g.MeasureString(" ", font);
+                float normalBaseline;
+                MeasureString(g, " ", font, out normalBaseline);
 
-                if (normalSize.Height == contentSize.Height)
+                if (normalBaseline == contentBaseline)
                 {
                     return font;
                 }
 
-                return new Font(font.FontFamily, font.Size * contentSize.Height / normalSize.Height, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
+                return new Font(font.FontFamily, font.Size * contentBaseline / normalBaseline, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
             }
         }
 
@@ -413,18 +413,23 @@ namespace MathParser
 
             public override SizeF Measure(Graphics g, Font font, out float baseline)
             {
-                var family = font.FontFamily;
-                var spacing = family.GetLineSpacing(font.Style);
-                var ascent = family.GetCellAscent(font.Style);
-
-                baseline = font.GetHeight(g) * ascent / spacing;
-                var size = g.MeasureString(this.Value, font);
-                return size;
+                return MeasureString(g, this.Value, font, out baseline);
             }
         }
 
         private abstract class VisualNode
         {
+            public static SizeF MeasureString(Graphics g, string text, Font font, out float baseline)
+            {
+                var family = font.FontFamily;
+                var spacing = family.GetLineSpacing(font.Style);
+                var ascent = family.GetCellAscent(font.Style);
+
+                baseline = font.GetHeight(g) * ascent / spacing;
+                var size = g.MeasureString(text, font);
+                return size;
+            }
+
             public abstract void Draw(Graphics g, Font font, Brush brush, PointF topLeft);
 
             public abstract SizeF Measure(Graphics g, Font font, out float baseline);

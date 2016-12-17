@@ -94,6 +94,22 @@ namespace MathParser.Tests
         }
 
         [Test]
+        public void MeasureAndDrawExpression_WhenGivenAHeavilyNestedExpression_ReturnsExpectedValues()
+        {
+            using (var scope = new TestScope(550, 60))
+            {
+                var expression = scope.Parser.Parse("(((((((1+1)^2)^3)^4)^5)^6)^7)^8");
+
+                float baseline;
+                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
+
+                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
+                scope.HighlightBaseline(size, baseline);
+                scope.WriteAndAssertResult();
+            }
+        }
+
+        [Test]
         public void MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues()
         {
             using (var scope = new TestScope(80, 40))
