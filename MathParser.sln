@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser", "MathParser\Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Tests", "MathParser.Tests\MathParser.Tests.csproj", "{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Demo", "MathParser.Demo\MathParser.Demo.csproj", "{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
