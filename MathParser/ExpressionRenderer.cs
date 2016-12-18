@@ -70,6 +70,13 @@ namespace MathParser
             {
             }
 
+            private enum Associativity
+            {
+                None = 0,
+                Left,
+                Right,
+            }
+
             public static VisualNode TransformToVisualTree(Expression expression)
             {
                 var transformer = new ExpressionTransformer();
@@ -153,61 +160,133 @@ namespace MathParser
                 return node;
             }
 
-            private static bool IsAdditiveExpressionType(ExpressionType outer)
+            protected override Expression VisitUnary(UnaryExpression node)
             {
-                return outer == ExpressionType.Add ||
-                       outer == ExpressionType.AddChecked ||
-                       outer == ExpressionType.Subtract ||
-                       outer == ExpressionType.SubtractChecked;
+                base.VisitUnary(node);
+                var inner = this.root;
+
+                if (NeedsRightBrackets(node.NodeType, node.Operand))
+                {
+                    inner = new BracketedVisualNode("(", inner, ")");
+                }
+
+                this.root = new BaselineAlignedVisualNode(new StringVisualNode("-"), inner);
+
+                return node;
             }
 
-            private static bool IsMultiplicativeExpressionType(ExpressionType outer)
+            private static Associativity GetAssociativity(int precedence)
             {
-                return outer == ExpressionType.Multiply ||
-                       outer == ExpressionType.Divide;
+                switch (precedence)
+                {
+                    case 0:
+                    case 1:
+                        return Associativity.Left;
+
+                    case 2:
+                        return Associativity.Right;
+
+                    default:
+                        return Associativity.None;
+                }
             }
 
-            private static bool IsPowerExpressionType(ExpressionType outer)
+            private static int GetPrecedence(ExpressionType type)
             {
-                return outer == ExpressionType.Power;
+                switch (type)
+                {
+                    case ExpressionType.Add:
+                    case ExpressionType.AddChecked:
+                    case ExpressionType.Subtract:
+                    case ExpressionType.SubtractChecked:
+                    case ExpressionType.Negate:
+                    case ExpressionType.NegateChecked:
+                        return 0;
+
+                    case ExpressionType.Multiply:
+                    case ExpressionType.MultiplyChecked:
+                    case ExpressionType.Divide:
+                    case ExpressionType.Modulo:
+                        return 1;
+
+                    case ExpressionType.Power:
+                        return 2;
+
+                    default:
+                        return int.MaxValue;
+                }
+            }
+
+            private static bool IsFullyAssociative(ExpressionType left, ExpressionType right)
+            {
+                if ((left == ExpressionType.Add || left == ExpressionType.AddChecked) &&
+                    (right == ExpressionType.Add || right == ExpressionType.AddChecked))
+                {
+                    return true;
+                }
+
+                if ((left == ExpressionType.Multiply || left == ExpressionType.MultiplyChecked) &&
+                    (right == ExpressionType.Multiply || right == ExpressionType.MultiplyChecked))
+                {
+                    return true;
+                }
+
+                return false;
             }
 
             private static bool NeedsLeftBrackets(ExpressionType outer, Expression inner)
             {
-                if (IsAdditiveExpressionType(outer))
+                var outerPrecedence = GetPrecedence(outer);
+                var innerPrecedence = GetPrecedence(inner.NodeType);
+                var innerAssociativity = GetAssociativity(innerPrecedence);
+                var fullyAssociative = IsFullyAssociative(inner.NodeType, outer);
+
+                if (outer == ExpressionType.Power && inner.NodeType == ExpressionType.Constant)
+                {
+                    var value = ((ConstantExpression)inner).Value;
+                    if ((dynamic)value < 0)
+                    {
+                        return true;
+                    }
+                }
+
+                if (outerPrecedence < innerPrecedence || fullyAssociative)
                 {
                     return false;
                 }
 
-                if (IsMultiplicativeExpressionType(outer))
+                if (outerPrecedence == innerPrecedence)
                 {
-                    var binaryExpression = inner as BinaryExpression;
-                    return binaryExpression != null && IsAdditiveExpressionType(inner.NodeType);
+                    if (innerAssociativity == Associativity.Left)
+                    {
+                        return false;
+                    }
                 }
 
-                if (IsPowerExpressionType(outer))
-                {
-                    var binaryExpression = inner as BinaryExpression;
-                    return binaryExpression != null && (IsAdditiveExpressionType(inner.NodeType) || IsMultiplicativeExpressionType(inner.NodeType) || IsPowerExpressionType(inner.NodeType));
-                }
-
-                return false;
+                return true;
             }
 
             private static bool NeedsRightBrackets(ExpressionType outer, Expression inner)
             {
-                if (IsAdditiveExpressionType(outer))
+                var outerPrecedence = GetPrecedence(outer);
+                var innerPrecedence = GetPrecedence(inner.NodeType);
+                var innerAssociativity = GetAssociativity(innerPrecedence);
+                var fullyAssociative = IsFullyAssociative(outer, inner.NodeType);
+
+                if (outerPrecedence < innerPrecedence || fullyAssociative || outer == ExpressionType.Power)
                 {
                     return false;
                 }
 
-                if (IsMultiplicativeExpressionType(outer))
+                if (outerPrecedence == innerPrecedence)
                 {
-                    var binaryExpression = inner as BinaryExpression;
-                    return binaryExpression != null && (IsAdditiveExpressionType(inner.NodeType) || IsMultiplicativeExpressionType(inner.NodeType));
+                    if (innerAssociativity == Associativity.Right)
+                    {
+                        return false;
+                    }
                 }
 
-                return false;
+                return true;
             }
         }
     }
