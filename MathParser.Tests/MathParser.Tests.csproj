@@ -81,13 +81,73 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenADivisionExpression_ReturnExpectedValues.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets2_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281+2%29+3%29+4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets3_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281-2%29-3%29-4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281^2%29^3%29^4%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281×2%29×3%29×4%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281÷2%29÷3%29÷4%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281+%282+3%29%29+4%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281+2%29+%283+4%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281+2%29^%283+4%29%29^5%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281^%282^3%29%29^4%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281^2%29^%283^4%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281÷%282÷3%29%29÷4%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281÷2%29÷%283÷4%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281+%28%282+3%29+4%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281+%282+%283+4%29%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281+2^3^4%29^%285×%286+7%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281^%28%282^3%29^4%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281^%282^%283^4%29%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281÷%28%282÷3%29÷4%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281÷%282÷%283÷4%29%29%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%288+5%29+2%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%271+2÷%282×4%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%278+%285+2%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%278-5-2%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAHeavilyNestedExpression_ReturnsExpectedValues.png">

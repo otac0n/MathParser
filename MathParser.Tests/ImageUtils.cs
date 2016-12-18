@@ -3,8 +3,10 @@
 namespace MathParser.Tests
 {
     using System.Drawing;
+    using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
     using System.Runtime.InteropServices;
+    using System.Threading;
 
     internal static class ImageUtils
     {
@@ -64,6 +66,32 @@ namespace MathParser.Tests
 
             bitmap.UnlockBits(data);
             return colors;
+        }
+
+        public class Highlighter
+        {
+            private static readonly HatchBrush[] HighlightBrushes = new[]
+            {
+                new HatchBrush(HatchStyle.ForwardDiagonal, Color.FromArgb(127, Color.Salmon), Color.FromArgb(64, Color.White)),
+                new HatchBrush(HatchStyle.BackwardDiagonal, Color.FromArgb(127, Color.DodgerBlue), Color.FromArgb(64, Color.White)),
+                new HatchBrush(HatchStyle.LargeGrid, Color.FromArgb(127, Color.ForestGreen), Color.FromArgb(64, Color.White)),
+            };
+
+            private static readonly Pen[] HighlightPens = new[]
+            {
+                new Pen(Color.FromArgb(127, Color.Salmon)),
+                new Pen(Color.FromArgb(127, Color.DodgerBlue)),
+                new Pen(Color.FromArgb(127, Color.ForestGreen)),
+            };
+
+            private int highlightIndex = -1;
+
+            public void Highlight(Graphics g, RectangleF rectangle)
+            {
+                var i = Interlocked.Increment(ref this.highlightIndex) % HighlightPens.Length;
+                g.FillRectangle(HighlightBrushes[i], rectangle);
+                g.DrawRectangle(HighlightPens[i], rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height);
+            }
         }
     }
 }

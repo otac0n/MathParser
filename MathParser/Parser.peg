@@ -11,8 +11,8 @@ additive <Expression> -memoize
     / multiplicative
 
 multiplicative <Expression> -memoize
-    = left:multiplicative _ "*" _ right:power { Expression.Multiply(left, right) }
-    / left:multiplicative _ "/" _ right:power { Expression.Divide(left, right) }
+    = left:multiplicative _ ("*" / "×") _ right:power { Expression.Multiply(left, right) }
+    / left:multiplicative _ ("/" / "÷") _ right:power { Expression.Divide(left, right) }
     / power
 
 power <Expression>

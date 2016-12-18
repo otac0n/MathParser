@@ -4,10 +4,10 @@ namespace MathParser.Tests
 {
     using System;
     using System.Drawing;
-    using System.Drawing.Drawing2D;
     using System.Drawing.Text;
     using System.IO;
     using System.Reflection;
+    using System.Text.RegularExpressions;
     using NUnit.Framework;
 
     [TestFixture]
@@ -16,285 +16,159 @@ namespace MathParser.Tests
         [Test]
         public void MeasureAndDrawExpression_WhenGivenAConstantExpression_ReturnExpectedValues()
         {
-            using (var scope = new TestScope(50, 40))
-            {
-                var expression = scope.Parser.Parse("1.1");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper("1.1");
         }
 
         [Test]
         public void MeasureAndDrawExpression_WhenGivenADivisionExpression_ReturnExpectedValues()
         {
-            using (var scope = new TestScope(100, 40))
-            {
-                var expression = scope.Parser.Parse("10/2");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper("10/2");
         }
 
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues()
+        [TestCase("(1+2^3^4)^(5*(6+7))")]
+        [TestCase("((1+2)^(3+4))^5")]
+        [TestCase("1+2/(2*4)")]
+        [TestCase("8-(5+2)")]
+        [TestCase("8+(5+2)")]
+        [TestCase("(8+5)+2")]
+        [TestCase("8-5-2")]
+        [TestCase("((1+2)+(3+4))")]
+        [TestCase("(((1+2)+3)+4)")]
+        [TestCase("(1+(2+(3+4)))")]
+        [TestCase("((1+(2+3))+4)")]
+        [TestCase("(1+((2+3)+4))")]
+        [TestCase("((1*2)*(3*4))")]
+        [TestCase("(((1*2)*3)*4)")]
+        [TestCase("(1*(2*(3*4)))")]
+        [TestCase("((1*(2*3))*4)")]
+        [TestCase("(1*((2*3)*4))")]
+        [TestCase("((1/2)/(3/4))")]
+        [TestCase("(((1/2)/3)/4)")]
+        [TestCase("(1/(2/(3/4)))")]
+        [TestCase("((1/(2/3))/4)")]
+        [TestCase("(1/((2/3)/4))")]
+        [TestCase("((1-2)-(3-4))")]
+        [TestCase("(((1-2)-3)-4)")]
+        [TestCase("(1-(2-(3-4)))")]
+        [TestCase("((1-(2-3))-4)")]
+        [TestCase("(1-((2-3)-4))")]
+        [TestCase("((1^2)^(3^4))")]
+        [TestCase("(((1^2)^3)^4)")]
+        [TestCase("(1^(2^(3^4)))")]
+        [TestCase("((1^(2^3))^4)")]
+        [TestCase("(1^((2^3)^4))")]
+        public void MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues(string input)
         {
-            using (var scope = new TestScope(250, 60))
-            {
-                var expression = scope.Parser.Parse("(1+2^3^4)^(5*(6+7))");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets2_ReturnExpectedValues()
-        {
-            using (var scope = new TestScope(220, 50))
-            {
-                var expression = scope.Parser.Parse("((1+2)^(3+4))^5");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets3_ReturnExpectedValues()
-        {
-            using (var scope = new TestScope(220, 40))
-            {
-                var expression = scope.Parser.Parse("1+2/(2*4)");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper(input);
         }
 
         [Test]
         public void MeasureAndDrawExpression_WhenGivenAHeavilyNestedExpression_ReturnsExpectedValues()
         {
-            using (var scope = new TestScope(550, 60))
-            {
-                var expression = scope.Parser.Parse("(((((((1+1)^2)^3)^4)^5)^6)^7)^8");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper("(((((((1+1)^2)^3)^4)^5)^6)^7)^8");
         }
 
         [Test]
         public void MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues()
         {
-            using (var scope = new TestScope(80, 40))
-            {
-                var expression = scope.Parser.Parse("τ+π");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper("τ+π");
         }
 
         [Test]
         public void MeasureAndDrawExpression_WhenGivenAMultiplicationExpression_ReturnExpectedValues()
         {
-            using (var scope = new TestScope(80, 40))
-            {
-                var expression = scope.Parser.Parse("3*5");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper("3*5");
         }
 
         [Test]
         public void MeasureAndDrawExpression_WhenGivenAnAdditionExpression_ReturnExpectedValues()
         {
-            using (var scope = new TestScope(80, 40))
-            {
-                var expression = scope.Parser.Parse("1+1");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper("1+1");
         }
 
         [Test]
         public void MeasureAndDrawExpression_WhenGivenAPowerExpression_ReturnExpectedValues()
         {
-            using (var scope = new TestScope(50, 50))
-            {
-                var expression = scope.Parser.Parse("2^5");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper("2^5");
         }
 
         [Test]
         public void MeasureAndDrawExpression_WhenGivenAPowerTower_ReturnExpectedValues()
         {
-            using (var scope = new TestScope(60, 60))
-            {
-                var expression = scope.Parser.Parse("2^2^2^2");
-
-                float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
-
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
-            }
+            ExpressionRendererTestHelper("2^2^2^2");
         }
 
         [Test]
         public void MeasureAndDrawExpression_WhenGivenASubtractionExpression_ReturnExpectedValues()
         {
-            using (var scope = new TestScope(80, 40))
+            ExpressionRendererTestHelper("3-8");
+        }
+
+        private static void ExpressionRendererTestHelper(string math)
+        {
+            var parser = new Parser();
+            var expression = parser.Parse(math);
+
+            using (var font = new Font("Calibri", 20, FontStyle.Regular))
             {
-                var expression = scope.Parser.Parse("3-8");
+                var renderer = new ExpressionRenderer()
+                {
+                    Font = font,
+                    Brush = Brushes.Black,
+                };
 
+                SizeF size;
                 float baseline;
-                var size = scope.Renderer.Measure(scope.Graphics, expression, out baseline);
 
-                scope.Renderer.DrawExpression(scope.Graphics, expression, PointF.Empty);
-                scope.HighlightBaseline(size, baseline);
-                scope.WriteAndAssertResult();
+                using (var bitmap = new Bitmap(1, 1))
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+                    size = renderer.Measure(graphics, expression, out baseline);
+                }
+
+                const float Padding = 5;
+                using (var bitmap = new Bitmap((int)Math.Ceiling(size.Width + Padding * 2), (int)Math.Ceiling(size.Height + Padding * 2)))
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+
+                    renderer.DrawExpression(graphics, expression, new PointF(Padding, Padding));
+
+                    var w = (int)Math.Round(size.Width);
+                    var a = (int)Math.Round(baseline);
+                    var h = (int)Math.Round(size.Height);
+                    var highlighter = new ImageUtils.Highlighter();
+                    highlighter.Highlight(graphics, new RectangleF(new PointF(Padding, Padding), new SizeF(w, a)));
+                    highlighter.Highlight(graphics, new RectangleF(new PointF(Padding, Padding + a + 1), new SizeF(w, h - a - 1)));
+
+                    WriteAndAssertResult(bitmap);
+                }
             }
         }
 
-        private class TestScope : IDisposable
+        private static string SanitizeName(string testName)
         {
-            private Bitmap bitmap;
-            private Brush[] highlightBrushes;
-            private int highlightIndex;
-            private Pen[] highlightPens;
+            return Regex.Replace(testName.Replace('"', '\'').Replace('*', '×').Replace('/', '÷'), "[" + Regex.Escape(new string(Path.GetInvalidFileNameChars())) + "]", "_");
+        }
 
-            public TestScope()
-                : this(10, 10)
+        private static void WriteAndAssertResult(Bitmap bitmap)
+        {
+            var test = TestContext.CurrentContext.Test;
+            var testPath = Path.Combine(test.ClassName, SanitizeName(test.Name) + ".png");
+            var actualPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ActualResults", testPath);
+            var expectedPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ExpectedResults", testPath);
+            Directory.CreateDirectory(Path.GetDirectoryName(actualPath));
+            bitmap.Save(actualPath);
+
+            Assert.That(File.Exists(expectedPath), Is.True);
+            using (var expected = Image.FromFile(expectedPath))
             {
-            }
-
-            public TestScope(int width, int height)
-            {
-                this.bitmap = new Bitmap(width, height);
-                this.Graphics = Graphics.FromImage(this.bitmap);
-                this.Graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-                this.Renderer = new ExpressionRenderer()
-                {
-                    Font = new Font("Calibri", 20, FontStyle.Regular),
-                    Brush = Brushes.Black,
-                };
-                this.Parser = new Parser();
-
-                var fillColor = Color.FromArgb(127, Color.White);
-
-                this.highlightIndex = 0;
-                this.highlightPens = new[]
-                {
-                    new Pen(Color.FromArgb(127, Color.Salmon)),
-                    new Pen(Color.FromArgb(127, Color.DodgerBlue)),
-                    new Pen(Color.FromArgb(127, Color.ForestGreen)),
-                };
-                this.highlightBrushes = new[]
-                {
-                    new HatchBrush(HatchStyle.ForwardDiagonal, Color.FromArgb(127, Color.Salmon), fillColor),
-                    new HatchBrush(HatchStyle.BackwardDiagonal, Color.FromArgb(127, Color.DodgerBlue), fillColor),
-                    new HatchBrush(HatchStyle.LargeGrid, Color.FromArgb(127, Color.ForestGreen), fillColor),
-                };
-            }
-
-            public Graphics Graphics { get; }
-
-            public Parser Parser { get; }
-
-            public ExpressionRenderer Renderer { get; }
-
-            public void Dispose()
-            {
-                this.Graphics.Dispose();
-                this.bitmap.Dispose();
-                Array.ForEach(this.highlightPens, p => p.Dispose());
-                Array.ForEach(this.highlightBrushes, p => p.Dispose());
-            }
-
-            public void Highlight(Rectangle rectangle)
-            {
-                var i = this.highlightIndex;
-                this.Graphics.FillRectangle(this.highlightBrushes[i], rectangle);
-                this.Graphics.DrawRectangle(this.highlightPens[i], rectangle);
-                this.highlightIndex = (i + 1) % this.highlightPens.Length;
-            }
-
-            public void HighlightBaseline(SizeF size, float baseline)
-            {
-                var w = (int)Math.Round(size.Width);
-                var a = (int)Math.Round(baseline);
-                var h = (int)Math.Round(size.Height);
-                this.Highlight(new Rectangle(new Point(0, 0), new Size(w, a)));
-                this.Highlight(new Rectangle(new Point(0, a + 1), new Size(w, h - a - 1)));
-            }
-
-            public void WriteAndAssertResult()
-            {
-                var test = TestContext.CurrentContext.Test;
-                var testPath = Path.Combine(test.ClassName, test.MethodName + ".png");
-                var actualPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ActualResults", testPath);
-                var expectedPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ExpectedResults", testPath);
-                Directory.CreateDirectory(Path.GetDirectoryName(actualPath));
-                this.bitmap.Save(actualPath);
-
-                Assert.That(File.Exists(expectedPath), Is.True);
-                using (var expected = Image.FromFile(expectedPath))
-                {
-                    Assert.That(this.bitmap.Width, Is.EqualTo(expected.Width));
-                    Assert.That(this.bitmap.Height, Is.EqualTo(expected.Height));
-                    var actualColors = this.bitmap.GetColors();
-                    var expectedColors = expected.GetColors();
-                    Assert.That(actualColors, Is.EqualTo(expectedColors));
-                }
+                Assert.That(bitmap.Width, Is.EqualTo(expected.Width));
+                Assert.That(bitmap.Height, Is.EqualTo(expected.Height));
+                var actualColors = bitmap.GetColors();
+                var expectedColors = expected.GetColors();
+                Assert.That(actualColors, Is.EqualTo(expectedColors));
             }
         }
     }
