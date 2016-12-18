@@ -86,12 +86,12 @@ namespace MathParser
 
                 if (NeedsLeftBrackets(node.NodeType, node.Left))
                 {
-                    left = new BrackedVisualNode("(", left, ")");
+                    left = new BracketedVisualNode("(", left, ")");
                 }
 
                 if (NeedsRightBrackets(node.NodeType, node.Right))
                 {
-                    right = new BrackedVisualNode("(", right, ")");
+                    right = new BracketedVisualNode("(", right, ")");
                 }
 
                 if (node.NodeType == ExpressionType.Power)

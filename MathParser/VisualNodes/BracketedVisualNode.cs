@@ -5,9 +5,9 @@ namespace MathParser.VisualNodes
     using System;
     using System.Drawing;
 
-    internal class BrackedVisualNode : VisualNode
+    internal class BracketedVisualNode : VisualNode
     {
-        public BrackedVisualNode(string leftBracket, VisualNode node, string rightBracket)
+        public BracketedVisualNode(string leftBracket, VisualNode node, string rightBracket)
         {
             this.LeftBracket = leftBracket;
             this.Node = node;
@@ -24,7 +24,7 @@ namespace MathParser.VisualNodes
         {
             float baseline;
             var size = this.Node.Measure(g, font, out baseline);
-            var bracketFont = GetBracketFont(g, font, baseline);
+            var bracketFont = GetBracketFont(g, font, this.LeftBracket, this.RightBracket, baseline);
 
             g.DrawString(this.LeftBracket, bracketFont, brush, topLeft);
             topLeft.X += g.MeasureString(this.LeftBracket, bracketFont).Width;
@@ -38,7 +38,7 @@ namespace MathParser.VisualNodes
         public override SizeF Measure(Graphics g, Font font, out float baseline)
         {
             var size = this.Node.Measure(g, font, out baseline);
-            var bracketFont = GetBracketFont(g, font, baseline);
+            var bracketFont = GetBracketFont(g, font, this.LeftBracket, this.RightBracket, baseline);
 
             var leftBracketSize = g.MeasureString(this.LeftBracket, bracketFont);
             var rightBracketSize = g.MeasureString(this.RightBracket, bracketFont);
@@ -49,10 +49,10 @@ namespace MathParser.VisualNodes
             return size;
         }
 
-        private static Font GetBracketFont(Graphics g, Font font, float contentBaseline)
+        private static Font GetBracketFont(Graphics g, Font font, string leftBracket, string rightBracket, float contentBaseline)
         {
             float normalBaseline;
-            MeasureString(g, " ", font, out normalBaseline);
+            MeasureString(g, leftBracket + rightBracket, font, out normalBaseline);
 
             if (normalBaseline == contentBaseline)
             {

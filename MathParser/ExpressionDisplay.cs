@@ -81,11 +81,14 @@ namespace MathParser
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            var expression = this.Expression;
-            if (expression != null)
+            if (e != null)
             {
-                this.UpdateSuggestedSize(this.renderer.Measure(e.Graphics, expression));
-                this.renderer.DrawExpression(e.Graphics, expression, PointF.Empty);
+                var expression = this.Expression;
+                if (expression != null)
+                {
+                    this.UpdateSuggestedSize(this.renderer.Measure(e.Graphics, expression));
+                    this.renderer.DrawExpression(e.Graphics, expression, PointF.Empty);
+                }
             }
         }
 
