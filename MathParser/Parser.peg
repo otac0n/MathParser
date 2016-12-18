@@ -11,8 +11,12 @@ additive <Expression> -memoize
     / multiplicative
 
 multiplicative <Expression> -memoize
-    = left:multiplicative _ ("*" / "×") _ right:power { Expression.Multiply(left, right) }
-    / left:multiplicative _ ("/" / "÷") _ right:power { Expression.Divide(left, right) }
+    = left:multiplicative _ ("*" / "×") _ right:negation { Expression.Multiply(left, right) }
+    / left:multiplicative _ ("/" / "÷") _ right:negation { Expression.Divide(left, right) }
+    / negation
+
+negation <Expression> -memoize
+    = "-" _ power:power { Expression.Negate(power) }
     / power
 
 power <Expression>
@@ -22,7 +26,6 @@ power <Expression>
 primary <Expression> -memoize
     = decimal
     / namedConstant
-    / "-" _ primary:primary { Expression.Negate(primary) }
     / "(" _ additive:additive _ ")" { additive }
 
 decimal <Expression>
