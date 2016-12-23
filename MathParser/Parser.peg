@@ -34,6 +34,9 @@ decimal <Expression>
 namedConstant <Expression>
     = "τ" { Expression.Constant(2 * Math.PI) }
     / "π" { Expression.Constant(Math.PI) }
+    / "e" { Expression.Constant(Math.E) }
+    / "φ" { Expression.Constant((1 + Math.Sqrt(5)) / 2) }
+    / "∞" { Expression.Constant(double.PositiveInfinity) }
 
 _ = [ \t\r\n]*
 

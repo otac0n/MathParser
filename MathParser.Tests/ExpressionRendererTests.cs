@@ -71,10 +71,14 @@ namespace MathParser.Tests
             ExpressionRendererTestHelper("(((((((1+1)^2)^3)^4)^5)^6)^7)^8");
         }
 
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues()
+        [TestCase("τ+π")]
+        [TestCase("i")]
+        [TestCase("e")]
+        [TestCase("φ")]
+        [TestCase("∞")]
+        public void MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues(string input)
         {
-            ExpressionRendererTestHelper("τ+π");
+            ExpressionRendererTestHelper(input);
         }
 
         [Test]

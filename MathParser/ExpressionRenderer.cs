@@ -154,6 +154,14 @@ namespace MathParser
                     {
                         text = "π";
                     }
+                    else if (value == Math.E)
+                    {
+                        text = "e";
+                    }
+                    else if (value == (1 + Math.Sqrt(5)) / 2)
+                    {
+                        text = "φ";
+                    }
                 }
 
                 this.root = new StringVisualNode(text ?? node.Value?.ToString() ?? "null");

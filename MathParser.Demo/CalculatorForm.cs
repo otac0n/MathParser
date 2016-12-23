@@ -12,6 +12,7 @@ namespace MathParser.Demo
     {
         private readonly Parser parser = new Parser();
         private readonly ExpressionRenderer renderer;
+        private int enterState;
 
         public CalculatorForm()
         {
@@ -26,6 +27,38 @@ namespace MathParser.Demo
 
         private void CalculatorForm_KeyPress(object sender, KeyPressEventArgs e)
         {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                if (this.enterState == 0)
+                {
+                    var expression = this.ParseCurrentInput();
+                    if (expression != null)
+                    {
+                        var input = "(" + this.inputBox.Text + ")";
+                        this.inputBox.Text = input;
+                        this.inputBox.Select(input.Length, 0);
+                        this.enterState = 1;
+                        e.Handled = true;
+                    }
+                }
+                else if (this.enterState == 1)
+                {
+                    var expression = this.ParseCurrentInput();
+                    if (expression != null)
+                    {
+                        this.inputBox.Text = this.Evaluate(expression);
+                        this.enterState = 0;
+                        e.Handled = true;
+                    }
+                }
+
+                return;
+            }
+            else
+            {
+                this.enterState = 0;
+            }
+
             if (e.KeyChar == (char)Keys.Escape)
             {
                 this.inputBox.Text = string.Empty;
@@ -37,7 +70,7 @@ namespace MathParser.Demo
         {
             try
             {
-                return ((Expression<Func<double>>)Expression.Lambda(expression)).Compile()().ToString();
+                return ((Expression<Func<double>>)Expression.Lambda(expression)).Compile()().ToString("R");
             }
             catch
             {
@@ -48,11 +81,9 @@ namespace MathParser.Demo
         private void InputBox_TextChanged(object sender, System.EventArgs e)
         {
             var measurementBitmap = new Bitmap(1, 1);
-            var input = this.inputBox.Text;
-            try
+            var expression = this.ParseCurrentInput();
+            if (expression != null)
             {
-                var expression = this.parser.Parse(input);
-
                 SizeF size;
                 using (var graphics = Graphics.FromImage(measurementBitmap))
                 {
@@ -68,14 +99,25 @@ namespace MathParser.Demo
                     this.renderer.DrawExpression(graphics, expression, new PointF(Padding, Padding));
                 }
 
-                this.resultDisplay.Text = "= " + this.Evaluate(expression);
+                this.resultDisplay.Text = this.Evaluate(expression);
                 this.expressionDisplay.Image = bitmap;
             }
-            catch (FormatException)
+            else
             {
                 this.expressionDisplay.Image = measurementBitmap;
-                this.resultDisplay.Text = "= ?";
-                return;
+                this.resultDisplay.Text = "?";
+            }
+        }
+
+        private Expression ParseCurrentInput()
+        {
+            try
+            {
+                return this.parser.Parse(this.inputBox.Text);
+            }
+            catch (Exception ex) when (ex is FormatException || ex is OverflowException)
+            {
+                return null;
             }
         }
     }
