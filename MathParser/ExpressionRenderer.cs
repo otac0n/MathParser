@@ -6,6 +6,7 @@ namespace MathParser
     using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
     using System.Linq.Expressions;
+    using System.Numerics;
     using MathParser.VisualNodes;
 
     /// <summary>
@@ -91,37 +92,36 @@ namespace MathParser
                 this.Visit(node.Right);
                 var right = this.root;
 
-                if (NeedsLeftBrackets(node.NodeType, node.Left))
+                var simpleType = GetEffectiveNodeType(node);
+
+                if (NeedsLeftBrackets(simpleType, node.Left))
                 {
                     left = new BracketedVisualNode("(", left, ")");
                 }
 
-                if (NeedsRightBrackets(node.NodeType, node.Right))
+                if (NeedsRightBrackets(simpleType, node.Right))
                 {
                     right = new BracketedVisualNode("(", right, ")");
                 }
 
-                if (node.NodeType == ExpressionType.Power)
+                if (simpleType == ExpressionType.Power)
                 {
                     this.root = new PowerVisualNode(left, right);
                 }
                 else
                 {
                     string op;
-                    switch (node.NodeType)
+                    switch (simpleType)
                     {
                         case ExpressionType.Add:
-                        case ExpressionType.AddChecked:
                             op = "+";
                             break;
 
                         case ExpressionType.Subtract:
-                        case ExpressionType.SubtractChecked:
                             op = "-";
                             break;
 
                         case ExpressionType.Multiply:
-                        case ExpressionType.MultiplyChecked:
                             op = "×";
                             break;
 
@@ -141,46 +141,96 @@ namespace MathParser
 
             protected override Expression VisitConstant(ConstantExpression node)
             {
-                string text = null;
+                var formatDouble = new Func<double, VisualNode>(value =>
+                {
+                    return new StringVisualNode(
+                        (value == Math.PI * 2) ? "τ" :
+                        (value == Math.PI) ? "π" :
+                        (value == Math.E) ? "e" :
+                        (value == (1 + Math.Sqrt(5)) / 2) ? "φ" :
+                        value.ToString("R"));
+                });
 
                 if (node.Value is double)
                 {
-                    var value = (double)node.Value;
-                    if (value == Math.PI * 2)
-                    {
-                        text = "τ";
-                    }
-                    else if (value == Math.PI)
-                    {
-                        text = "π";
-                    }
-                    else if (value == Math.E)
-                    {
-                        text = "e";
-                    }
-                    else if (value == (1 + Math.Sqrt(5)) / 2)
-                    {
-                        text = "φ";
-                    }
+                    this.root = formatDouble((double)node.Value);
+                }
+                else if (node.Value is Complex)
+                {
+                    var value = (Complex)node.Value;
+
+                    var real = value.Real == 0 || double.IsNaN(value.Real) ? null : formatDouble(value.Real);
+                    var imag = value.Imaginary == 0 || double.IsNaN(value.Imaginary) ? null :
+                               value.Imaginary == 1 ? new StringVisualNode("i") :
+                               (VisualNode)new BaselineAlignedVisualNode(formatDouble(value.Imaginary), new StringVisualNode("i"));
+
+                    this.root =
+                        real != null && imag != null ? new BaselineAlignedVisualNode(real, new StringVisualNode("+"), imag) :
+                        real != null ? real :
+                        imag != null ? imag :
+                        double.IsNaN(value.Real) && double.IsNaN(value.Imaginary) ? formatDouble(double.NaN) :
+                        formatDouble(0);
+                }
+                else
+                {
+                    this.root = new StringVisualNode(node.Value?.ToString() ?? "null");
                 }
 
-                this.root = new StringVisualNode(text ?? node.Value?.ToString() ?? "null");
                 return node;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                var simpleType = GetEffectiveNodeType(node);
+                if (simpleType == ExpressionType.Power)
+                {
+                    var leftArg = node.Arguments[0];
+                    var rightArg = node.Arguments[1];
+
+                    this.Visit(leftArg);
+                    var left = this.root;
+                    this.Visit(rightArg);
+                    var right = this.root;
+
+                    if (NeedsLeftBrackets(simpleType, leftArg))
+                    {
+                        left = new BracketedVisualNode("(", left, ")");
+                    }
+
+                    if (NeedsRightBrackets(simpleType, rightArg))
+                    {
+                        right = new BracketedVisualNode("(", right, ")");
+                    }
+
+                    this.root = new PowerVisualNode(left, right);
+                    return node;
+                }
+                else
+                {
+                    return base.VisitMethodCall(node);
+                }
             }
 
             protected override Expression VisitUnary(UnaryExpression node)
             {
-                base.VisitUnary(node);
-                var inner = this.root;
-
-                if (NeedsRightBrackets(node.NodeType, node.Operand))
+                if (node.NodeType == ExpressionType.Negate ||
+                    node.NodeType == ExpressionType.NegateChecked)
                 {
-                    inner = new BracketedVisualNode("(", inner, ")");
+                    base.VisitUnary(node);
+                    var inner = this.root;
+
+                    if (NeedsRightBrackets(ExpressionType.Negate, node.Operand))
+                    {
+                        inner = new BracketedVisualNode("(", inner, ")");
+                    }
+
+                    this.root = new BaselineAlignedVisualNode(new StringVisualNode("-"), inner);
+                    return node;
                 }
-
-                this.root = new BaselineAlignedVisualNode(new StringVisualNode("-"), inner);
-
-                return node;
+                else
+                {
+                    return base.VisitUnary(node);
+                }
             }
 
             private static Associativity GetAssociativity(int precedence)
@@ -189,9 +239,10 @@ namespace MathParser
                 {
                     case 0:
                     case 1:
+                    case 2:
                         return Associativity.Left;
 
-                    case 2:
+                    case 3:
                         return Associativity.Right;
 
                     default:
@@ -199,26 +250,86 @@ namespace MathParser
                 }
             }
 
-            private static int GetPrecedence(ExpressionType type)
+            private static ExpressionType GetEffectiveNodeType(Expression expression)
             {
-                switch (type)
+                var actualType = expression.NodeType;
+
+                if (actualType == ExpressionType.AddChecked)
+                {
+                    return ExpressionType.Add;
+                }
+                else if (actualType == ExpressionType.SubtractChecked)
+                {
+                    return ExpressionType.Subtract;
+                }
+                else if (actualType == ExpressionType.MultiplyChecked)
+                {
+                    return ExpressionType.Multiply;
+                }
+                else if (actualType == ExpressionType.NegateChecked)
+                {
+                    return ExpressionType.Negate;
+                }
+                else if (actualType == ExpressionType.Constant)
+                {
+                    var getDoubleType = new Func<double, ExpressionType>(value => value < 0 ? ExpressionType.Negate : ExpressionType.Constant);
+
+                    if (expression.Type == typeof(Complex))
+                    {
+                        var value = (Complex)((ConstantExpression)expression).Value;
+                        if (value.Real != 0 && value.Imaginary != 0)
+                        {
+                            return ExpressionType.Add;
+                        }
+                        else
+                        {
+                            return value.Real != 0
+                                ? getDoubleType(value.Real)
+                                : getDoubleType(value.Imaginary);
+                        }
+                    }
+                    else if (expression.Type == typeof(double))
+                    {
+                        return getDoubleType((double)((ConstantExpression)expression).Value);
+                    }
+                }
+                else if (actualType == ExpressionType.Call)
+                {
+                    var node = (MethodCallExpression)expression;
+                    if (node.Method.IsStatic && node.Method.Name == "Pow" && node.Arguments.Count == 2 &&
+                        (node.Method.DeclaringType == typeof(Complex) || node.Method.DeclaringType == typeof(Math)))
+                    {
+                        return ExpressionType.Power;
+                    }
+                }
+                else if (
+                    actualType == ExpressionType.Convert ||
+                    actualType == ExpressionType.ConvertChecked)
+                {
+                    return GetEffectiveNodeType(((UnaryExpression)expression).Operand);
+                }
+
+                return actualType;
+            }
+
+            private static int GetPrecedence(ExpressionType simpleType)
+            {
+                switch (simpleType)
                 {
                     case ExpressionType.Add:
-                    case ExpressionType.AddChecked:
                     case ExpressionType.Subtract:
-                    case ExpressionType.SubtractChecked:
-                    case ExpressionType.Negate:
-                    case ExpressionType.NegateChecked:
                         return 0;
 
                     case ExpressionType.Multiply:
-                    case ExpressionType.MultiplyChecked:
                     case ExpressionType.Divide:
                     case ExpressionType.Modulo:
                         return 1;
 
-                    case ExpressionType.Power:
+                    case ExpressionType.Negate:
                         return 2;
+
+                    case ExpressionType.Power:
+                        return 3;
 
                     default:
                         return int.MaxValue;
@@ -227,14 +338,17 @@ namespace MathParser
 
             private static bool IsFullyAssociative(ExpressionType left, ExpressionType right)
             {
-                if ((left == ExpressionType.Add || left == ExpressionType.AddChecked) &&
-                    (right == ExpressionType.Add || right == ExpressionType.AddChecked))
+                if (left == ExpressionType.Add && right == ExpressionType.Add)
                 {
                     return true;
                 }
 
-                if ((left == ExpressionType.Multiply || left == ExpressionType.MultiplyChecked) &&
-                    (right == ExpressionType.Multiply || right == ExpressionType.MultiplyChecked))
+                if (left == ExpressionType.Multiply && right == ExpressionType.Multiply)
+                {
+                    return true;
+                }
+
+                if (left == ExpressionType.Negate && right == ExpressionType.Negate)
                 {
                     return true;
                 }
@@ -242,21 +356,13 @@ namespace MathParser
                 return false;
             }
 
-            private static bool NeedsLeftBrackets(ExpressionType outer, Expression inner)
+            private static bool NeedsLeftBrackets(ExpressionType outerSimpleType, Expression inner)
             {
-                var outerPrecedence = GetPrecedence(outer);
-                var innerPrecedence = GetPrecedence(inner.NodeType);
+                var innerSimpleType = GetEffectiveNodeType(inner);
+                var outerPrecedence = GetPrecedence(outerSimpleType);
+                var innerPrecedence = GetPrecedence(innerSimpleType);
                 var innerAssociativity = GetAssociativity(innerPrecedence);
-                var fullyAssociative = IsFullyAssociative(inner.NodeType, outer);
-
-                if (outer == ExpressionType.Power && inner.NodeType == ExpressionType.Constant)
-                {
-                    var value = ((ConstantExpression)inner).Value;
-                    if ((dynamic)value < 0)
-                    {
-                        return true;
-                    }
-                }
+                var fullyAssociative = IsFullyAssociative(innerSimpleType, outerSimpleType);
 
                 if (outerPrecedence < innerPrecedence || fullyAssociative)
                 {
@@ -274,14 +380,15 @@ namespace MathParser
                 return true;
             }
 
-            private static bool NeedsRightBrackets(ExpressionType outer, Expression inner)
+            private static bool NeedsRightBrackets(ExpressionType outerSimpleType, Expression inner)
             {
-                var outerPrecedence = GetPrecedence(outer);
-                var innerPrecedence = GetPrecedence(inner.NodeType);
+                var innerSimpleType = GetEffectiveNodeType(inner);
+                var outerPrecedence = GetPrecedence(outerSimpleType);
+                var innerPrecedence = GetPrecedence(innerSimpleType);
                 var innerAssociativity = GetAssociativity(innerPrecedence);
-                var fullyAssociative = IsFullyAssociative(outer, inner.NodeType);
+                var fullyAssociative = IsFullyAssociative(outerSimpleType, innerSimpleType);
 
-                if (outerPrecedence < innerPrecedence || fullyAssociative || outer == ExpressionType.Power)
+                if (outerPrecedence < innerPrecedence || fullyAssociative || outerSimpleType == ExpressionType.Power)
                 {
                     return false;
                 }

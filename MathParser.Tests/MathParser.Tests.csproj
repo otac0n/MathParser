@@ -43,6 +43,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MathParser\MathParser.csproj">
@@ -75,6 +76,111 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%28-2,-3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%28-2,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%28-2,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%280,-2%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%280,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%281,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%281,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%28-2,-3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%28-2,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%28-2,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%280,-2%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%280,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%281,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%281,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%28-2,-3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%28-2,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%28-2,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%280,-2%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%280,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%281,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%281,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%28-2,-3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%28-2,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%28-2,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%280,-2%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%280,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%281,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%281,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%28-2,-3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%28-2,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%28-2,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%280,-2%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%280,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%281,0%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%281,3%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAConstantExpression_ReturnExpectedValues.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

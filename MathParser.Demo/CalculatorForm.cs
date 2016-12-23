@@ -6,6 +6,8 @@ namespace MathParser.Demo
     using System.Drawing;
     using System.Drawing.Text;
     using System.Linq.Expressions;
+    using System.Numerics;
+    using System.Reflection;
     using System.Windows.Forms;
 
     public partial class CalculatorForm : Form
@@ -23,6 +25,22 @@ namespace MathParser.Demo
                 Brush = new SolidBrush(this.ForeColor),
             };
             this.InputBox_TextChanged(this, null);
+        }
+
+        private static string ConvertForDisplay(Complex number)
+        {
+            if (number.Imaginary == 0 || double.IsNaN(number.Imaginary))
+            {
+                return number.Real.ToString("R");
+            }
+            else if (number.Real == 0 || double.IsNaN(number.Real))
+            {
+                return number.Imaginary == 1 ? "i" : number.Imaginary.ToString("R") + "i";
+            }
+            else
+            {
+                return number.Real.ToString("R") + "+" + (number.Imaginary == 1 ? "i" : number.Imaginary.ToString("R") + "i");
+            }
         }
 
         private void CalculatorForm_KeyPress(object sender, KeyPressEventArgs e)
@@ -70,7 +88,13 @@ namespace MathParser.Demo
         {
             try
             {
-                return ((Expression<Func<double>>)Expression.Lambda(expression)).Compile()().ToString("R");
+                var converted = Expression.Call(
+                    typeof(CalculatorForm).GetMethod(nameof(ConvertForDisplay), BindingFlags.NonPublic | BindingFlags.Static),
+                    expression.Type == typeof(Complex)
+                        ? expression
+                        : Expression.Convert(expression, typeof(Complex)));
+
+                return ((Expression<Func<string>>)Expression.Lambda(converted)).Compile()();
             }
             catch
             {

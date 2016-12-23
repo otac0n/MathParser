@@ -1,26 +1,58 @@
 ﻿@namespace MathParser
 @classname Parser
+@using System.Numerics
 @using System.Linq.Expressions
+@members
+{
+    private static Expression ConvertIfLower(Expression expression, Expression to)
+    {
+        return ConvertIfLower(expression, to: to.Type);
+    }
+
+    private static Expression ConvertIfLower(Expression expression, Type to)
+    {
+        var from = expression.Type;
+        if (to == typeof(Complex) && from != typeof(Complex))
+        {
+            return Expression.Convert(expression, to);
+        }
+
+        return expression;
+    }
+
+    private static Expression Pow(Expression @base, Expression exponent)
+    {
+        @base = ConvertIfLower(@base, to: exponent);
+        if (@base.Type == typeof(double))
+        {
+            return Expression.Power(@base, exponent);
+        }
+        else
+        {
+            return Expression.Call(typeof(Complex).GetMethod("Pow", new[] { @base.Type, exponent.Type }), @base, exponent);
+        }
+    }
+}
 
 math <Expression>
   = _ value:additive _ EOF { value }
 
 additive <Expression> -memoize
-    = left:additive _ "+" _ right:multiplicative { Expression.Add(left, right) }
-    / left:additive _ "-" _ right:multiplicative { Expression.Subtract(left, right) }
+    = left:additive _ "+" _ right:multiplicative { Expression.Add(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
+    / left:additive _ "-" _ right:multiplicative { Expression.Subtract(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
     / multiplicative
 
 multiplicative <Expression> -memoize
-    = left:multiplicative _ ("*" / "×") _ right:negation { Expression.Multiply(left, right) }
-    / left:multiplicative _ ("/" / "÷") _ right:negation { Expression.Divide(left, right) }
+    = left:multiplicative _ ("*" / "×") _ right:negation { Expression.Multiply(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
+    / left:multiplicative _ ("/" / "÷") _ right:negation { Expression.Divide(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
     / negation
 
-negation <Expression> -memoize
-    = "-" _ power:power { Expression.Negate(power) }
+negation <Expression>
+    = "-" _ negation:negation { Expression.Negate(negation) }
     / power
 
-power <Expression>
-    = left:primary _ "^" _ right:power { Expression.Power(left, right) }
+power <Expression> -memoize
+    = left:primary _ "^" _ right:power { Pow(left, right) }
     / primary
 
 primary <Expression> -memoize
@@ -29,7 +61,11 @@ primary <Expression> -memoize
     / "(" _ additive:additive _ ")" { additive }
 
 decimal <Expression>
-    = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
+    = value:([0-9]+ ("." [0-9]+)?) i:"i"? {{
+        var parsedValue = double.Parse(value);
+        return i.Count == 1 ? Expression.Constant(new Complex(0, parsedValue)) : Expression.Constant(parsedValue);
+    }}
+    / "i" { Expression.Constant(Complex.ImaginaryOne) }
 
 namedConstant <Expression>
     = "τ" { Expression.Constant(2 * Math.PI) }

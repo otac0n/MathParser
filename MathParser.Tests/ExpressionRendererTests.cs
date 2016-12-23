@@ -6,6 +6,8 @@ namespace MathParser.Tests
     using System.Drawing;
     using System.Drawing.Text;
     using System.IO;
+    using System.Linq.Expressions;
+    using System.Numerics;
     using System.Reflection;
     using System.Text.RegularExpressions;
     using NUnit.Framework;
@@ -13,6 +15,71 @@ namespace MathParser.Tests
     [TestFixture]
     public class ExpressionRendererTests
     {
+        [TestCase(1, 3)]
+        [TestCase(1, 0)]
+        [TestCase(0, 3)]
+        [TestCase(-2, 3)]
+        [TestCase(-2, -3)]
+        [TestCase(-2, 0)]
+        [TestCase(0, -2)]
+        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues(double real, double imaginary)
+        {
+            var complex = new Complex(real, imaginary);
+            ExpressionRendererTestHelper(Expression.Divide(Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
+        }
+
+        [TestCase(1, 3)]
+        [TestCase(1, 0)]
+        [TestCase(0, 3)]
+        [TestCase(-2, 3)]
+        [TestCase(-2, -3)]
+        [TestCase(-2, 0)]
+        [TestCase(0, -2)]
+        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues(double real, double imaginary)
+        {
+            var complex = new Complex(real, imaginary);
+            ExpressionRendererTestHelper(Expression.Multiply(Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
+        }
+
+        [TestCase(1, 3)]
+        [TestCase(1, 0)]
+        [TestCase(0, 3)]
+        [TestCase(-2, 3)]
+        [TestCase(-2, -3)]
+        [TestCase(-2, 0)]
+        [TestCase(0, -2)]
+        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues(double real, double imaginary)
+        {
+            var complex = new Complex(real, imaginary);
+            ExpressionRendererTestHelper(Expression.Add(Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
+        }
+
+        [TestCase(1, 3)]
+        [TestCase(1, 0)]
+        [TestCase(0, 3)]
+        [TestCase(-2, 3)]
+        [TestCase(-2, -3)]
+        [TestCase(-2, 0)]
+        [TestCase(0, -2)]
+        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues(double real, double imaginary)
+        {
+            var complex = new Complex(real, imaginary);
+            ExpressionRendererTestHelper(Expression.Call(typeof(Complex).GetMethod("Pow", new[] { typeof(Complex), typeof(Complex) }), Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
+        }
+
+        [TestCase(1, 3)]
+        [TestCase(1, 0)]
+        [TestCase(0, 3)]
+        [TestCase(-2, 3)]
+        [TestCase(-2, -3)]
+        [TestCase(-2, 0)]
+        [TestCase(0, -2)]
+        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues(double real, double imaginary)
+        {
+            var complex = new Complex(real, imaginary);
+            ExpressionRendererTestHelper(Expression.Subtract(Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
+        }
+
         [Test]
         public void MeasureAndDrawExpression_WhenGivenAConstantExpression_ReturnExpectedValues()
         {
@@ -115,7 +182,11 @@ namespace MathParser.Tests
         {
             var parser = new Parser();
             var expression = parser.Parse(math);
+            ExpressionRendererTestHelper(expression);
+        }
 
+        private static void ExpressionRendererTestHelper(Expression expression)
+        {
             using (var font = new Font("Calibri", 20, FontStyle.Regular))
             {
                 var renderer = new ExpressionRenderer()
