@@ -5,6 +5,7 @@ namespace MathParser
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
+    using System.Drawing.Text;
     using System.Linq.Expressions;
     using System.Numerics;
     using MathParser.VisualNodes;
@@ -50,6 +51,22 @@ namespace MathParser
         }
 
         /// <summary>
+        /// Measures the size of the specified expression.
+        /// </summary>
+        /// <param name="expression">The expression to measure.</param>
+        /// <returns>The size of the bounding region of the measured expression.</returns>
+        public Size Measure(Expression expression)
+        {
+            using (var b = new Bitmap(1, 1))
+            using (var g = Graphics.FromImage(b))
+            {
+                g.TextRenderingHint = TextRenderingHint.AntiAlias;
+                var size = this.Measure(g, expression);
+                return new Size((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height));
+            }
+        }
+
+        /// <summary>
         ///  Measures the size of the specified expression.
         /// </summary>
         /// <param name="graphics">The target <see cref="Graphics"/> object.</param>
@@ -61,6 +78,37 @@ namespace MathParser
         {
             var visualTree = ExpressionTransformer.TransformToVisualTree(expression);
             return visualTree.Measure(graphics, this.Font, out baseline);
+        }
+
+        /// <summary>
+        /// Renders the specified expression to a bitmap.
+        /// </summary>
+        /// <param name="expression">The expression to render.</param>
+        /// <returns>A bitmap containing the expression.</returns>
+        public Bitmap RenderExpression(Expression expression)
+        {
+            var size = this.Measure(expression);
+            Bitmap bitmap = null;
+            try
+            {
+                bitmap = new Bitmap(size.Width, size.Height);
+                using (var graphics = Graphics.FromImage(bitmap))
+                {
+                    graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
+                    this.DrawExpression(graphics, expression, PointF.Empty);
+                }
+
+                var result = bitmap;
+                bitmap = null;
+                return result;
+            }
+            finally
+            {
+                if (bitmap != null)
+                {
+                    bitmap.Dispose();
+                }
+            }
         }
 
         private class ExpressionTransformer : ExpressionVisitor
@@ -158,10 +206,39 @@ namespace MathParser
                 return node;
             }
 
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (node.Member.DeclaringType == typeof(Complex))
+                {
+                    if (node.Member.Name == nameof(Complex.ImaginaryOne))
+                    {
+                        this.root = new StringVisualNode("i");
+                    }
+                    else if (node.Member.Name == nameof(Complex.Zero))
+                    {
+                        this.root = new StringVisualNode("0");
+                    }
+                    else if (node.Member.Name == nameof(Complex.One))
+                    {
+                        this.root = new StringVisualNode("1");
+                    }
+
+                    return node;
+                }
+                else
+                {
+                    return base.VisitMember(node);
+                }
+            }
+
             protected override Expression VisitMethodCall(MethodCallExpression node)
             {
                 var simpleType = GetEffectiveNodeType(node);
-                if (simpleType == ExpressionType.Power)
+                if (simpleType == ExpressionType.Add ||
+                    simpleType == ExpressionType.Subtract ||
+                    simpleType == ExpressionType.Multiply ||
+                    simpleType == ExpressionType.Divide ||
+                    simpleType == ExpressionType.Power)
                 {
                     var leftArg = node.Arguments[0];
                     var rightArg = node.Arguments[1];
@@ -181,7 +258,44 @@ namespace MathParser
                         right = new BracketedVisualNode("(", right, ")");
                     }
 
-                    this.root = new PowerVisualNode(left, right);
+                    switch (simpleType)
+                    {
+                        case ExpressionType.Add:
+                            this.root = new BaselineAlignedVisualNode(left, new StringVisualNode("+"), right);
+                            break;
+
+                        case ExpressionType.Subtract:
+                            this.root = new BaselineAlignedVisualNode(left, new StringVisualNode("-"), right);
+                            break;
+
+                        case ExpressionType.Multiply:
+                            this.root = new BaselineAlignedVisualNode(left, new StringVisualNode("·"), right);
+                            break;
+
+                        case ExpressionType.Divide:
+                            this.root = new BaselineAlignedVisualNode(left, new StringVisualNode("÷"), right);
+                            break;
+
+                        case ExpressionType.Power:
+                            this.root = new PowerVisualNode(left, right);
+                            break;
+                    }
+
+                    return node;
+                }
+                else if (simpleType == ExpressionType.Negate)
+                {
+                    var operand = node.Arguments[0];
+
+                    this.Visit(operand);
+                    var inner = this.root;
+
+                    if (NeedsRightBrackets(ExpressionType.Negate, operand))
+                    {
+                        inner = new BracketedVisualNode("(", inner, ")");
+                    }
+
+                    this.root = new BaselineAlignedVisualNode(new StringVisualNode("-"), inner);
                     return node;
                 }
                 else
@@ -330,18 +444,50 @@ namespace MathParser
                         var value = (Complex)((ConstantExpression)expression).Value;
                         return getComplexType(value.Real, value.Imaginary);
                     }
-                    else if (expression.Type == typeof(double))
+                    else if (expression.Type.IsPrimitive)
                     {
-                        return getDoubleType((double)((ConstantExpression)expression).Value);
+                        return getDoubleType(Convert.ToDouble(((ConstantExpression)expression).Value));
                     }
                 }
                 else if (actualType == ExpressionType.Call)
                 {
                     var node = (MethodCallExpression)expression;
-                    if (node.Method.IsStatic && node.Method.Name == "Pow" && node.Arguments.Count == 2 &&
-                        (node.Method.DeclaringType == typeof(Complex) || node.Method.DeclaringType == typeof(Math)))
+                    if (node.Method.IsStatic)
                     {
-                        return ExpressionType.Power;
+                        if (node.Method.DeclaringType == typeof(Complex))
+                        {
+                            if (node.Method.Name == nameof(Complex.Pow) && node.Arguments.Count == 2)
+                            {
+                                return ExpressionType.Power;
+                            }
+                            else if (node.Method.Name == nameof(Complex.Add) && node.Arguments.Count == 2)
+                            {
+                                return ExpressionType.Add;
+                            }
+                            else if (node.Method.Name == nameof(Complex.Subtract) && node.Arguments.Count == 2)
+                            {
+                                return ExpressionType.Subtract;
+                            }
+                            else if (node.Method.Name == nameof(Complex.Multiply) && node.Arguments.Count == 2)
+                            {
+                                return ExpressionType.Multiply;
+                            }
+                            else if (node.Method.Name == nameof(Complex.Divide) && node.Arguments.Count == 2)
+                            {
+                                return ExpressionType.Divide;
+                            }
+                            else if (node.Method.Name == nameof(Complex.Negate) && node.Arguments.Count == 1)
+                            {
+                                return ExpressionType.Negate;
+                            }
+                        }
+                        else if (node.Method.DeclaringType == typeof(Math))
+                        {
+                            if (node.Method.Name == nameof(Math.Pow) && node.Arguments.Count == 2)
+                            {
+                                return ExpressionType.Power;
+                            }
+                        }
                     }
                 }
                 else if (

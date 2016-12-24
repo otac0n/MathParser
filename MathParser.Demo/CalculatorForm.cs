@@ -4,13 +4,12 @@ namespace MathParser.Demo
 {
     using System;
     using System.Drawing;
-    using System.Drawing.Text;
     using System.Linq.Expressions;
     using System.Numerics;
     using System.Reflection;
     using System.Windows.Forms;
 
-    public partial class CalculatorForm : Form
+    internal partial class CalculatorForm : Form
     {
         private readonly Parser parser = new Parser();
         private readonly ExpressionRenderer renderer;
@@ -47,27 +46,16 @@ namespace MathParser.Demo
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
-                if (this.enterState == 0)
+                var expression = this.ParseCurrentInput();
+                if (expression != null)
                 {
-                    var expression = this.ParseCurrentInput();
-                    if (expression != null)
-                    {
-                        var input = "(" + this.inputBox.Text + ")";
-                        this.inputBox.Text = input;
-                        this.inputBox.Select(input.Length, 0);
-                        this.enterState = 1;
-                        e.Handled = true;
-                    }
-                }
-                else if (this.enterState == 1)
-                {
-                    var expression = this.ParseCurrentInput();
-                    if (expression != null)
-                    {
-                        this.inputBox.Text = this.Evaluate(expression);
-                        this.enterState = 0;
-                        e.Handled = true;
-                    }
+                    var input = this.enterState == 0
+                        ? "(" + this.inputBox.Text + ")"
+                        : this.Evaluate(expression);
+                    this.inputBox.Text = input;
+                    this.inputBox.Select(input.Length, 0);
+                    this.enterState = (this.enterState + 1) % 2;
+                    e.Handled = true;
                 }
 
                 return;
@@ -104,31 +92,15 @@ namespace MathParser.Demo
 
         private void InputBox_TextChanged(object sender, System.EventArgs e)
         {
-            var measurementBitmap = new Bitmap(1, 1);
             var expression = this.ParseCurrentInput();
             if (expression != null)
             {
-                SizeF size;
-                using (var graphics = Graphics.FromImage(measurementBitmap))
-                {
-                    graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-                    size = this.renderer.Measure(graphics, expression);
-                }
-
-                const float Padding = 5;
-                var bitmap = new Bitmap((int)Math.Ceiling(size.Width + Padding * 2), (int)Math.Ceiling(size.Height + Padding * 2));
-                using (var graphics = Graphics.FromImage(bitmap))
-                {
-                    graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-                    this.renderer.DrawExpression(graphics, expression, new PointF(Padding, Padding));
-                }
-
                 this.resultDisplay.Text = this.Evaluate(expression);
-                this.expressionDisplay.Image = bitmap;
+                this.expressionDisplay.Image = this.renderer.RenderExpression(expression);
             }
             else
             {
-                this.expressionDisplay.Image = measurementBitmap;
+                this.expressionDisplay.Image = new Bitmap(1, 1);
                 this.resultDisplay.Text = "?";
             }
         }

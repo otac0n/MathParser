@@ -304,6 +304,18 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 3%29 ÷ Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28Convert%28-1%29, -2%29%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28Convert%281%29, Pow%28Complex.ImaginaryOne, 3%29%29%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28Convert%285%29, %28Complex.ImaginaryOne × Convert%282%29%29%29%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28Convert%285%29, Divide%28Convert%281%29, Convert%282%29%29%29%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28new Complex%28-2, -3%29, 4%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

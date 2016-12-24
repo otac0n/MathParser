@@ -52,6 +52,10 @@ namespace MathParser.Tests
             () => Complex.Pow(new Complex(-2, -3), 4),
             () => Complex.Pow(new Complex(-2, 0), 4),
             () => Complex.Pow(new Complex(0, -2), 4),
+            () => Complex.Pow(1, Complex.Pow(Complex.ImaginaryOne, 3)),
+            () => Complex.Pow(-1, -1 * 2),
+            () => Complex.Pow(5, Complex.Divide(1, 2)),
+            () => Complex.Pow(5, Complex.ImaginaryOne * 2),
         };
 
         [TestCase("τ+π")]
@@ -108,7 +112,7 @@ namespace MathParser.Tests
         }
 
         [TestCaseSource(typeof(ExpressionRendererTests), nameof(ExpressionTestCases))]
-        public void MeasureAndDrawExpression_ApprovalTest(Expression<Func<Complex>> lambda)
+        public void MeasureAndDrawExpression_ApprovalTest(LambdaExpression lambda)
         {
             ExpressionRendererTestHelper(lambda.Body);
         }
