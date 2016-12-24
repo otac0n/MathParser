@@ -62,7 +62,7 @@ negation <Expression>
     / power
 
 power <Expression> -memoize
-    = left:primary _ "^" _ right:power { Pow(left, right) }
+    = left:primary _ "^" _ right:negation { Pow(left, right) }
     / primary
 
 primary <Expression> -memoize
