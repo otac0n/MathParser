@@ -43,7 +43,7 @@
             this.inputBox.Location = new System.Drawing.Point(12, 50);
             this.inputBox.Margin = new System.Windows.Forms.Padding(0);
             this.inputBox.Name = "inputBox";
-            this.inputBox.Size = new System.Drawing.Size(377, 26);
+            this.inputBox.Size = new System.Drawing.Size(463, 26);
             this.inputBox.TabIndex = 0;
             this.inputBox.TextChanged += new System.EventHandler(this.InputBox_TextChanged);
             // 
@@ -54,7 +54,7 @@
             this.resultPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.resultPanel.Location = new System.Drawing.Point(12, 76);
             this.resultPanel.Name = "resultPanel";
-            this.resultPanel.Size = new System.Drawing.Size(377, 57);
+            this.resultPanel.Size = new System.Drawing.Size(463, 75);
             this.resultPanel.TabIndex = 1;
             // 
             // expressionDisplay
@@ -75,7 +75,7 @@
             this.resultDisplay.Location = new System.Drawing.Point(12, 12);
             this.resultDisplay.Name = "resultDisplay";
             this.resultDisplay.ReadOnly = true;
-            this.resultDisplay.Size = new System.Drawing.Size(377, 38);
+            this.resultDisplay.Size = new System.Drawing.Size(463, 38);
             this.resultDisplay.TabIndex = 1;
             this.resultDisplay.Text = "?";
             this.resultDisplay.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
@@ -85,7 +85,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(401, 145);
+            this.ClientSize = new System.Drawing.Size(487, 163);
             this.Controls.Add(this.resultPanel);
             this.Controls.Add(this.inputBox);
             this.Controls.Add(this.resultDisplay);

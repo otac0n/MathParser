@@ -122,7 +122,7 @@ namespace MathParser
                             break;
 
                         case ExpressionType.Multiply:
-                            op = "×";
+                            op = "·";
                             break;
 
                         case ExpressionType.Divide:
@@ -209,6 +209,13 @@ namespace MathParser
                 {
                     return base.VisitMethodCall(node);
                 }
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                base.VisitParameter(node);
+                this.root = new StringVisualNode(node.Name);
+                return node;
             }
 
             protected override Expression VisitUnary(UnaryExpression node)

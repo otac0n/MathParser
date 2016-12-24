@@ -32,6 +32,15 @@
             return Expression.Call(typeof(Complex).GetMethod("Pow", new[] { @base.Type, exponent.Type }), @base, exponent);
         }
     }
+
+    private static void CreateVariable(Cursor state, string variable)
+    {
+        var existing = state[variable] as Expression;
+        if (existing == null)
+        {
+            state[variable] = Expression.Parameter(typeof(Complex), variable);
+        }
+    }
 }
 
 math <Expression>
@@ -43,12 +52,13 @@ additive <Expression> -memoize
     / multiplicative
 
 multiplicative <Expression> -memoize
-    = left:multiplicative _ ("*" / "×") _ right:negation { Expression.Multiply(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
+    = left:multiplicative _ ("*" / "×" / "·" / ![-+]) _ right:negation { Expression.Multiply(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
     / left:multiplicative _ ("/" / "÷") _ right:negation { Expression.Divide(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
     / negation
 
 negation <Expression>
     = "-" _ negation:negation { Expression.Negate(negation) }
+    / "+" _ negation:negation { negation }
     / power
 
 power <Expression> -memoize
@@ -58,14 +68,11 @@ power <Expression> -memoize
 primary <Expression> -memoize
     = decimal
     / namedConstant
+    / variable
     / "(" _ additive:additive _ ")" { additive }
 
 decimal <Expression>
-    = value:([0-9]+ ("." [0-9]+)?) i:"i"? {{
-        var parsedValue = double.Parse(value);
-        return i.Count == 1 ? Expression.Constant(new Complex(0, parsedValue)) : Expression.Constant(parsedValue);
-    }}
-    / "i" { Expression.Constant(Complex.ImaginaryOne) }
+    = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
 
 namedConstant <Expression>
     = "τ" { Expression.Constant(2 * Math.PI) }
@@ -73,6 +80,10 @@ namedConstant <Expression>
     / "e" { Expression.Constant(Math.E) }
     / "φ" { Expression.Constant((1 + Math.Sqrt(5)) / 2) }
     / "∞" { Expression.Constant(double.PositiveInfinity) }
+    / "i" { Expression.Constant(Complex.ImaginaryOne) }
+
+variable <Expression>
+    = v:[a-z]i #{ CreateVariable(state, v); } { (Expression)state[v] }
 
 _ = [ \t\r\n]*
 
