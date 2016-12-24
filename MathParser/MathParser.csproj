@@ -48,6 +48,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExpressionTransformer.cs" />
     <Compile Include="VisualNodes\BaselineAlignedVisualNode.cs" />
     <Compile Include="VisualNodes\BracketedVisualNode.cs" />
     <Compile Include="VisualNodes\PowerVisualNode.cs" />
