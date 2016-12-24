@@ -76,253 +76,253 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%28-2,-3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%28%28%28%28%28%281+1%29^2%29^3%29^4%29^5%29^6%29^7%29^8%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%28-2,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%28%281+2%29+3%29+4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%28-2,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%28%281-2%29-3%29-4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%280,-2%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%28%281^2%29^3%29^4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%280,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%28%281×2%29×3%29×4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%281,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%28%281÷2%29÷3%29÷4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues%281,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281+%282+3%29%29+4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%28-2,-3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281+2%29+%283+4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%28-2,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281+2%29^%283+4%29%29^5%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%28-2,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281-%282-3%29%29-4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%280,-2%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281-2%29-%283-4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%280,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281^%282^3%29%29^4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%281,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281^2%29^%283^4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues%281,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281×%282×3%29%29×4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%28-2,-3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281×2%29×%283×4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%28-2,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281÷%282÷3%29%29÷4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%28-2,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281÷2%29÷%283÷4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%280,-2%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28-2%29^2%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%280,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281+%28%282+3%29+4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%281,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281+%282+%283+4%29%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues%281,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281+2%29×%283+4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%28-2,-3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281+2^3^4%29^%285×%286+7%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%28-2,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281-%28%282-3%29-4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%28-2,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281-%282-%283-4%29%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%280,-2%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281^%28%282^3%29^4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%280,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281^%282^%283^4%29%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%281,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281×%28%282×3%29×4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues%281,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281×%282×%283×4%29%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%28-2,-3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281÷%28%282÷3%29÷4%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%28-2,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%281÷%282÷%283÷4%29%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%28-2,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%288+5%29+2%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%280,-2%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27-%282^2%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%280,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%271+1%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%281,0%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%271+2÷%282×4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues%281,3%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%271.1%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAConstantExpression_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%2710÷2%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenADivisionExpression_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%272^2^2^2%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281+2%29+3%29+4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%272^5%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281-2%29-3%29-4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%273-8%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281^2%29^3%29^4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%273×5%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281×2%29×3%29×4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%278+%285+2%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%28%281÷2%29÷3%29÷4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%278-%285+2%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281+%282+3%29%29+4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%278-5-2%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281+2%29+%283+4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27e%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281+2%29^%283+4%29%29^5%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27i%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281-%282-3%29%29-4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27τ+π%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281-2%29-%283-4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27φ%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281^%282^3%29%29^4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27∞%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281^2%29^%283^4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, -3%29 + Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281×%282×3%29%29×4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, -3%29 - Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281×2%29×%283×4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, -3%29 × Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281÷%282÷3%29%29÷4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, -3%29 ÷ Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28%281÷2%29÷%283÷4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, 0%29 + Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%28-2%29^2%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, 0%29 - Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281+%28%282+3%29+4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, 0%29 × Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281+%282+%283+4%29%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, 0%29 ÷ Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281+2%29×%283+4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, 3%29 + Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281+2^3^4%29^%285×%286+7%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, 3%29 - Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281-%28%282-3%29-4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, 3%29 × Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281-%282-%283-4%29%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, 3%29 ÷ Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281^%28%282^3%29^4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%280, -2%29 + Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281^%282^%283^4%29%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%280, -2%29 - Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281×%28%282×3%29×4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%280, -2%29 × Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281×%282×%283×4%29%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%280, -2%29 ÷ Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281÷%28%282÷3%29÷4%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%280, 3%29 + Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%281÷%282÷%283÷4%29%29%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%280, 3%29 - Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27%288+5%29+2%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%280, 3%29 × Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%27-%282^2%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%280, 3%29 ÷ Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%271+2÷%282×4%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 0%29 + Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%278+%285+2%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 0%29 - Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%278-%285+2%29%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 0%29 × Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues%28%278-5-2%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 0%29 ÷ Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAHeavilyNestedExpression_ReturnsExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 3%29 + Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues%28%27e%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 3%29 - Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues%28%27i%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 3%29 × Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues%28%27τ+π%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%281, 3%29 ÷ Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues%28%27φ%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28new Complex%28-2, -3%29, 4%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues%28%27∞%27%29.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28new Complex%28-2, 0%29, 4%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAMultiplicationExpression_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28new Complex%28-2, 3%29, 4%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAnAdditionExpression_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28new Complex%280, -2%29, 4%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAPowerExpression_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28new Complex%280, 3%29, 4%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenAPowerTower_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28new Complex%281, 0%29, 4%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_WhenGivenASubtractionExpression_ReturnExpectedValues.png">
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ Pow%28new Complex%281, 3%29, 4%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

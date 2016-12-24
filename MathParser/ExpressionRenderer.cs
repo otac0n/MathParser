@@ -141,35 +141,14 @@ namespace MathParser
 
             protected override Expression VisitConstant(ConstantExpression node)
             {
-                var formatDouble = new Func<double, VisualNode>(value =>
-                {
-                    return new StringVisualNode(
-                        (value == Math.PI * 2) ? "τ" :
-                        (value == Math.PI) ? "π" :
-                        (value == Math.E) ? "e" :
-                        (value == (1 + Math.Sqrt(5)) / 2) ? "φ" :
-                        value.ToString("R"));
-                });
-
                 if (node.Value is double)
                 {
-                    this.root = formatDouble((double)node.Value);
+                    this.root = FormatDouble((double)node.Value);
                 }
                 else if (node.Value is Complex)
                 {
                     var value = (Complex)node.Value;
-
-                    var real = value.Real == 0 || double.IsNaN(value.Real) ? null : formatDouble(value.Real);
-                    var imag = value.Imaginary == 0 || double.IsNaN(value.Imaginary) ? null :
-                               value.Imaginary == 1 ? new StringVisualNode("i") :
-                               (VisualNode)new BaselineAlignedVisualNode(formatDouble(value.Imaginary), new StringVisualNode("i"));
-
-                    this.root =
-                        real != null && imag != null ? new BaselineAlignedVisualNode(real, new StringVisualNode("+"), imag) :
-                        real != null ? real :
-                        imag != null ? imag :
-                        double.IsNaN(value.Real) && double.IsNaN(value.Imaginary) ? formatDouble(double.NaN) :
-                        formatDouble(0);
+                    this.root = FormatComplex(value.Real, value.Imaginary);
                 }
                 else
                 {
@@ -211,6 +190,21 @@ namespace MathParser
                 }
             }
 
+            protected override Expression VisitNew(NewExpression node)
+            {
+                if (node.Type == typeof(Complex) && node.Arguments.Count == 2 && node.Arguments[0].NodeType == ExpressionType.Constant && node.Arguments[1].NodeType == ExpressionType.Constant)
+                {
+                    var real = (double)((ConstantExpression)node.Arguments[0]).Value;
+                    var imaginary = (double)((ConstantExpression)node.Arguments[1]).Value;
+                    this.root = FormatComplex(real, imaginary);
+                    return node;
+                }
+                else
+                {
+                    return base.VisitNew(node);
+                }
+            }
+
             protected override Expression VisitParameter(ParameterExpression node)
             {
                 base.VisitParameter(node);
@@ -240,6 +234,31 @@ namespace MathParser
                 }
             }
 
+            private static VisualNode FormatComplex(double real, double imaginary)
+            {
+                var realNode = real == 0 || double.IsNaN(real) ? null : FormatDouble(real);
+                var imaginaryNode = imaginary == 0 || double.IsNaN(imaginary) ? null :
+                           imaginary == 1 ? new StringVisualNode("i") :
+                           (VisualNode)new BaselineAlignedVisualNode(FormatDouble(imaginary), new StringVisualNode("i"));
+
+                return
+                    realNode != null && imaginaryNode != null ? new BaselineAlignedVisualNode(realNode, new StringVisualNode("+"), imaginaryNode) :
+                    realNode != null ? realNode :
+                    imaginaryNode != null ? imaginaryNode :
+                    double.IsNaN(real) && double.IsNaN(imaginary) ? FormatDouble(double.NaN) :
+                    FormatDouble(0);
+            }
+
+            private static VisualNode FormatDouble(double value)
+            {
+                return new StringVisualNode(
+                    (value == Math.PI * 2) ? "τ" :
+                    (value == Math.PI) ? "π" :
+                    (value == Math.E) ? "e" :
+                    (value == (1 + Math.Sqrt(5)) / 2) ? "φ" :
+                    value.ToString("R"));
+            }
+
             private static Associativity GetAssociativity(int precedence)
             {
                 switch (precedence)
@@ -261,6 +280,23 @@ namespace MathParser
             {
                 var actualType = expression.NodeType;
 
+                var getDoubleType = new Func<double, ExpressionType>(value => value < 0 ? ExpressionType.Negate : ExpressionType.Constant);
+                var getComplexType = new Func<double, double, ExpressionType>((real, imaginary) =>
+                {
+                    if (real != 0 && imaginary != 0)
+                    {
+                        return ExpressionType.Add;
+                    }
+                    else
+                    {
+                        return real != 0
+                            ? getDoubleType(real)
+                            : imaginary == 1
+                                ? ExpressionType.Parameter
+                                : ExpressionType.Multiply;
+                    }
+                });
+
                 if (actualType == ExpressionType.AddChecked)
                 {
                     return ExpressionType.Add;
@@ -277,23 +313,22 @@ namespace MathParser
                 {
                     return ExpressionType.Negate;
                 }
+                else if (actualType == ExpressionType.New && expression.Type == typeof(Complex))
+                {
+                    var node = (NewExpression)expression;
+                    if (node.Arguments.Count == 2 && node.Arguments[0].NodeType == ExpressionType.Constant && node.Arguments[1].NodeType == ExpressionType.Constant)
+                    {
+                        var real = (double)((ConstantExpression)node.Arguments[0]).Value;
+                        var imaginary = (double)((ConstantExpression)node.Arguments[1]).Value;
+                        return getComplexType(real, imaginary);
+                    }
+                }
                 else if (actualType == ExpressionType.Constant)
                 {
-                    var getDoubleType = new Func<double, ExpressionType>(value => value < 0 ? ExpressionType.Negate : ExpressionType.Constant);
-
                     if (expression.Type == typeof(Complex))
                     {
                         var value = (Complex)((ConstantExpression)expression).Value;
-                        if (value.Real != 0 && value.Imaginary != 0)
-                        {
-                            return ExpressionType.Add;
-                        }
-                        else
-                        {
-                            return value.Real != 0
-                                ? getDoubleType(value.Real)
-                                : getDoubleType(value.Imaginary);
-                        }
+                        return getComplexType(value.Real, value.Imaginary);
                     }
                     else if (expression.Type == typeof(double))
                     {

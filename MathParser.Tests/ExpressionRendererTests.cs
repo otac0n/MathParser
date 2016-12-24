@@ -15,83 +15,58 @@ namespace MathParser.Tests
     [TestFixture]
     public class ExpressionRendererTests
     {
-        [TestCase(1, 3)]
-        [TestCase(1, 0)]
-        [TestCase(0, 3)]
-        [TestCase(-2, 3)]
-        [TestCase(-2, -3)]
-        [TestCase(-2, 0)]
-        [TestCase(0, -2)]
-        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInADivisionExpression_ReturnExpectedValues(double real, double imaginary)
+        public static Expression<Func<Complex>>[] ExpressionTestCases => new Expression<Func<Complex>>[]
         {
-            var complex = new Complex(real, imaginary);
-            ExpressionRendererTestHelper(Expression.Divide(Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
-        }
+            () => new Complex(1, 3) / 4,
+            () => new Complex(1, 0) / 4,
+            () => new Complex(0, 3) / 4,
+            () => new Complex(-2, 3) / 4,
+            () => new Complex(-2, -3) / 4,
+            () => new Complex(-2, 0) / 4,
+            () => new Complex(0, -2) / 4,
+            () => new Complex(1, 3) * 4,
+            () => new Complex(1, 0) * 4,
+            () => new Complex(0, 3) * 4,
+            () => new Complex(-2, 3) * 4,
+            () => new Complex(-2, -3) * 4,
+            () => new Complex(-2, 0) * 4,
+            () => new Complex(0, -2) * 4,
+            () => new Complex(1, 3) + 4,
+            () => new Complex(1, 0) + 4,
+            () => new Complex(0, 3) + 4,
+            () => new Complex(-2, 3) + 4,
+            () => new Complex(-2, -3) + 4,
+            () => new Complex(-2, 0) + 4,
+            () => new Complex(0, -2) + 4,
+            () => new Complex(1, 3) - 4,
+            () => new Complex(1, 0) - 4,
+            () => new Complex(0, 3) - 4,
+            () => new Complex(-2, 3) - 4,
+            () => new Complex(-2, -3) - 4,
+            () => new Complex(-2, 0) - 4,
+            () => new Complex(0, -2) - 4,
+            () => Complex.Pow(new Complex(1, 3), 4),
+            () => Complex.Pow(new Complex(1, 0), 4),
+            () => Complex.Pow(new Complex(0, 3), 4),
+            () => Complex.Pow(new Complex(-2, 3), 4),
+            () => Complex.Pow(new Complex(-2, -3), 4),
+            () => Complex.Pow(new Complex(-2, 0), 4),
+            () => Complex.Pow(new Complex(0, -2), 4),
+        };
 
-        [TestCase(1, 3)]
-        [TestCase(1, 0)]
-        [TestCase(0, 3)]
-        [TestCase(-2, 3)]
-        [TestCase(-2, -3)]
-        [TestCase(-2, 0)]
-        [TestCase(0, -2)]
-        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInAMultiplictionExpression_ReturnExpectedValues(double real, double imaginary)
-        {
-            var complex = new Complex(real, imaginary);
-            ExpressionRendererTestHelper(Expression.Multiply(Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
-        }
-
-        [TestCase(1, 3)]
-        [TestCase(1, 0)]
-        [TestCase(0, 3)]
-        [TestCase(-2, 3)]
-        [TestCase(-2, -3)]
-        [TestCase(-2, 0)]
-        [TestCase(0, -2)]
-        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInAnAdditionExpression_ReturnExpectedValues(double real, double imaginary)
-        {
-            var complex = new Complex(real, imaginary);
-            ExpressionRendererTestHelper(Expression.Add(Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
-        }
-
-        [TestCase(1, 3)]
-        [TestCase(1, 0)]
-        [TestCase(0, 3)]
-        [TestCase(-2, 3)]
-        [TestCase(-2, -3)]
-        [TestCase(-2, 0)]
-        [TestCase(0, -2)]
-        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInAPowerExpression_ReturnExpectedValues(double real, double imaginary)
-        {
-            var complex = new Complex(real, imaginary);
-            ExpressionRendererTestHelper(Expression.Call(typeof(Complex).GetMethod("Pow", new[] { typeof(Complex), typeof(Complex) }), Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
-        }
-
-        [TestCase(1, 3)]
-        [TestCase(1, 0)]
-        [TestCase(0, 3)]
-        [TestCase(-2, 3)]
-        [TestCase(-2, -3)]
-        [TestCase(-2, 0)]
-        [TestCase(0, -2)]
-        public void MeasureAndDrawExpression_WhenGivenAComplexNumberInASubtractionExpression_ReturnExpectedValues(double real, double imaginary)
-        {
-            var complex = new Complex(real, imaginary);
-            ExpressionRendererTestHelper(Expression.Subtract(Expression.Constant(complex), Expression.Convert(Expression.Constant(4), typeof(Complex))));
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAConstantExpression_ReturnExpectedValues()
-        {
-            ExpressionRendererTestHelper("1.1");
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenADivisionExpression_ReturnExpectedValues()
-        {
-            ExpressionRendererTestHelper("10/2");
-        }
-
+        [TestCase("τ+π")]
+        [TestCase("i")]
+        [TestCase("e")]
+        [TestCase("φ")]
+        [TestCase("∞")]
+        [TestCase("1.1")]
+        [TestCase("10/2")]
+        [TestCase("(((((((1+1)^2)^3)^4)^5)^6)^7)^8")]
+        [TestCase("3*5")]
+        [TestCase("1+1")]
+        [TestCase("2^5")]
+        [TestCase("2^2^2^2")]
+        [TestCase("3-8")]
         [TestCase("(1+2^3^4)^(5*(6+7))")]
         [TestCase("((1+2)^(3+4))^5")]
         [TestCase("(1+2)*(3+4)")]
@@ -127,55 +102,15 @@ namespace MathParser.Tests
         [TestCase("(1^(2^(3^4)))")]
         [TestCase("((1^(2^3))^4)")]
         [TestCase("(1^((2^3)^4))")]
-        public void MeasureAndDrawExpression_WhenGivenAExpressionNeedingBrackets_ReturnExpectedValues(string input)
+        public void MeasureAndDrawExpression_ApprovalTest(string input)
         {
             ExpressionRendererTestHelper(input);
         }
 
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAHeavilyNestedExpression_ReturnsExpectedValues()
+        [TestCaseSource(typeof(ExpressionRendererTests), nameof(ExpressionTestCases))]
+        public void MeasureAndDrawExpression_ApprovalTest(Expression<Func<Complex>> lambda)
         {
-            ExpressionRendererTestHelper("(((((((1+1)^2)^3)^4)^5)^6)^7)^8");
-        }
-
-        [TestCase("τ+π")]
-        [TestCase("i")]
-        [TestCase("e")]
-        [TestCase("φ")]
-        [TestCase("∞")]
-        public void MeasureAndDrawExpression_WhenGivenAKnownConstant_ReturnExpectedValues(string input)
-        {
-            ExpressionRendererTestHelper(input);
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAMultiplicationExpression_ReturnExpectedValues()
-        {
-            ExpressionRendererTestHelper("3*5");
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAnAdditionExpression_ReturnExpectedValues()
-        {
-            ExpressionRendererTestHelper("1+1");
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAPowerExpression_ReturnExpectedValues()
-        {
-            ExpressionRendererTestHelper("2^5");
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenAPowerTower_ReturnExpectedValues()
-        {
-            ExpressionRendererTestHelper("2^2^2^2");
-        }
-
-        [Test]
-        public void MeasureAndDrawExpression_WhenGivenASubtractionExpression_ReturnExpectedValues()
-        {
-            ExpressionRendererTestHelper("3-8");
+            ExpressionRendererTestHelper(lambda.Body);
         }
 
         private static void ExpressionRendererTestHelper(string math)
