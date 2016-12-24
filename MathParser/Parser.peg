@@ -22,15 +22,8 @@
 
     private static Expression Pow(Expression @base, Expression exponent)
     {
-        @base = ConvertIfLower(@base, to: exponent);
-        if (@base.Type == typeof(double))
-        {
-            return Expression.Power(@base, exponent);
-        }
-        else
-        {
-            return Expression.Call(typeof(Complex).GetMethod("Pow", new[] { @base.Type, exponent.Type }), @base, exponent);
-        }
+        @base = ConvertIfLower(@base, to: typeof(Complex));
+        return Expression.Call(typeof(Complex).GetMethod("Pow", new[] { @base.Type, exponent.Type }), @base, exponent);
     }
 
     private static void CreateVariable(Cursor state, string variable)

@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ExpressionTransformer.cs" />
+    <Compile Include="ExpressionTransformers.cs" />
     <Compile Include="VisualNodes\BaselineAlignedVisualNode.cs" />
     <Compile Include="VisualNodes\BracketedVisualNode.cs" />
     <Compile Include="VisualNodes\PowerVisualNode.cs" />

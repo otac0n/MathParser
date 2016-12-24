@@ -31,7 +31,7 @@ namespace MathParser
         /// <param name="point">The <see cref="PointF"/> specifies the upper-left corner of the drawn expression.</param>
         public void DrawExpression(Graphics graphics, Expression expression, PointF point)
         {
-            var visualTree = ExpressionTransformer.TransformToVisualTree(expression);
+            var visualTree = expression.TransformToVisualTree();
             visualTree.Draw(graphics, this.Font, this.Brush, point);
         }
 
@@ -43,7 +43,7 @@ namespace MathParser
         /// <returns>The size of the bounding region of the measured expression.</returns>
         public SizeF Measure(Graphics graphics, Expression expression)
         {
-            var visualTree = ExpressionTransformer.TransformToVisualTree(expression);
+            var visualTree = expression.TransformToVisualTree();
             float baseline;
             return visualTree.Measure(graphics, this.Font, out baseline);
         }
@@ -74,7 +74,7 @@ namespace MathParser
         [SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "2#", Justification = "This is an optional overload. It is left as an out parameter for performance.")]
         public SizeF Measure(Graphics graphics, Expression expression, out float baseline)
         {
-            var visualTree = ExpressionTransformer.TransformToVisualTree(expression);
+            var visualTree = expression.TransformToVisualTree();
             return visualTree.Measure(graphics, this.Font, out baseline);
         }
 
