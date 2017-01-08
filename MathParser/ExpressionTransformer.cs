@@ -3,9 +3,11 @@
 namespace MathParser
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq.Expressions;
     using System.Numerics;
+    using System.Reflection;
 
     /// <summary>
     /// An expression visitor that formats a mathematical expression as it goes.
@@ -16,6 +18,18 @@ namespace MathParser
     /// </remarks>
     public abstract class ExpressionTransformer<T> : ExpressionVisitor
     {
+        private static readonly MethodList KnownMethods = new MethodList
+        {
+            { (Complex l, Complex r) => Complex.Add(l, r), ExpressionType.Add },
+            { (Complex l, Complex r) => Complex.Subtract(l, r), ExpressionType.Subtract },
+            { (Complex l, Complex r) => Complex.Multiply(l, r), ExpressionType.Multiply },
+            { (Complex l, Complex r) => Complex.Divide(l, r), ExpressionType.Divide },
+            { (Complex l, Complex r) => Complex.Pow(l, r), ExpressionType.Power },
+            { (Complex l, double r) => Complex.Pow(l, r), ExpressionType.Power },
+            { (double l, double r) => Math.Pow(l, r), ExpressionType.Power },
+            { (Complex a) => Complex.Negate(a), ExpressionType.Negate },
+        };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ExpressionTransformer{T}"/> class.
         /// </summary>
@@ -501,42 +515,11 @@ namespace MathParser
             else if (actualType == ExpressionType.Call)
             {
                 var node = (MethodCallExpression)expression;
-                if (node.Method.IsStatic)
+
+                ExpressionType knownType;
+                if (KnownMethods.TryGetValue(node.Method, out knownType))
                 {
-                    if (node.Method.DeclaringType == typeof(Complex))
-                    {
-                        if (node.Method.Name == nameof(Complex.Pow) && node.Arguments.Count == 2)
-                        {
-                            return ExpressionType.Power;
-                        }
-                        else if (node.Method.Name == nameof(Complex.Add) && node.Arguments.Count == 2)
-                        {
-                            return ExpressionType.Add;
-                        }
-                        else if (node.Method.Name == nameof(Complex.Subtract) && node.Arguments.Count == 2)
-                        {
-                            return ExpressionType.Subtract;
-                        }
-                        else if (node.Method.Name == nameof(Complex.Multiply) && node.Arguments.Count == 2)
-                        {
-                            return ExpressionType.Multiply;
-                        }
-                        else if (node.Method.Name == nameof(Complex.Divide) && node.Arguments.Count == 2)
-                        {
-                            return ExpressionType.Divide;
-                        }
-                        else if (node.Method.Name == nameof(Complex.Negate) && node.Arguments.Count == 1)
-                        {
-                            return ExpressionType.Negate;
-                        }
-                    }
-                    else if (node.Method.DeclaringType == typeof(Math))
-                    {
-                        if (node.Method.Name == nameof(Math.Pow) && node.Arguments.Count == 2)
-                        {
-                            return ExpressionType.Power;
-                        }
-                    }
+                    return knownType;
                 }
             }
             else if (
@@ -547,6 +530,23 @@ namespace MathParser
             }
 
             return actualType;
+        }
+
+        private class MethodList : Dictionary<MethodInfo, ExpressionType>
+        {
+            public void Add(Expression<Func<Complex, Complex, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
+
+            public void Add(Expression<Func<Complex, double, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
+
+            public void Add(Expression<Func<double, double, double>> expression, ExpressionType type) => this.AddInternal(expression, type);
+
+            public void Add(Expression<Func<Complex, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
+
+            private void AddInternal(LambdaExpression expression, ExpressionType type)
+            {
+                var methodCall = (MethodCallExpression)expression.Body;
+                this.Add(methodCall.Method, type);
+            }
         }
     }
 }
