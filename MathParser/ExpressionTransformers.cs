@@ -30,7 +30,7 @@ namespace MathParser
         /// <returns>The string representation of the real value.</returns>
         public static string TransformToString(this double value)
         {
-            return StringTransformer.FormatRealExported(value);
+            return StringTransformer.FormatComplexExported(value, 0);
         }
 
         /// <summary>
@@ -75,28 +75,16 @@ namespace MathParser
 
                 if (emptyReal && emptyImaginary)
                 {
-                    return FormatRealExported(real);
+                    return FormatReal(real);
                 }
 
-                var realPart = emptyReal ? string.Empty : FormatRealExported(real);
+                var realPart = emptyReal ? string.Empty : FormatReal(real);
                 var imaginaryPart = emptyImaginary
                     ? string.Empty
-                    : (imaginary == 1 ? string.Empty : FormatRealExported(imaginary)) + "i";
+                    : (imaginary == 1 ? string.Empty : FormatReal(imaginary)) + "i";
 
                 return realPart + (!emptyReal && imaginary > 0 ? "+" : string.Empty) + imaginaryPart;
             }
-
-            /// <summary>
-            /// Formats a real number as a string.
-            /// </summary>
-            /// <param name="value">The real number.</param>
-            /// <returns>The string representation of the real number.</returns>
-            protected internal static string FormatRealExported(double value) =>
-                (value == Math.PI * 2) ? "τ" :
-                (value == Math.PI) ? "π" :
-                (value == Math.E) ? "e" :
-                (value == (1 + Math.Sqrt(5)) / 2) ? "φ" :
-                value.ToString("R", CultureInfo.CurrentCulture);
 
             /// <summary>
             /// Gets the effective type of the complex number's notation when converted using <see cref="FormatComplexExported(double, double)"/>.
@@ -108,20 +96,10 @@ namespace MathParser
                 real != 0 && imaginary != 0
                     ? ExpressionType.Add
                     : real != 0
-                        ? GetEffectiveTypeRealExported(real)
+                        ? GetEffectiveTypeReal(real)
                         : imaginary == 1
                             ? ExpressionType.Parameter
                             : ExpressionType.Multiply;
-
-            /// <summary>
-            /// Gets the effective type of the real number's notation when converted using <see cref="FormatRealExported(double)"/>.
-            /// </summary>
-            /// <param name="value">The real number.</param>
-            /// <returns>The effective expression type.</returns>
-            protected internal static ExpressionType GetEffectiveTypeRealExported(double value) =>
-                value < 0
-                    ? ExpressionType.Negate
-                    : ExpressionType.Constant;
 
             /// <inheritdoc />
             protected override string AddBrackets(string expression) => "(" + expression + ")";
@@ -148,16 +126,32 @@ namespace MathParser
             protected override string FormatComplex(double real, double imaginary) => FormatComplexExported(real, imaginary);
 
             /// <inheritdoc />
-            protected override string FormatReal(double value) => FormatRealExported(value);
-
-            /// <inheritdoc />
             protected override string FormatVariable(string name) => name;
 
             /// <inheritdoc />
             protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => GetEffectiveTypeComplexInternal(real, imaginary);
 
-            /// <inheritdoc />
-            protected override ExpressionType GetEffectiveTypeReal(double value) => GetEffectiveTypeRealExported(value);
+            /// <summary>
+            /// Formats a real number as a string.
+            /// </summary>
+            /// <param name="value">The real number.</param>
+            /// <returns>The string representation of the real number.</returns>
+            private static string FormatReal(double value) =>
+                (value == Math.PI * 2) ? "τ" :
+                (value == Math.PI) ? "π" :
+                (value == Math.E) ? "e" :
+                (value == (1 + Math.Sqrt(5)) / 2) ? "φ" :
+                value.ToString("R", CultureInfo.CurrentCulture);
+
+            /// <summary>
+            /// Gets the effective type of the real number's notation when converted using <see cref="FormatReal(double)"/>.
+            /// </summary>
+            /// <param name="value">The real number.</param>
+            /// <returns>The effective expression type.</returns>
+            private static ExpressionType GetEffectiveTypeReal(double value) =>
+                value < 0
+                    ? ExpressionType.Negate
+                    : ExpressionType.Constant;
         }
 
         /// <summary>
@@ -190,16 +184,10 @@ namespace MathParser
             protected override VisualNode FormatComplex(double real, double imaginary) => new StringVisualNode(StringTransformer.FormatComplexExported(real, imaginary));
 
             /// <inheritdoc />
-            protected override VisualNode FormatReal(double value) => new StringVisualNode(StringTransformer.FormatRealExported(value));
-
-            /// <inheritdoc />
             protected override VisualNode FormatVariable(string name) => new StringVisualNode(name);
 
             /// <inheritdoc />
             protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => StringTransformer.GetEffectiveTypeComplexInternal(real, imaginary);
-
-            /// <inheritdoc />
-            protected override ExpressionType GetEffectiveTypeReal(double value) => StringTransformer.GetEffectiveTypeRealExported(value);
 
             /// <inheritdoc />
             protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression inner) => outerEffectiveType != ExpressionType.Power && base.NeedsRightBrackets(outerEffectiveType, inner);

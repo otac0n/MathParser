@@ -112,13 +112,6 @@ namespace MathParser
         protected abstract T FormatComplex(double real, double imaginary);
 
         /// <summary>
-        /// Constructs an expression representing a real number.
-        /// </summary>
-        /// <param name="value">The real number.</param>
-        /// <returns>The real number as an expression.</returns>
-        protected abstract T FormatReal(double value);
-
-        /// <summary>
         /// Constructs an expression representing a variable.
         /// </summary>
         /// <param name="name">The name of the variable.</param>
@@ -132,13 +125,6 @@ namespace MathParser
         /// <param name="imaginary">The imaginary part.</param>
         /// <returns>The effective expression type.</returns>
         protected abstract ExpressionType GetEffectiveTypeComplex(double real, double imaginary);
-
-        /// <summary>
-        /// Gets the effective type of the real number's notation when converted using <see cref="FormatReal(double)"/>.
-        /// </summary>
-        /// <param name="value">The real number.</param>
-        /// <returns>The effective expression type.</returns>
-        protected abstract ExpressionType GetEffectiveTypeReal(double value);
 
         /// <summary>
         /// Determines whether or not the inner expression should be surrounded with brackets.
@@ -261,7 +247,7 @@ namespace MathParser
 
             if (node.Value is double || node.Value is float || node.Value is int || node.Value is uint || node.Value is long || node.Value is ulong || node.Value is short || node.Value is ushort)
             {
-                this.Result = this.FormatReal(Convert.ToDouble(node.Value, CultureInfo.InvariantCulture));
+                this.Result = this.FormatComplex(Convert.ToDouble(node.Value, CultureInfo.InvariantCulture), 0);
             }
             else if (node.Value is Complex)
             {
@@ -282,17 +268,19 @@ namespace MathParser
 
             if (node.Member.DeclaringType == typeof(Complex))
             {
-                if (node.Member.Name == nameof(Complex.ImaginaryOne))
+                switch (node.Member.Name)
                 {
-                    this.Result = this.FormatComplex(0, 1);
-                }
-                else if (node.Member.Name == nameof(Complex.Zero))
-                {
-                    this.Result = this.FormatComplex(0, 0);
-                }
-                else if (node.Member.Name == nameof(Complex.One))
-                {
-                    this.Result = this.FormatComplex(1, 0);
+                    case nameof(Complex.ImaginaryOne):
+                        this.Result = this.FormatComplex(0, 1);
+                        break;
+
+                    case nameof(Complex.Zero):
+                        this.Result = this.FormatComplex(0, 0);
+                        break;
+
+                    case nameof(Complex.One):
+                        this.Result = this.FormatComplex(1, 0);
+                        break;
                 }
 
                 return node;
@@ -540,7 +528,7 @@ namespace MathParser
                 var constantExpression = (ConstantExpression)expression;
                 if (expression.Type == typeof(double) || expression.Type == typeof(float) || expression.Type == typeof(int) || expression.Type == typeof(uint) || expression.Type == typeof(long) || expression.Type == typeof(ulong) || expression.Type == typeof(short) || expression.Type == typeof(ushort))
                 {
-                    return this.GetEffectiveTypeReal(Convert.ToDouble(constantExpression.Value, CultureInfo.InvariantCulture));
+                    return this.GetEffectiveTypeComplex(Convert.ToDouble(constantExpression.Value, CultureInfo.InvariantCulture), 0);
                 }
                 else if (expression.Type == typeof(Complex))
                 {
