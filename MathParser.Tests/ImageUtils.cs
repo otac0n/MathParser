@@ -86,11 +86,11 @@ namespace MathParser.Tests
 
             private int highlightIndex = -1;
 
-            public void Highlight(Graphics g, RectangleF rectangle)
+            public void Highlight(Graphics graphics, RectangleF rectangle)
             {
                 var i = Interlocked.Increment(ref this.highlightIndex) % HighlightPens.Length;
-                g.FillRectangle(HighlightBrushes[i], rectangle);
-                g.DrawRectangle(HighlightPens[i], rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height);
+                graphics.FillRectangle(HighlightBrushes[i], rectangle);
+                graphics.DrawRectangle(HighlightPens[i], rectangle.Left, rectangle.Top, rectangle.Width, rectangle.Height);
             }
         }
     }

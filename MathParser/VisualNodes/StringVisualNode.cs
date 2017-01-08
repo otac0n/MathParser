@@ -2,6 +2,7 @@
 
 namespace MathParser.VisualNodes
 {
+    using System;
     using System.Drawing;
 
     internal class StringVisualNode : VisualNode
@@ -13,14 +14,19 @@ namespace MathParser.VisualNodes
 
         public string Value { get; }
 
-        public override void Draw(Graphics g, Font font, Brush brush, PointF topLeft)
+        public override void Draw(Graphics graphics, Font font, Brush brush, PointF topLeft)
         {
-            g.DrawString(this.Value, font, brush, topLeft);
+            if (graphics == null)
+            {
+                throw new ArgumentNullException(nameof(graphics));
+            }
+
+            graphics.DrawString(this.Value, font, brush, topLeft);
         }
 
-        public override SizeF Measure(Graphics g, Font font, out float baseline)
+        public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
-            return MeasureString(g, this.Value, font, out baseline);
+            return MeasureString(graphics, this.Value, font, out baseline);
         }
     }
 }

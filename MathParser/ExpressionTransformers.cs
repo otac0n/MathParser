@@ -3,6 +3,7 @@
 namespace MathParser
 {
     using System;
+    using System.Globalization;
     using System.Linq.Expressions;
     using System.Numerics;
     using MathParser.VisualNodes;
@@ -95,7 +96,7 @@ namespace MathParser
                 (value == Math.PI) ? "π" :
                 (value == Math.E) ? "e" :
                 (value == (1 + Math.Sqrt(5)) / 2) ? "φ" :
-                value.ToString("R");
+                value.ToString("R", CultureInfo.CurrentCulture);
 
             /// <summary>
             /// Gets the effective type of the complex number's notation when converted using <see cref="FormatComplexExported(double, double)"/>.
@@ -123,25 +124,25 @@ namespace MathParser
                     : ExpressionType.Constant;
 
             /// <inheritdoc />
-            protected override string AddBrackets(string node) => "(" + node + ")";
+            protected override string AddBrackets(string expression) => "(" + expression + ")";
 
             /// <inheritdoc />
-            protected override string CreateAdd(string left, string right) => left + "+" + right;
+            protected override string CreateAdd(string augend, string addend) => augend + "+" + addend;
 
             /// <inheritdoc />
-            protected override string CreateDivide(string left, string right) => left + "/" + right;
+            protected override string CreateDivide(string dividend, string divisor) => dividend + "/" + divisor;
 
             /// <inheritdoc />
-            protected override string CreateMultiply(string left, string right) => left + " " + right;
+            protected override string CreateMultiply(string multiplier, string multiplicand) => multiplier + " " + multiplicand;
 
             /// <inheritdoc />
-            protected override string CreateNegate(string node) => "-" + node;
+            protected override string CreateNegate(string expression) => "-" + expression;
 
             /// <inheritdoc />
             protected override string CreatePower(string @base, string exponent) => @base + "^" + exponent;
 
             /// <inheritdoc />
-            protected override string CreateSubtract(string left, string right) => left + "-" + right;
+            protected override string CreateSubtract(string minuend, string subtrahend) => minuend + "-" + subtrahend;
 
             /// <inheritdoc />
             protected override string FormatComplex(double real, double imaginary) => FormatComplexExported(real, imaginary);
@@ -165,25 +166,25 @@ namespace MathParser
         public class VisualNodeTransformer : ExpressionTransformer<VisualNode>
         {
             /// <inheritdoc />
-            protected override VisualNode AddBrackets(VisualNode node) => new BracketedVisualNode("(", node, ")");
+            protected override VisualNode AddBrackets(VisualNode expression) => new BracketedVisualNode("(", expression, ")");
 
             /// <inheritdoc />
-            protected override VisualNode CreateAdd(VisualNode left, VisualNode right) => CreateInlineBinary(left, "+", right);
+            protected override VisualNode CreateAdd(VisualNode augend, VisualNode addend) => CreateInlineBinary(augend, "+", addend);
 
             /// <inheritdoc />
-            protected override VisualNode CreateDivide(VisualNode left, VisualNode right) => CreateInlineBinary(left, "÷", right);
+            protected override VisualNode CreateDivide(VisualNode dividend, VisualNode divisor) => CreateInlineBinary(dividend, "÷", divisor);
 
             /// <inheritdoc />
-            protected override VisualNode CreateMultiply(VisualNode left, VisualNode right) => CreateInlineBinary(left, "·", right);
+            protected override VisualNode CreateMultiply(VisualNode multiplier, VisualNode multiplicand) => CreateInlineBinary(multiplier, "·", multiplicand);
 
             /// <inheritdoc />
-            protected override VisualNode CreateNegate(VisualNode node) => new BaselineAlignedVisualNode(new StringVisualNode("-"), node);
+            protected override VisualNode CreateNegate(VisualNode expression) => new BaselineAlignedVisualNode(new StringVisualNode("-"), expression);
 
             /// <inheritdoc />
             protected override VisualNode CreatePower(VisualNode @base, VisualNode exponent) => new PowerVisualNode(@base, exponent);
 
             /// <inheritdoc />
-            protected override VisualNode CreateSubtract(VisualNode left, VisualNode right) => CreateInlineBinary(left, "-", right);
+            protected override VisualNode CreateSubtract(VisualNode minuend, VisualNode subtrahend) => CreateInlineBinary(minuend, "-", subtrahend);
 
             /// <inheritdoc />
             protected override VisualNode FormatComplex(double real, double imaginary) => new StringVisualNode(StringTransformer.FormatComplexExported(real, imaginary));
@@ -201,7 +202,7 @@ namespace MathParser
             protected override ExpressionType GetEffectiveTypeReal(double value) => StringTransformer.GetEffectiveTypeRealExported(value);
 
             /// <inheritdoc />
-            protected override bool NeedsRightBrackets(ExpressionType outerSimpleType, Expression inner) => outerSimpleType != ExpressionType.Power && base.NeedsRightBrackets(outerSimpleType, inner);
+            protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression inner) => outerEffectiveType != ExpressionType.Power && base.NeedsRightBrackets(outerEffectiveType, inner);
 
             private static VisualNode CreateInlineBinary(VisualNode left, string op, VisualNode right) => new BaselineAlignedVisualNode(left, new StringVisualNode(op), right);
         }

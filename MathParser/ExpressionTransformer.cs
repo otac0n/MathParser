@@ -203,6 +203,11 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitBinary(BinaryExpression node)
         {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
             this.Visit(node.Left);
             var left = this.Result;
             this.Visit(node.Right);
@@ -249,6 +254,11 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitConstant(ConstantExpression node)
         {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
             if (node.Value is double || node.Value is float || node.Value is int || node.Value is uint || node.Value is long || node.Value is ulong || node.Value is short || node.Value is ushort)
             {
                 this.Result = this.FormatReal(Convert.ToDouble(node.Value, CultureInfo.InvariantCulture));
@@ -265,6 +275,11 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitMember(MemberExpression node)
         {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
             if (node.Member.DeclaringType == typeof(Complex))
             {
                 if (node.Member.Name == nameof(Complex.ImaginaryOne))
@@ -291,6 +306,11 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
             var effectiveType = this.GetEffectiveNodeType(node);
             if (effectiveType == ExpressionType.Add ||
                 effectiveType == ExpressionType.Subtract ||
@@ -365,6 +385,11 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitNew(NewExpression node)
         {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
             if (node.Type == typeof(Complex) && node.Arguments.Count == 2 && node.Arguments[0].NodeType == ExpressionType.Constant && node.Arguments[1].NodeType == ExpressionType.Constant)
             {
                 var real = (double)((ConstantExpression)node.Arguments[0]).Value;
@@ -381,6 +406,11 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitParameter(ParameterExpression node)
         {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
             base.VisitParameter(node);
             this.Result = this.FormatVariable(node.Name);
             return node;
@@ -389,6 +419,11 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitUnary(UnaryExpression node)
         {
+            if (node == null)
+            {
+                throw new ArgumentNullException(nameof(node));
+            }
+
             if (node.NodeType == ExpressionType.Negate ||
                 node.NodeType == ExpressionType.NegateChecked)
             {
@@ -502,13 +537,14 @@ namespace MathParser
             }
             else if (actualType == ExpressionType.Constant)
             {
+                var constantExpression = (ConstantExpression)expression;
                 if (expression.Type == typeof(double) || expression.Type == typeof(float) || expression.Type == typeof(int) || expression.Type == typeof(uint) || expression.Type == typeof(long) || expression.Type == typeof(ulong) || expression.Type == typeof(short) || expression.Type == typeof(ushort))
                 {
-                    return this.GetEffectiveTypeReal(Convert.ToDouble(((ConstantExpression)expression).Value));
+                    return this.GetEffectiveTypeReal(Convert.ToDouble(constantExpression.Value, CultureInfo.InvariantCulture));
                 }
                 else if (expression.Type == typeof(Complex))
                 {
-                    var value = (Complex)((ConstantExpression)expression).Value;
+                    var value = (Complex)constantExpression.Value;
                     return this.GetEffectiveTypeComplex(value.Real, value.Imaginary);
                 }
             }

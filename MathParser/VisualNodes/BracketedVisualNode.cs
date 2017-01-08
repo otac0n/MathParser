@@ -20,28 +20,38 @@ namespace MathParser.VisualNodes
 
         public string RightBracket { get; }
 
-        public override void Draw(Graphics g, Font font, Brush brush, PointF topLeft)
+        public override void Draw(Graphics graphics, Font font, Brush brush, PointF topLeft)
         {
+            if (graphics == null)
+            {
+                throw new ArgumentNullException(nameof(graphics));
+            }
+
             float baseline;
-            var size = this.Node.Measure(g, font, out baseline);
-            var bracketFont = GetBracketFont(g, font, this.LeftBracket, this.RightBracket, baseline);
+            var size = this.Node.Measure(graphics, font, out baseline);
+            var bracketFont = GetBracketFont(graphics, font, this.LeftBracket, this.RightBracket, baseline);
 
-            g.DrawString(this.LeftBracket, bracketFont, brush, topLeft);
-            topLeft.X += g.MeasureString(this.LeftBracket, bracketFont).Width;
+            graphics.DrawString(this.LeftBracket, bracketFont, brush, topLeft);
+            topLeft.X += graphics.MeasureString(this.LeftBracket, bracketFont).Width;
 
-            this.Node.Draw(g, font, brush, topLeft);
+            this.Node.Draw(graphics, font, brush, topLeft);
             topLeft.X += size.Width;
 
-            g.DrawString(this.RightBracket, bracketFont, brush, topLeft);
+            graphics.DrawString(this.RightBracket, bracketFont, brush, topLeft);
         }
 
-        public override SizeF Measure(Graphics g, Font font, out float baseline)
+        public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
-            var size = this.Node.Measure(g, font, out baseline);
-            var bracketFont = GetBracketFont(g, font, this.LeftBracket, this.RightBracket, baseline);
+            if (graphics == null)
+            {
+                throw new ArgumentNullException(nameof(graphics));
+            }
 
-            var leftBracketSize = g.MeasureString(this.LeftBracket, bracketFont);
-            var rightBracketSize = g.MeasureString(this.RightBracket, bracketFont);
+            var size = this.Node.Measure(graphics, font, out baseline);
+            var bracketFont = GetBracketFont(graphics, font, this.LeftBracket, this.RightBracket, baseline);
+
+            var leftBracketSize = graphics.MeasureString(this.LeftBracket, bracketFont);
+            var rightBracketSize = graphics.MeasureString(this.RightBracket, bracketFont);
 
             size.Width += leftBracketSize.Width + rightBracketSize.Width;
             size.Height = Math.Max(size.Height, Math.Max(leftBracketSize.Height, rightBracketSize.Height));
@@ -49,10 +59,10 @@ namespace MathParser.VisualNodes
             return size;
         }
 
-        private static Font GetBracketFont(Graphics g, Font font, string leftBracket, string rightBracket, float contentBaseline)
+        private static Font GetBracketFont(Graphics graphics, Font font, string leftBracket, string rightBracket, float contentBaseline)
         {
             float normalBaseline;
-            MeasureString(g, leftBracket + rightBracket, font, out normalBaseline);
+            MeasureString(graphics, leftBracket + rightBracket, font, out normalBaseline);
 
             if (normalBaseline == contentBaseline)
             {
