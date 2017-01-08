@@ -70,13 +70,13 @@ decimal <Expression>
 namedConstant <Expression>
     = "τ" { Expression.Constant(2 * Math.PI) }
     / "π" { Expression.Constant(Math.PI) }
-    / "e" { Expression.Constant(Math.E) }
+    / "e" ![_a-z0-9]i { Expression.Constant(Math.E) }
     / "φ" { Expression.Constant((1 + Math.Sqrt(5)) / 2) }
     / "∞" { Expression.Constant(double.PositiveInfinity) }
-    / "i" { Expression.Constant(Complex.ImaginaryOne) }
+    / "i" ![_a-z0-9]i { Expression.Constant(Complex.ImaginaryOne) }
 
 variable <Expression>
-    = v:[a-z]i #{ CreateVariable(state, v); } { (Expression)state[v] }
+    = v:([_a-z]i [_a-z0-9]i*) #{ CreateVariable(state, v); } { (Expression)state[v] }
 
 _ = [ \t\r\n]*
 

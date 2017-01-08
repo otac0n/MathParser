@@ -129,10 +129,10 @@ namespace MathParser
             protected override string CreateAdd(string left, string right) => left + "+" + right;
 
             /// <inheritdoc />
-            protected override string CreateDivide(string left, string right) => left + "*" + right;
+            protected override string CreateDivide(string left, string right) => left + "/" + right;
 
             /// <inheritdoc />
-            protected override string CreateMultiply(string left, string right) => left + "*" + right;
+            protected override string CreateMultiply(string left, string right) => left + " " + right;
 
             /// <inheritdoc />
             protected override string CreateNegate(string node) => "-" + node;
