@@ -20,7 +20,7 @@ namespace MathParser.VisualNodes
 
         public string RightBracket { get; }
 
-        public override void Draw(Graphics graphics, Font font, Brush brush, PointF topLeft)
+        public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
             if (graphics == null)
             {
@@ -31,13 +31,13 @@ namespace MathParser.VisualNodes
             var size = this.Node.Measure(graphics, font, out baseline);
             var bracketFont = GetBracketFont(graphics, font, this.LeftBracket, this.RightBracket, baseline);
 
-            graphics.DrawString(this.LeftBracket, bracketFont, brush, topLeft);
+            DrawString(graphics, this.LeftBracket, bracketFont, brush, pen, topLeft);
             topLeft.X += graphics.MeasureString(this.LeftBracket, bracketFont).Width;
 
-            this.Node.Draw(graphics, font, brush, topLeft);
+            this.Node.Draw(graphics, font, brush, pen, topLeft);
             topLeft.X += size.Width;
 
-            graphics.DrawString(this.RightBracket, bracketFont, brush, topLeft);
+            DrawString(graphics, this.RightBracket, bracketFont, brush, pen, topLeft);
         }
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)

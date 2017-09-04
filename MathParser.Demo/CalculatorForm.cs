@@ -64,7 +64,6 @@ namespace MathParser.Demo
             private readonly ExpressionRenderer renderer = new ExpressionRenderer
             {
                 Font = new Font("Calibri", 20, FontStyle.Regular),
-                Brush = SystemBrushes.WindowText,
             };
 
             public Bitmap ExpressionImage { get; private set; }

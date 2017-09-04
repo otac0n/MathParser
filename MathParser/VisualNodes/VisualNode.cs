@@ -4,6 +4,7 @@ namespace MathParser.VisualNodes
 {
     using System;
     using System.Drawing;
+    using System.Drawing.Drawing2D;
 
     /// <summary>
     /// Represents a portion of an expression that can be drawn.
@@ -40,13 +41,57 @@ namespace MathParser.VisualNodes
         }
 
         /// <summary>
+        /// Draws the specified string.
+        /// </summary>
+        /// <param name="graphics">The <see cref="Graphics"/> to respect when measuring.</param>
+        /// <param name="text">The text to measure.</param>
+        /// <param name="font">The <see cref="Font"/> to use when measuring.</param>
+        /// <param name="brush">The <see cref="Brush"/> to use to draw.</param>
+        /// <param name="pen">The <see cref="Pen"/> to use to draw.</param>
+        /// <param name="topLeft">The top left corner of the bounding region that will contain this portion of the expression.</param>
+        public static void DrawString(Graphics graphics, string text, Font font, Brush brush, Pen pen, PointF topLeft)
+        {
+            if (graphics == null)
+            {
+                throw new ArgumentNullException(nameof(graphics));
+            }
+
+            if (font == null)
+            {
+                throw new ArgumentNullException(nameof(font));
+            }
+
+            if (brush == null)
+            {
+                throw new ArgumentNullException(nameof(brush));
+            }
+
+            if (pen == null)
+            {
+                throw new ArgumentNullException(nameof(pen));
+            }
+
+            var path = new GraphicsPath();
+            path.AddString(
+                text,
+                font.FontFamily,
+                (int)font.Style,
+                graphics.DpiY * font.Size / 72,
+                topLeft,
+                new StringFormat());
+            graphics.DrawPath(pen, path);
+            graphics.FillPath(brush, path);
+        }
+
+        /// <summary>
         /// Draws this portion of the expression.
         /// </summary>
         /// <param name="graphics">The <see cref="Graphics"/> object to draw to.</param>
         /// <param name="font">The <see cref="Font"/> to use to draw.</param>
         /// <param name="brush">The <see cref="Brush"/> to use to draw.</param>
+        /// <param name="pen">The <see cref="Pen"/> to use to draw.</param>
         /// <param name="topLeft">The top left corner of the bounding region that will contain this portion of the expression.</param>
-        public abstract void Draw(Graphics graphics, Font font, Brush brush, PointF topLeft);
+        public abstract void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft);
 
         /// <summary>
         /// Measures this portion of the expression.

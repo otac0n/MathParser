@@ -5,6 +5,7 @@ namespace MathParser
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Drawing;
+    using System.Drawing.Drawing2D;
     using System.Drawing.Text;
     using System.Linq.Expressions;
 
@@ -24,6 +25,39 @@ namespace MathParser
         public Font Font { get; set; } = SystemFonts.DefaultFont;
 
         /// <summary>
+        /// Gets or sets the pen that will be used when rendering expressions.
+        /// </summary>
+        public Pen Pen { get; set; } = new Pen(SystemColors.Window, 2) { Alignment = PenAlignment.Center };
+
+        /// <summary>
+        /// Creates a new <see cref="Graphics"/> object with the recommended settings for rendering text.
+        /// </summary>
+        /// <param name="bitmap">The target bitmatp.</param>
+        /// <returns>A new graphics object that can render into the specified bitmap.</returns>
+        public static Graphics CreateDefaultGraphics(Bitmap bitmap)
+        {
+            Graphics graphics = null;
+            try
+            {
+                graphics = Graphics.FromImage(bitmap);
+                graphics.InterpolationMode = InterpolationMode.High;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
+
+                var result = graphics;
+                graphics = null;
+                return result;
+            }
+            finally
+            {
+                if (graphics != null)
+                {
+                    graphics.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
         /// Draws the specified expression at the specified location.
         /// </summary>
         /// <param name="graphics">The target <see cref="Graphics"/> object.</param>
@@ -32,7 +66,7 @@ namespace MathParser
         public void DrawExpression(Graphics graphics, Expression expression, PointF point)
         {
             var visualTree = expression.TransformToVisualTree();
-            visualTree.Draw(graphics, this.Font, this.Brush, point);
+            visualTree.Draw(graphics, this.Font, this.Brush, this.Pen, point);
         }
 
         /// <summary>
@@ -55,11 +89,10 @@ namespace MathParser
         /// <returns>The size of the bounding region of the measured expression.</returns>
         public Size Measure(Expression expression)
         {
-            using (var b = new Bitmap(1, 1))
-            using (var g = Graphics.FromImage(b))
+            using (var bitmap = new Bitmap(1, 1))
+            using (var graphics = CreateDefaultGraphics(bitmap))
             {
-                g.TextRenderingHint = TextRenderingHint.AntiAlias;
-                var size = this.Measure(g, expression);
+                var size = this.Measure(graphics, expression);
                 return new Size((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height));
             }
         }
@@ -90,9 +123,8 @@ namespace MathParser
             try
             {
                 bitmap = new Bitmap(size.Width, size.Height);
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = CreateDefaultGraphics(bitmap))
                 {
-                    graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
                     this.DrawExpression(graphics, expression, PointF.Empty);
                 }
 

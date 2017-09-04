@@ -14,7 +14,7 @@ namespace MathParser.VisualNodes
 
         public VisualNode[] Nodes { get; }
 
-        public override void Draw(Graphics graphics, Font font, Brush brush, PointF topLeft)
+        public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
             float[] baselines;
             SizeF[] sizes;
@@ -26,7 +26,7 @@ namespace MathParser.VisualNodes
             for (int i = 0; i < nodes; i++)
             {
                 offset.Height = baseline - baselines[i];
-                this.Nodes[i].Draw(graphics, font, brush, topLeft + offset);
+                this.Nodes[i].Draw(graphics, font, brush, pen, topLeft + offset);
                 offset.Width += sizes[i].Width;
             }
         }

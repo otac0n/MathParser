@@ -18,7 +18,7 @@ namespace MathParser.VisualNodes
 
         public VisualNode Right { get; }
 
-        public override void Draw(Graphics graphics, Font font, Brush brush, PointF topLeft)
+        public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
             var superFont = GetSuperFont(font);
 
@@ -28,11 +28,11 @@ namespace MathParser.VisualNodes
 
             var leftOffset = rightSize.Height - leftBaseline / 2;
             var leftLocation = new PointF(topLeft.X, topLeft.Y + (leftOffset > 0 ? leftOffset : 0));
-            this.Left.Draw(graphics, font, brush, leftLocation);
+            this.Left.Draw(graphics, font, brush, pen, leftLocation);
 
             var rightOffset = leftBaseline / 2 - rightSize.Height;
             var rightLocation = new PointF(topLeft.X + leftSize.Width, topLeft.Y + (rightOffset > 0 ? rightOffset : 0));
-            this.Right.Draw(graphics, superFont, brush, rightLocation);
+            this.Right.Draw(graphics, superFont, brush, pen, rightLocation);
         }
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)

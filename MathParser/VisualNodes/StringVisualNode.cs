@@ -14,14 +14,14 @@ namespace MathParser.VisualNodes
 
         public string Value { get; }
 
-        public override void Draw(Graphics graphics, Font font, Brush brush, PointF topLeft)
+        public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
             if (graphics == null)
             {
                 throw new ArgumentNullException(nameof(graphics));
             }
 
-            graphics.DrawString(this.Value, font, brush, topLeft);
+            DrawString(graphics, this.Value, font, brush, pen, topLeft);
         }
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)

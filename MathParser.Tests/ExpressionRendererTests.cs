@@ -4,7 +4,6 @@ namespace MathParser.Tests
 {
     using System;
     using System.Drawing;
-    using System.Drawing.Text;
     using System.IO;
     using System.Linq.Expressions;
     using System.Numerics;
@@ -92,18 +91,15 @@ namespace MathParser.Tests
                 float baseline;
 
                 using (var bitmap = new Bitmap(1, 1))
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = ExpressionRenderer.CreateDefaultGraphics(bitmap))
                 {
-                    graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
                     size = renderer.Measure(graphics, expression, out baseline);
                 }
 
                 const float Padding = 5;
                 using (var bitmap = new Bitmap((int)Math.Ceiling(size.Width + Padding * 2), (int)Math.Ceiling(size.Height + Padding * 2)))
-                using (var graphics = Graphics.FromImage(bitmap))
+                using (var graphics = ExpressionRenderer.CreateDefaultGraphics(bitmap))
                 {
-                    graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-
                     renderer.DrawExpression(graphics, expression, new PointF(Padding, Padding));
 
                     var w = (int)Math.Round(size.Width);
