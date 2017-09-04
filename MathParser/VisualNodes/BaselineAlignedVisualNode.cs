@@ -16,10 +16,7 @@ namespace MathParser.VisualNodes
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
-            float[] baselines;
-            SizeF[] sizes;
-            float baseline;
-            this.MeasureInternal(graphics, font, out baseline, out sizes, out baselines);
+            this.MeasureInternal(graphics, font, out float baseline, out SizeF[] sizes, out float[] baselines);
 
             var offset = SizeF.Empty;
             var nodes = this.Nodes.Length;
@@ -33,9 +30,7 @@ namespace MathParser.VisualNodes
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
-            float[] baselines;
-            SizeF[] sizes;
-            return this.MeasureInternal(graphics, font, out baseline, out sizes, out baselines);
+            return this.MeasureInternal(graphics, font, out baseline, out SizeF[] sizes, out float[] baselines);
         }
 
         private SizeF MeasureInternal(Graphics graphics, Font font, out float baseline, out SizeF[] sizes, out float[] baselines)

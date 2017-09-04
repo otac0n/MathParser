@@ -10,6 +10,27 @@ namespace MathParser
     using System.Reflection;
 
     /// <summary>
+    /// Indicates the associativity of an operator.
+    /// </summary>
+    public enum Associativity
+    {
+        /// <summary>
+        /// The operator is not associative.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
+        /// The operator is left-associative.
+        /// </summary>
+        Left,
+
+        /// <summary>
+        /// The operator is right-associative.
+        /// </summary>
+        Right,
+    }
+
+    /// <summary>
     /// An expression visitor that formats a mathematical expression as it goes.
     /// </summary>
     /// <typeparam name="T">The type of nodes in the mathematical expression.</typeparam>
@@ -39,17 +60,87 @@ namespace MathParser
         {
         }
 
-        protected enum Associativity
-        {
-            None = 0,
-            Left,
-            Right,
-        }
-
         /// <summary>
         /// Gets the result of the most recent visit operation.
         /// </summary>
         public T Result { get; private set; }
+
+        /// <summary>
+        /// Gets the associativity of the operator given its precedence.
+        /// </summary>
+        /// <param name="precedence">The precedence obtained by calling <see cref="GetPrecedence(ExpressionType)"/>.</param>
+        /// <returns>The operator's associativity.</returns>
+        protected static Associativity GetAssociativity(int precedence)
+        {
+            switch (precedence)
+            {
+                case 0:
+                case 1:
+                case 2:
+                    return Associativity.Left;
+
+                case 3:
+                    return Associativity.Right;
+
+                default:
+                    return Associativity.None;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating the precedence of the specified operator type.
+        /// </summary>
+        /// <param name="effectiveType">The operator type.</param>
+        /// <returns>A value indicating the precedence of the specified operator type.</returns>
+        protected static int GetPrecedence(ExpressionType effectiveType)
+        {
+            switch (effectiveType)
+            {
+                case ExpressionType.Add:
+                case ExpressionType.Subtract:
+                    return 0;
+
+                case ExpressionType.Multiply:
+                case ExpressionType.Divide:
+                case ExpressionType.Modulo:
+                    return 1;
+
+                case ExpressionType.Negate:
+                    return 2;
+
+                case ExpressionType.Power:
+                    return 3;
+
+                default:
+                    return int.MaxValue;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating the whether or not the two specified operator types are fully associative.
+        /// </summary>
+        /// <param name="left">The left operator type.</param>
+        /// <param name="right">The right operator type.</param>
+        /// <returns>A value indicating the whether or not the two specified operator types are fully associative.</returns>
+        protected static bool IsFullyAssociative(ExpressionType left, ExpressionType right)
+        {
+            if (left == ExpressionType.Add && right == ExpressionType.Add)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Multiply && right == ExpressionType.Multiply)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Negate && right == ExpressionType.Negate)
+            {
+                return true;
+            }
+
+            return false;
+        }
 
         /// <summary>
         /// Constructs a bracketed expression.
@@ -268,9 +359,8 @@ namespace MathParser
             {
                 this.Result = this.FormatComplex(Convert.ToDouble(node.Value, CultureInfo.InvariantCulture), 0);
             }
-            else if (node.Value is Complex)
+            else if (node.Value is Complex value)
             {
-                var value = (Complex)node.Value;
                 this.Result = this.FormatComplex(value.Real, value.Imaginary);
             }
 
@@ -473,69 +563,18 @@ namespace MathParser
             throw new NotSupportedException($"The unary operator '{node.NodeType}' is not supported for expression transformation.");
         }
 
-        protected static Associativity GetAssociativity(int precedence)
-        {
-            switch (precedence)
-            {
-                case 0:
-                case 1:
-                case 2:
-                    return Associativity.Left;
-
-                case 3:
-                    return Associativity.Right;
-
-                default:
-                    return Associativity.None;
-            }
-        }
-
-        protected static int GetPrecedence(ExpressionType effectiveType)
-        {
-            switch (effectiveType)
-            {
-                case ExpressionType.Add:
-                case ExpressionType.Subtract:
-                    return 0;
-
-                case ExpressionType.Multiply:
-                case ExpressionType.Divide:
-                case ExpressionType.Modulo:
-                    return 1;
-
-                case ExpressionType.Negate:
-                    return 2;
-
-                case ExpressionType.Power:
-                    return 3;
-
-                default:
-                    return int.MaxValue;
-            }
-        }
-
-        protected static bool IsFullyAssociative(ExpressionType left, ExpressionType right)
-        {
-            if (left == ExpressionType.Add && right == ExpressionType.Add)
-            {
-                return true;
-            }
-
-            if (left == ExpressionType.Multiply && right == ExpressionType.Multiply)
-            {
-                return true;
-            }
-
-            if (left == ExpressionType.Negate && right == ExpressionType.Negate)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
+        /// <summary>
+        /// Evaluates the specified expression to determine if it can be more approriately represented as a different operator type.
+        /// </summary>
+        /// <param name="expression">The expression to evaluate.</param>
+        /// <returns>The best operator type to represent the expression.</returns>
         protected ExpressionType GetEffectiveNodeType(Expression expression)
         {
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
             var actualType = expression.NodeType;
 
             if (actualType == ExpressionType.AddChecked)
@@ -581,8 +620,7 @@ namespace MathParser
             {
                 var node = (MethodCallExpression)expression;
 
-                ExpressionType knownType;
-                if (KnownMethods.TryGetValue(node.Method, out knownType))
+                if (KnownMethods.TryGetValue(node.Method, out ExpressionType knownType))
                 {
                     return knownType;
                 }

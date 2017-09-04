@@ -27,8 +27,7 @@ namespace MathParser.VisualNodes
                 throw new ArgumentNullException(nameof(graphics));
             }
 
-            float baseline;
-            var size = this.Node.Measure(graphics, font, out baseline);
+            var size = this.Node.Measure(graphics, font, out float baseline);
             var bracketFont = GetBracketFont(graphics, font, this.LeftBracket, this.RightBracket, baseline);
 
             DrawString(graphics, this.LeftBracket, bracketFont, brush, pen, topLeft);
@@ -61,8 +60,7 @@ namespace MathParser.VisualNodes
 
         private static Font GetBracketFont(Graphics graphics, Font font, string leftBracket, string rightBracket, float contentBaseline)
         {
-            float normalBaseline;
-            MeasureString(graphics, leftBracket + rightBracket, font, out normalBaseline);
+            MeasureString(graphics, leftBracket + rightBracket, font, out float normalBaseline);
 
             if (normalBaseline == contentBaseline)
             {

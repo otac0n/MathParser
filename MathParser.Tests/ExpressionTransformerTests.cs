@@ -11,7 +11,7 @@ namespace MathParser.Tests
     using System.Text.RegularExpressions;
     using NUnit.Framework;
 
-    public class ExpressionTrasnformerTests
+    public class ExpressionTransformerTests
     {
         public static string[] ExpressionTestCases => new string[]
         {
@@ -79,7 +79,7 @@ namespace MathParser.Tests
             "(1^((2^3)^4))",
         };
 
-        [TestCaseSource(typeof(ExpressionTrasnformerTests), nameof(ExpressionTrasnformerTests.ExpressionTestCases))]
+        [TestCaseSource(typeof(ExpressionTransformerTests), nameof(ExpressionTransformerTests.ExpressionTestCases))]
         public void IteratedParseAndTransformToString_Always_ReturnsTheSameExpression(string input)
         {
             var allInput = new HashSet<string>();

@@ -58,7 +58,7 @@ namespace MathParser.Tests
             () => Complex.Pow(-1, 0.5).Real,
         };
 
-        [TestCaseSource(typeof(ExpressionTrasnformerTests), nameof(ExpressionTrasnformerTests.ExpressionTestCases))]
+        [TestCaseSource(typeof(ExpressionTransformerTests), nameof(ExpressionTransformerTests.ExpressionTestCases))]
         public void MeasureAndDrawExpression_ApprovalTest(string input)
         {
             ExpressionRendererTestHelper(input);

@@ -12,10 +12,5 @@ namespace MathParser.VisualNodes
             : base(Radical + "(", node, ")")
         {
         }
-
-        private static Font GetRadicalFont(Graphics graphics, Font font)
-        {
-            return new Font(font.FontFamily, font.Size * 2, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
-        }
     }
 }

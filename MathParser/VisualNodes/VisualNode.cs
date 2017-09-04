@@ -71,16 +71,18 @@ namespace MathParser.VisualNodes
                 throw new ArgumentNullException(nameof(pen));
             }
 
-            var path = new GraphicsPath();
-            path.AddString(
-                text,
-                font.FontFamily,
-                (int)font.Style,
-                graphics.DpiY * font.Size / 72,
-                topLeft,
-                new StringFormat());
-            graphics.DrawPath(pen, path);
-            graphics.FillPath(brush, path);
+            using (var path = new GraphicsPath())
+            {
+                path.AddString(
+                    text,
+                    font.FontFamily,
+                    (int)font.Style,
+                    graphics.DpiY * font.Size / 72,
+                    topLeft,
+                    StringFormat.GenericDefault);
+                graphics.DrawPath(pen, path);
+                graphics.FillPath(brush, path);
+            }
         }
 
         /// <summary>

@@ -32,14 +32,14 @@ namespace MathParser
         /// <summary>
         /// Creates a new <see cref="Graphics"/> object with the recommended settings for rendering text.
         /// </summary>
-        /// <param name="bitmap">The target bitmatp.</param>
+        /// <param name="image">The target image.</param>
         /// <returns>A new graphics object that can render into the specified bitmap.</returns>
-        public static Graphics CreateDefaultGraphics(Bitmap bitmap)
+        public static Graphics CreateDefaultGraphics(Image image)
         {
             Graphics graphics = null;
             try
             {
-                graphics = Graphics.FromImage(bitmap);
+                graphics = Graphics.FromImage(image);
                 graphics.InterpolationMode = InterpolationMode.High;
                 graphics.SmoothingMode = SmoothingMode.HighQuality;
                 graphics.TextRenderingHint = TextRenderingHint.AntiAlias;
@@ -78,8 +78,7 @@ namespace MathParser
         public SizeF Measure(Graphics graphics, Expression expression)
         {
             var visualTree = expression.TransformToVisualTree();
-            float baseline;
-            return visualTree.Measure(graphics, this.Font, out baseline);
+            return visualTree.Measure(graphics, this.Font, out float baseline);
         }
 
         /// <summary>

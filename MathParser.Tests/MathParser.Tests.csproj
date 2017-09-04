@@ -56,7 +56,7 @@
       <Link>CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
     <None Include="packages.config" />
-    <Compile Include="ExpressionTrasnformerTests.cs" />
+    <Compile Include="ExpressionTransformerTests.cs" />
     <Compile Include="ExpressionRendererTests.cs" />
     <Compile Include="ImageUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
