@@ -185,7 +185,7 @@ namespace MathParser
             protected override VisualNode CreateAdd(VisualNode augend, VisualNode addend) => CreateInlineBinary(augend, "+", addend);
 
             /// <inheritdoc />
-            protected override VisualNode CreateDivide(VisualNode dividend, VisualNode divisor) => CreateInlineBinary(dividend, "÷", divisor);
+            protected override VisualNode CreateDivide(VisualNode dividend, VisualNode divisor) => new FractionVisualNode(dividend, divisor);
 
             /// <inheritdoc />
             protected override VisualNode CreateMultiply(VisualNode multiplier, VisualNode multiplicand) => CreateInlineBinary(multiplier, "·", multiplicand);
@@ -227,11 +227,14 @@ namespace MathParser
                     return false;
                 }
 
-                return base.NeedsLeftBrackets(outerEffectiveType, outer, inner);
+                return outerEffectiveType != ExpressionType.Divide && base.NeedsLeftBrackets(outerEffectiveType, outer, inner);
             }
 
             /// <inheritdoc />
-            protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner) => outerEffectiveType != ExpressionType.Power && base.NeedsRightBrackets(outerEffectiveType, outer, inner);
+            protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
+            {
+                return outerEffectiveType != ExpressionType.Power && outerEffectiveType != ExpressionType.Divide && base.NeedsRightBrackets(outerEffectiveType, outer, inner);
+            }
 
             private static VisualNode CreateInlineBinary(VisualNode left, string op, VisualNode right) => new BaselineAlignedVisualNode(left, new StringVisualNode(op), right);
         }

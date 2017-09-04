@@ -53,6 +53,7 @@
     <Compile Include="VisualNodes\BaselineAlignedVisualNode.cs" />
     <Compile Include="VisualNodes\BracketedVisualNode.cs" />
     <Compile Include="VisualNodes\PowerVisualNode.cs" />
+    <Compile Include="VisualNodes\FractionVisualNode.cs" />
     <Compile Include="VisualNodes\RadicalVisualNode.cs" />
     <Compile Include="VisualNodes\StringVisualNode.cs" />
     <Compile Include="VisualNodes\VisualNode.cs" />
