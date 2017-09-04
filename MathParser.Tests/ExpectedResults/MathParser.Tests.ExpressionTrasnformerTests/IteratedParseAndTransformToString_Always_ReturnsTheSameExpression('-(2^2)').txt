@@ -1,0 +1,8 @@
+-(2^2)
+(parsed)
+-Pow(Convert(2), 2)
+(transformed)
+-2^2
+(parsed)
+-Pow(Convert(2), 2)
+(stable)

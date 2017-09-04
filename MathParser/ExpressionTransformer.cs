@@ -27,6 +27,8 @@ namespace MathParser
             { (Complex l, Complex r) => Complex.Pow(l, r), ExpressionType.Power },
             { (Complex l, double r) => Complex.Pow(l, r), ExpressionType.Power },
             { (double l, double r) => Math.Pow(l, r), ExpressionType.Power },
+            { (double a) => Math.Sqrt(a), ExpressionType.Power },
+            { (Complex a) => Complex.Sqrt(a), ExpressionType.Power },
             { (Complex a) => Complex.Negate(a), ExpressionType.Negate },
         };
 
@@ -37,7 +39,7 @@ namespace MathParser
         {
         }
 
-        private enum Associativity
+        protected enum Associativity
         {
             None = 0,
             Left,
@@ -104,6 +106,21 @@ namespace MathParser
         protected abstract T CreateSubtract(T minuend, T subtrahend);
 
         /// <summary>
+        /// Constructs a function expression.
+        /// </summary>
+        /// <param name="name">The name of the function.</param>
+        /// <param name="arguments">The arguments to the function.</param>
+        /// <returns>The function expression.</returns>
+        protected abstract T CreateFunction(string name, params T[] arguments);
+
+        /// <summary>
+        /// Constructs a radical expression.
+        /// </summary>
+        /// <param name="expression">The expression under the radical.</param>
+        /// <returns>The radical expression.</returns>
+        protected abstract T CreateRadical(T expression);
+
+        /// <summary>
         /// Constructs an expression representing a complex number.
         /// </summary>
         /// <param name="real">The real part.</param>
@@ -130,9 +147,10 @@ namespace MathParser
         /// Determines whether or not the inner expression should be surrounded with brackets.
         /// </summary>
         /// <param name="outerEffectiveType">The effective node type of the outer expression.</param>
+        /// <param name="outer">The outer expression.</param>
         /// <param name="inner">The inner expression.</param>
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
-        protected virtual bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression inner)
+        protected virtual bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
         {
             var innerEffectiveType = this.GetEffectiveNodeType(inner);
             var outerPrecedence = GetPrecedence(outerEffectiveType);
@@ -160,9 +178,10 @@ namespace MathParser
         /// Determines whether or not the inner expression should be surrounded with brackets.
         /// </summary>
         /// <param name="outerEffectiveType">The effective node type of the outer expression.</param>
+        /// <param name="outer">The outer expression.</param>
         /// <param name="inner">The inner expression.</param>
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
-        protected virtual bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression inner)
+        protected virtual bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
         {
             var innerEffectiveType = this.GetEffectiveNodeType(inner);
             var outerPrecedence = GetPrecedence(outerEffectiveType);
@@ -201,12 +220,12 @@ namespace MathParser
 
             var effectiveType = this.GetEffectiveNodeType(node);
 
-            if (this.NeedsLeftBrackets(effectiveType, node.Left))
+            if (this.NeedsLeftBrackets(effectiveType, node, node.Left))
             {
                 left = this.AddBrackets(left);
             }
 
-            if (this.NeedsRightBrackets(effectiveType, node.Right))
+            if (this.NeedsRightBrackets(effectiveType, node, node.Right))
             {
                 right = this.AddBrackets(right);
             }
@@ -272,23 +291,25 @@ namespace MathParser
                 {
                     case nameof(Complex.ImaginaryOne):
                         this.Result = this.FormatComplex(0, 1);
-                        break;
+                        return node;
 
                     case nameof(Complex.Zero):
                         this.Result = this.FormatComplex(0, 0);
-                        break;
+                        return node;
 
                     case nameof(Complex.One):
                         this.Result = this.FormatComplex(1, 0);
-                        break;
-                }
+                        return node;
 
-                return node;
+                    case nameof(Complex.Real):
+                    case nameof(Complex.Imaginary):
+                        this.Visit(node.Expression);
+                        this.Result = this.CreateFunction(node.Member.Name.Substring(0, 2), this.Result);
+                        return node;
+                }
             }
-            else
-            {
-                return base.VisitMember(node);
-            }
+
+            throw new NotSupportedException($"The member '{node.Member.DeclaringType.FullName}.{node.Member.Name}' is not supported for expression transformation.");
         }
 
         /// <inheritdoc />
@@ -300,11 +321,7 @@ namespace MathParser
             }
 
             var effectiveType = this.GetEffectiveNodeType(node);
-            if (effectiveType == ExpressionType.Add ||
-                effectiveType == ExpressionType.Subtract ||
-                effectiveType == ExpressionType.Multiply ||
-                effectiveType == ExpressionType.Divide ||
-                effectiveType == ExpressionType.Power)
+            if (node.Arguments.Count == 2 && effectiveType != ExpressionType.Call)
             {
                 var leftArg = node.Arguments[0];
                 var rightArg = node.Arguments[1];
@@ -314,12 +331,12 @@ namespace MathParser
                 this.Visit(rightArg);
                 var right = this.Result;
 
-                if (this.NeedsLeftBrackets(effectiveType, leftArg))
+                if (this.NeedsLeftBrackets(effectiveType, node, leftArg))
                 {
                     left = this.AddBrackets(left);
                 }
 
-                if (this.NeedsRightBrackets(effectiveType, rightArg))
+                if (this.NeedsRightBrackets(effectiveType, node, rightArg))
                 {
                     right = this.AddBrackets(right);
                 }
@@ -328,35 +345,61 @@ namespace MathParser
                 {
                     case ExpressionType.Add:
                         this.Result = this.CreateAdd(left, right);
-                        break;
+                        return node;
 
                     case ExpressionType.Subtract:
                         this.Result = this.CreateSubtract(left, right);
-                        break;
+                        return node;
 
                     case ExpressionType.Multiply:
                         this.Result = this.CreateMultiply(left, right);
-                        break;
+                        return node;
 
                     case ExpressionType.Divide:
                         this.Result = this.CreateDivide(left, right);
-                        break;
+                        return node;
 
                     case ExpressionType.Power:
                         this.Result = this.CreatePower(left, right);
-                        break;
+                        return node;
+                }
+            }
+            else if (node.Method.IsStatic &&
+                (node.Method.DeclaringType == typeof(Math) || node.Method.DeclaringType == typeof(Complex)))
+            {
+                var arguments = new T[node.Arguments.Count];
+                for (var i = 0; i < node.Arguments.Count; i++)
+                {
+                    this.Visit(node.Arguments[i]);
+                    arguments[i] = this.Result;
+                }
+
+                if (node.Method.Name == nameof(Math.Sqrt) && arguments.Length == 1)
+                {
+                    var inner = arguments[0];
+
+                    if (this.NeedsLeftBrackets(ExpressionType.Power, node, node.Arguments[0]))
+                    {
+                        inner = this.AddBrackets(inner);
+                    }
+
+                    this.Result = this.CreateRadical(inner);
+                }
+                else
+                {
+                    this.Result = this.CreateFunction(node.Method.Name, arguments);
                 }
 
                 return node;
             }
-            else if (effectiveType == ExpressionType.Negate)
+            else if (node.Arguments.Count == 1 && effectiveType == ExpressionType.Negate)
             {
                 var operand = node.Arguments[0];
 
                 this.Visit(operand);
                 var inner = this.Result;
 
-                if (this.NeedsRightBrackets(ExpressionType.Negate, operand))
+                if (this.NeedsRightBrackets(ExpressionType.Negate, node, operand))
                 {
                     inner = this.AddBrackets(inner);
                 }
@@ -364,10 +407,8 @@ namespace MathParser
                 this.Result = this.CreateNegate(inner);
                 return node;
             }
-            else
-            {
-                return base.VisitMethodCall(node);
-            }
+
+            throw new NotSupportedException($"The method '{node.Method.DeclaringType.FullName}.{node.Method.Name}' is not supported for expression transformation.");
         }
 
         /// <inheritdoc />
@@ -385,10 +426,8 @@ namespace MathParser
                 this.Result = this.FormatComplex(real, imaginary);
                 return node;
             }
-            else
-            {
-                return base.VisitNew(node);
-            }
+
+            throw new NotSupportedException($"The constructor '{node.Constructor.DeclaringType.FullName}' is not supported for expression transformation.");
         }
 
         /// <inheritdoc />
@@ -399,7 +438,6 @@ namespace MathParser
                 throw new ArgumentNullException(nameof(node));
             }
 
-            base.VisitParameter(node);
             this.Result = this.FormatVariable(node.Name);
             return node;
         }
@@ -415,10 +453,10 @@ namespace MathParser
             if (node.NodeType == ExpressionType.Negate ||
                 node.NodeType == ExpressionType.NegateChecked)
             {
-                base.VisitUnary(node);
+                this.Visit(node.Operand);
                 var inner = this.Result;
 
-                if (this.NeedsRightBrackets(ExpressionType.Negate, node.Operand))
+                if (this.NeedsRightBrackets(ExpressionType.Negate, node, node.Operand))
                 {
                     inner = this.AddBrackets(inner);
                 }
@@ -426,13 +464,16 @@ namespace MathParser
                 this.Result = this.CreateNegate(inner);
                 return node;
             }
-            else
+            else if (node.NodeType == ExpressionType.Convert)
             {
-                return base.VisitUnary(node);
+                this.Visit(node.Operand);
+                return node;
             }
+
+            throw new NotSupportedException($"The unary operator '{node.NodeType}' is not supported for expression transformation.");
         }
 
-        private static Associativity GetAssociativity(int precedence)
+        protected static Associativity GetAssociativity(int precedence)
         {
             switch (precedence)
             {
@@ -449,7 +490,7 @@ namespace MathParser
             }
         }
 
-        private static int GetPrecedence(ExpressionType effectiveType)
+        protected static int GetPrecedence(ExpressionType effectiveType)
         {
             switch (effectiveType)
             {
@@ -473,7 +514,7 @@ namespace MathParser
             }
         }
 
-        private static bool IsFullyAssociative(ExpressionType left, ExpressionType right)
+        protected static bool IsFullyAssociative(ExpressionType left, ExpressionType right)
         {
             if (left == ExpressionType.Add && right == ExpressionType.Add)
             {
@@ -493,7 +534,7 @@ namespace MathParser
             return false;
         }
 
-        private ExpressionType GetEffectiveNodeType(Expression expression)
+        protected ExpressionType GetEffectiveNodeType(Expression expression)
         {
             var actualType = expression.NodeType;
 
@@ -558,13 +599,15 @@ namespace MathParser
 
         private class MethodList : Dictionary<MethodInfo, ExpressionType>
         {
+            public void Add(Expression<Func<Complex, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
+
             public void Add(Expression<Func<Complex, Complex, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
 
             public void Add(Expression<Func<Complex, double, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
 
-            public void Add(Expression<Func<double, double, double>> expression, ExpressionType type) => this.AddInternal(expression, type);
+            public void Add(Expression<Func<double, double>> expression, ExpressionType type) => this.AddInternal(expression, type);
 
-            public void Add(Expression<Func<Complex, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
+            public void Add(Expression<Func<double, double, double>> expression, ExpressionType type) => this.AddInternal(expression, type);
 
             private void AddInternal(LambdaExpression expression, ExpressionType type)
             {

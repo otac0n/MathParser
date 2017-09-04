@@ -1,0 +1,6 @@
+2^5
+(parsed)
+Pow(Convert(2), 5)
+(transformed)
+2^5
+(stable)

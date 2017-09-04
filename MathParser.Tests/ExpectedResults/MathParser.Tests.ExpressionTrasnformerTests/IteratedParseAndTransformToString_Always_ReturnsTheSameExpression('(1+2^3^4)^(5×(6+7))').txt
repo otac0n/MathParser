@@ -1,0 +1,8 @@
+(1+2^3^4)^(5*(6+7))
+(parsed)
+Pow((Convert(1) + Pow(Convert(2), Pow(Convert(3), 4))), (5 * (6 + 7)))
+(transformed)
+(1+2^3^4)^(5·(6+7))
+(parsed)
+Pow((Convert(1) + Pow(Convert(2), Pow(Convert(3), 4))), (5 * (6 + 7)))
+(stable)

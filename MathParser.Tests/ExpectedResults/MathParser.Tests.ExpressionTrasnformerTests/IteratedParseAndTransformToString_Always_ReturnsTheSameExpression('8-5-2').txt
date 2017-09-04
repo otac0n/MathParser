@@ -1,0 +1,6 @@
+8-5-2
+(parsed)
+((8 - 5) - 2)
+(transformed)
+8-5-2
+(stable)

@@ -1,0 +1,6 @@
+Atan(x)
+(parsed)
+Atan(x)
+(transformed)
+Atan(x)
+(stable)

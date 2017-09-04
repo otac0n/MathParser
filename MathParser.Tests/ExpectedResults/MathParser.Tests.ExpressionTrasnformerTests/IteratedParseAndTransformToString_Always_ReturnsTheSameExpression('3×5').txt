@@ -1,0 +1,8 @@
+3*5
+(parsed)
+(3 * 5)
+(transformed)
+3·5
+(parsed)
+(3 * 5)
+(stable)

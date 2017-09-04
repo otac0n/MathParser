@@ -4,6 +4,7 @@ namespace MathParser
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Numerics;
     using MathParser.VisualNodes;
@@ -111,7 +112,7 @@ namespace MathParser
             protected override string CreateDivide(string dividend, string divisor) => dividend + "/" + divisor;
 
             /// <inheritdoc />
-            protected override string CreateMultiply(string multiplier, string multiplicand) => multiplier + " " + multiplicand;
+            protected override string CreateMultiply(string multiplier, string multiplicand) => multiplier + "·" + multiplicand;
 
             /// <inheritdoc />
             protected override string CreateNegate(string expression) => "-" + expression;
@@ -123,6 +124,12 @@ namespace MathParser
             protected override string CreateSubtract(string minuend, string subtrahend) => minuend + "-" + subtrahend;
 
             /// <inheritdoc />
+            protected override string CreateFunction(string name, params string[] arguments) => name + "(" + string.Join(", ", arguments) + ")";
+
+            /// <inheritdoc />
+            protected override string CreateRadical(string expression) => "√" + expression;
+
+            /// <inheritdoc />
             protected override string FormatComplex(double real, double imaginary) => FormatComplexExported(real, imaginary);
 
             /// <inheritdoc />
@@ -130,6 +137,18 @@ namespace MathParser
 
             /// <inheritdoc />
             protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => GetEffectiveTypeComplexInternal(real, imaginary);
+
+            /// <inheritdoc />
+            protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
+            {
+                if (outerEffectiveType == ExpressionType.Power &&
+                    ((outer is MethodCallExpression outerMethod && outerMethod.Method.Name == "Sqrt") || (inner is MethodCallExpression innerMethod && innerMethod.Method.Name == "Sqrt")))
+                {
+                    return GetPrecedence(this.GetEffectiveNodeType(inner)) <= GetPrecedence(outerEffectiveType);
+                }
+
+                return base.NeedsLeftBrackets(outerEffectiveType, outer, inner);
+            }
 
             /// <summary>
             /// Formats a real number as a string.
@@ -181,6 +200,16 @@ namespace MathParser
             protected override VisualNode CreateSubtract(VisualNode minuend, VisualNode subtrahend) => CreateInlineBinary(minuend, "-", subtrahend);
 
             /// <inheritdoc />
+            protected override VisualNode CreateFunction(string name, params VisualNode[] arguments)
+            {
+                var argumentNodes = Enumerable.Range(0, arguments.Length * 2 - 1).Select(i => i % 2 == 0 ? arguments[i / 2] : new StringVisualNode(",")).ToArray();
+                return new BaselineAlignedVisualNode(new StringVisualNode(name), new BracketedVisualNode("(", new BaselineAlignedVisualNode(argumentNodes), ")"));
+            }
+
+            /// <inheritdoc />
+            protected override VisualNode CreateRadical(VisualNode expression) => new RadicalVisualNode(expression);
+
+            /// <inheritdoc />
             protected override VisualNode FormatComplex(double real, double imaginary) => new StringVisualNode(StringTransformer.FormatComplexExported(real, imaginary));
 
             /// <inheritdoc />
@@ -190,7 +219,19 @@ namespace MathParser
             protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => StringTransformer.GetEffectiveTypeComplexInternal(real, imaginary);
 
             /// <inheritdoc />
-            protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression inner) => outerEffectiveType != ExpressionType.Power && base.NeedsRightBrackets(outerEffectiveType, inner);
+            protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
+            {
+                if (outerEffectiveType == ExpressionType.Power &&
+                    ((outer is MethodCallExpression outerMethod && outerMethod.Method.Name == "Sqrt") || (inner is MethodCallExpression innerMethod && innerMethod.Method.Name == "Sqrt")))
+                {
+                    return false;
+                }
+
+                return base.NeedsLeftBrackets(outerEffectiveType, outer, inner);
+            }
+
+            /// <inheritdoc />
+            protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner) => outerEffectiveType != ExpressionType.Power && base.NeedsRightBrackets(outerEffectiveType, outer, inner);
 
             private static VisualNode CreateInlineBinary(VisualNode left, string op, VisualNode right) => new BaselineAlignedVisualNode(left, new StringVisualNode(op), right);
         }

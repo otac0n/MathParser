@@ -1,0 +1,6 @@
+φ
+(parsed)
+1.61803398874989
+(transformed)
+φ
+(stable)

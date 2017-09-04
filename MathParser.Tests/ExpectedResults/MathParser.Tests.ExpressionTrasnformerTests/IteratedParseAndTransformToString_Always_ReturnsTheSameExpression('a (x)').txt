@@ -1,0 +1,8 @@
+a (x)
+(parsed)
+(a * x)
+(transformed)
+a·x
+(parsed)
+(a * x)
+(stable)

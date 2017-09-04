@@ -1,0 +1,8 @@
+pOw(x,y)
+(parsed)
+Pow(x, y)
+(transformed)
+x^y
+(parsed)
+Pow(x, y)
+(stable)

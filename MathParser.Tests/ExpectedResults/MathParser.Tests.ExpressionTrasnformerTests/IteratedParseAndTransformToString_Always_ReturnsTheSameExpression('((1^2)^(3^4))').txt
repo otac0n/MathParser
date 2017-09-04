@@ -1,0 +1,8 @@
+((1^2)^(3^4))
+(parsed)
+Pow(Pow(Convert(1), 2), Pow(Convert(3), 4))
+(transformed)
+(1^2)^3^4
+(parsed)
+Pow(Pow(Convert(1), 2), Pow(Convert(3), 4))
+(stable)

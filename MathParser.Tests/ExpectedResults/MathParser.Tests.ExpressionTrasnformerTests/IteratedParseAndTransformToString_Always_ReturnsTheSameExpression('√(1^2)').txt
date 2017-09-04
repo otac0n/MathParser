@@ -1,0 +1,6 @@
+√(1^2)
+(parsed)
+Sqrt(Pow(Convert(1), 2))
+(transformed)
+√(1^2)
+(stable)

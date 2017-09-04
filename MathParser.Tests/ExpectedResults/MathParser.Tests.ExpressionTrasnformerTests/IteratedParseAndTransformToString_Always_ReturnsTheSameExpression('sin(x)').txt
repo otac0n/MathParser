@@ -1,0 +1,8 @@
+sin(x)
+(parsed)
+Sin(x)
+(transformed)
+Sin(x)
+(parsed)
+Sin(x)
+(stable)

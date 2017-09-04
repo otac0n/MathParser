@@ -1,0 +1,8 @@
+√Sqrt(√2)
+(parsed)
+Sqrt(Sqrt(Sqrt(Convert(2))))
+(transformed)
+√(√(√2))
+(parsed)
+Sqrt(Sqrt(Sqrt(Convert(2))))
+(stable)

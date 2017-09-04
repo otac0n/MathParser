@@ -1,7 +1,9 @@
 ﻿@namespace MathParser
 @classname Parser
-@using System.Numerics
+@using System.Linq
 @using System.Linq.Expressions
+@using System.Numerics
+@using System.Reflection
 @members
 {
     private static Expression ConvertIfLower(Expression expression, Expression to)
@@ -23,7 +25,48 @@
     private static Expression Pow(Expression @base, Expression exponent)
     {
         @base = ConvertIfLower(@base, to: typeof(Complex));
-        return Expression.Call(typeof(Complex).GetMethod("Pow", new[] { @base.Type, exponent.Type }), @base, exponent);
+        return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), new[] { @base.Type, exponent.Type }), @base, exponent);
+    }
+
+    private static Expression Sqrt(Expression @base)
+    {
+        @base = ConvertIfLower(@base, to: typeof(Complex));
+        return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Sqrt), new[] { @base.Type }), @base);
+    }
+
+    private static Expression Function(string name, IList<Expression> arguments)
+    {
+        Expression[] mappedArguments;
+        var found = FindFunction(typeof(Complex), name, arguments.Select(a => a.Type).ToArray());
+        if (found == null)
+        {
+            found = FindFunction(typeof(Complex), name, arguments.Select(_ => typeof(Complex)).ToArray());
+            if (found == null)
+            {
+                throw new MissingMethodException(typeof(Complex).FullName, name + "(" + string.Join(", ", arguments.Select(a => a.Type.FullName)) + ")");
+            }
+            else
+            {
+                mappedArguments = arguments.Select(a => ConvertIfLower(a, to: typeof(Complex))).ToArray();
+            }
+        }
+        else
+        {
+            mappedArguments = arguments.ToArray();
+        }
+
+        return Expression.Call(found, mappedArguments);
+    }
+
+    private static MethodInfo FindFunction(Type type, string name, Type[] argTypes)
+    {
+        return (from m in type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                where m.DeclaringType == type
+                where m.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                let parameters = m.GetParameters()
+                where parameters.Length == argTypes.Length
+                where Enumerable.Range(0, argTypes.Length).All(i => parameters[i].ParameterType.IsAssignableFrom(argTypes[i]))
+                select m).FirstOrDefault();
     }
 
     private static void CreateVariable(Cursor state, string variable)
@@ -46,13 +89,18 @@ additive <Expression> -memoize
 
 multiplicative <Expression> -memoize
     = left:multiplicative _ ("*" / "×" / "·" / ![-+]) _ right:negation { Expression.Multiply(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
-    / left:multiplicative _ ("/" / "÷") _ right:negation { Expression.Divide(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
+    / left:multiplicative _ ("/" / "∕" / "÷") _ right:negation { Expression.Divide(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
     / negation
 
 negation <Expression>
     = "-" _ negation:negation { Expression.Negate(negation) }
     / "+" _ negation:negation { negation }
     / power
+
+negationPrimary <Expression>
+    = "-" _ negation:negationPrimary { Expression.Negate(negation) }
+    / "+" _ negation:negationPrimary { negation }
+    / primary
 
 power <Expression> -memoize
     = left:primary _ "^" _ right:negation { Pow(left, right) }
@@ -61,8 +109,11 @@ power <Expression> -memoize
 primary <Expression> -memoize
     = decimal
     / namedConstant
+    / name:identifier "(" _ arguments:additive<0,,_ "," _> _ ")" { Function(name, arguments) }
     / variable
+    / "√" _ negation:negationPrimary { Sqrt(negation) }
     / "(" _ additive:additive _ ")" { additive }
+
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
@@ -76,7 +127,10 @@ namedConstant <Expression>
     / "i" ![_a-z0-9]i { Expression.Constant(Complex.ImaginaryOne) }
 
 variable <Expression>
-    = v:([_a-z]i [_a-z0-9]i*) #{ CreateVariable(state, v); } { (Expression)state[v] }
+    = name:identifier #{ CreateVariable(state, name); } { (Expression)state[name] }
+
+identifier
+    = [_a-z]i [_a-z0-9]i*
 
 _ = [ \t\r\n]*
 

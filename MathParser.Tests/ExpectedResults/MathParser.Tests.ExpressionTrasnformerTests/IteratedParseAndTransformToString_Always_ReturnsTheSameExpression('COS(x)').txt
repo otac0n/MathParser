@@ -1,0 +1,8 @@
+COS(x)
+(parsed)
+Cos(x)
+(transformed)
+Cos(x)
+(parsed)
+Cos(x)
+(stable)
