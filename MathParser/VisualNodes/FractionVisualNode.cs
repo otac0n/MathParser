@@ -8,6 +8,7 @@ namespace MathParser.VisualNodes
 
     internal class FractionVisualNode : VisualNode
     {
+        private const float FontSizeRatio = 0.9F;
         private const string FractionBar = "—";
 
         public FractionVisualNode(VisualNode dividend, VisualNode divisor)
@@ -22,8 +23,9 @@ namespace MathParser.VisualNodes
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
-            var dividendSize = this.Dividend.Measure(graphics, font, out float dividendBaseline);
-            var divisorSize = this.Divisor.Measure(graphics, font, out float divisorBaseline);
+            var componentFont = GetComponentFont(font);
+            var dividendSize = this.Dividend.Measure(graphics, componentFont, out float dividendBaseline);
+            var divisorSize = this.Divisor.Measure(graphics, componentFont, out float divisorBaseline);
 
             RectangleF barBounds;
             using (var path = new GraphicsPath())
@@ -32,19 +34,19 @@ namespace MathParser.VisualNodes
                     FractionBar,
                     font.FontFamily,
                     (int)font.Style,
-                    graphics.DpiY * font.Size / 72,
+                    graphics.DpiY * font.Size / PointsPerInch,
                     PointF.Empty,
                     StringFormat.GenericDefault);
 
                 using (var matrix = new Matrix())
                 {
                     barBounds = path.GetBounds();
-                    topLeft.X += barBounds.X;
+                    topLeft.X += barBounds.Left;
                     matrix.Scale(Math.Max(dividendSize.Width, divisorSize.Width) / barBounds.Width, 1);
                     path.Transform(matrix);
                     matrix.Reset();
                     barBounds = path.GetBounds();
-                    matrix.Translate(topLeft.X - barBounds.X, topLeft.Y + dividendSize.Height - barBounds.Top);
+                    matrix.Translate(topLeft.X - barBounds.Left, topLeft.Y + dividendSize.Height - barBounds.Top);
                     path.Transform(matrix);
                     barBounds = path.GetBounds();
                 }
@@ -57,18 +59,19 @@ namespace MathParser.VisualNodes
 
             var dividendLocation = topLeft;
             dividendLocation.X += (maxWidth - dividendSize.Width) / 2;
-            this.Dividend.Draw(graphics, font, brush, pen, dividendLocation);
+            this.Dividend.Draw(graphics, componentFont, brush, pen, dividendLocation);
 
             var divisorLocation = topLeft;
             divisorLocation.Y += dividendSize.Height + barBounds.Height;
             divisorLocation.X += (maxWidth - divisorSize.Width) / 2;
-            this.Divisor.Draw(graphics, font, brush, pen, divisorLocation);
+            this.Divisor.Draw(graphics, componentFont, brush, pen, divisorLocation);
         }
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
-            var dividendSize = this.Dividend.Measure(graphics, font, out float dividendBaseline);
-            var divisorSize = this.Divisor.Measure(graphics, font, out float divisorBaseline);
+            var componentFont = GetComponentFont(font);
+            var dividendSize = this.Dividend.Measure(graphics, componentFont, out float dividendBaseline);
+            var divisorSize = this.Divisor.Measure(graphics, componentFont, out float divisorBaseline);
 
             var barSize = MeasureString(graphics, FractionBar, font, out float barBaseline);
 
@@ -79,7 +82,7 @@ namespace MathParser.VisualNodes
                     FractionBar,
                     font.FontFamily,
                     (int)font.Style,
-                    graphics.DpiY * font.Size / 72,
+                    graphics.DpiY * font.Size / PointsPerInch,
                     PointF.Empty,
                     StringFormat.GenericDefault);
                 barBounds = path.GetBounds();
@@ -90,6 +93,11 @@ namespace MathParser.VisualNodes
                 dividendSize.Height + barBounds.Height + divisorSize.Height);
             baseline = dividendSize.Height + barBaseline - barBounds.Top;
             return size;
+        }
+
+        private static Font GetComponentFont(Font font)
+        {
+            return new Font(font.FontFamily, font.Size * FontSizeRatio, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
         }
     }
 }

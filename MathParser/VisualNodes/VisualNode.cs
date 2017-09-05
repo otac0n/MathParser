@@ -12,6 +12,14 @@ namespace MathParser.VisualNodes
     public abstract class VisualNode
     {
         /// <summary>
+        /// The numer of points per inch.
+        /// </summary>
+        /// <remarks>
+        /// See <see href="https://msdn.microsoft.com/en-us/library/windows/desktop/ff684173(v=vs.85).aspx"/> for more info.
+        /// </remarks>
+        protected const int PointsPerInch = 72;
+
+        /// <summary>
         /// Measures a string.
         /// </summary>
         /// <param name="graphics">The <see cref="Graphics"/> to respect when measuring.</param>
@@ -77,7 +85,7 @@ namespace MathParser.VisualNodes
                     text,
                     font.FontFamily,
                     (int)font.Style,
-                    graphics.DpiY * font.Size / 72,
+                    graphics.DpiY * font.Size / PointsPerInch,
                     topLeft,
                     StringFormat.GenericDefault);
                 graphics.DrawPath(pen, path);
