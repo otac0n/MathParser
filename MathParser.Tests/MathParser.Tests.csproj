@@ -104,6 +104,9 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281+2%29^%283+4%29%29^5%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281+i%29÷%281-i%29%29^3-%28%281-i%29÷%281+i%29%29^3%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27%28%281-%282-3%29%29-4%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -188,6 +191,9 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%2710÷2%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%271÷sqrt%28τ%29e^-%28x^2÷2%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%272^2^2^2%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -198,6 +204,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%273×5%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%274v^2÷√π%28m÷%282k T%29%29^%283÷2%29e^-%28m v^2÷%282 k...%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%278+%285+2%29%27%29.png">
@@ -221,7 +230,13 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27e%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27e^%28iτ%29-1%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27i%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27m·v÷√%281-v^2÷c^2%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27pOw%28x,y%29%27%29.png">
@@ -237,6 +252,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27√%281+2%29%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27√%281+√√√2+3÷4+√%281÷3%29+√%28i^2%29%29%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27√%281^2%29%27%29.png">
@@ -407,6 +425,9 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27%28%281+2%29^%283+4%29%29^5%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27%28%281+i%29÷%281-i%29%29^3-%28%281-i%29÷%281+i%29%29^3%27%29.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27%28%281-%282-3%29%29-4%29%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -491,6 +512,9 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%2710÷2%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%271÷sqrt%28τ%29e^-%28x^2÷2%29%27%29.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%272^2^2^2%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -501,6 +525,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%273×5%27%29.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%274v^2÷√π%28m÷%282k T%29%29^%283÷2%29e^-%28m v^2÷%282 k...%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%278+%285+2%29%27%29.txt">
@@ -524,7 +551,13 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27e%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27e^%28iτ%29-1%27%29.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27i%27%29.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27m·v÷√%281-v^2÷c^2%29%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27pOw%28x,y%29%27%29.txt">
@@ -540,6 +573,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27√%281+2%29%27%29.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27√%281+√√√2+3÷4+√%281÷3%29+√%28i^2%29%29%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27√%281^2%29%27%29.txt">

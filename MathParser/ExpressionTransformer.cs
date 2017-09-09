@@ -241,9 +241,8 @@ namespace MathParser
         /// <param name="outer">The outer expression.</param>
         /// <param name="inner">The inner expression.</param>
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
-        protected virtual bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
+        protected virtual bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
-            var innerEffectiveType = this.GetEffectiveNodeType(inner);
             var outerPrecedence = GetPrecedence(outerEffectiveType);
             var innerPrecedence = GetPrecedence(innerEffectiveType);
             var innerAssociativity = GetAssociativity(innerPrecedence);
@@ -272,9 +271,8 @@ namespace MathParser
         /// <param name="outer">The outer expression.</param>
         /// <param name="inner">The inner expression.</param>
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
-        protected virtual bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
+        protected virtual bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
-            var innerEffectiveType = this.GetEffectiveNodeType(inner);
             var outerPrecedence = GetPrecedence(outerEffectiveType);
             var innerPrecedence = GetPrecedence(innerEffectiveType);
             var innerAssociativity = GetAssociativity(innerPrecedence);
@@ -310,13 +308,15 @@ namespace MathParser
             var right = this.Result;
 
             var effectiveType = this.GetEffectiveNodeType(node);
+            var leftEffectiveType = this.GetEffectiveNodeType(node.Left);
+            var rightEffectiveType = this.GetEffectiveNodeType(node.Right);
 
-            if (this.NeedsLeftBrackets(effectiveType, node, node.Left))
+            if (this.NeedsLeftBrackets(effectiveType, node, leftEffectiveType, node.Left))
             {
                 left = this.AddBrackets(left);
             }
 
-            if (this.NeedsRightBrackets(effectiveType, node, node.Right))
+            if (this.NeedsRightBrackets(effectiveType, node, rightEffectiveType, node.Right))
             {
                 right = this.AddBrackets(right);
             }
@@ -421,12 +421,15 @@ namespace MathParser
                 this.Visit(rightArg);
                 var right = this.Result;
 
-                if (this.NeedsLeftBrackets(effectiveType, node, leftArg))
+                var leftEffectiveType = this.GetEffectiveNodeType(leftArg);
+                var rightEffectiveType = this.GetEffectiveNodeType(rightArg);
+
+                if (this.NeedsLeftBrackets(effectiveType, node, leftEffectiveType, leftArg))
                 {
                     left = this.AddBrackets(left);
                 }
 
-                if (this.NeedsRightBrackets(effectiveType, node, rightArg))
+                if (this.NeedsRightBrackets(effectiveType, node, rightEffectiveType, rightArg))
                 {
                     right = this.AddBrackets(right);
                 }
@@ -467,8 +470,10 @@ namespace MathParser
                 if (node.Method.Name == nameof(Math.Sqrt) && arguments.Length == 1)
                 {
                     var inner = arguments[0];
+                    var power = node.Arguments[0];
+                    var powerEffectiveType = this.GetEffectiveNodeType(power);
 
-                    if (this.NeedsLeftBrackets(ExpressionType.Power, node, node.Arguments[0]))
+                    if (this.NeedsLeftBrackets(ExpressionType.Power, node, powerEffectiveType, power))
                     {
                         inner = this.AddBrackets(inner);
                     }
@@ -489,7 +494,9 @@ namespace MathParser
                 this.Visit(operand);
                 var inner = this.Result;
 
-                if (this.NeedsRightBrackets(ExpressionType.Negate, node, operand))
+                var operandEffectiveType = this.GetEffectiveNodeType(operand);
+
+                if (this.NeedsRightBrackets(ExpressionType.Negate, node, operandEffectiveType, operand))
                 {
                     inner = this.AddBrackets(inner);
                 }
@@ -546,7 +553,9 @@ namespace MathParser
                 this.Visit(node.Operand);
                 var inner = this.Result;
 
-                if (this.NeedsRightBrackets(ExpressionType.Negate, node, node.Operand))
+                var operandEffectiveType = this.GetEffectiveNodeType(node.Operand);
+
+                if (this.NeedsRightBrackets(ExpressionType.Negate, node, operandEffectiveType, node.Operand))
                 {
                     inner = this.AddBrackets(inner);
                 }

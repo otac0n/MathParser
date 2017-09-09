@@ -139,7 +139,7 @@ namespace MathParser
             protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => GetEffectiveTypeComplexInternal(real, imaginary);
 
             /// <inheritdoc />
-            protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
+            protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
             {
                 if (outerEffectiveType == ExpressionType.Power &&
                     ((outer is MethodCallExpression outerMethod && outerMethod.Method.Name == "Sqrt") || (inner is MethodCallExpression innerMethod && innerMethod.Method.Name == "Sqrt")))
@@ -147,7 +147,7 @@ namespace MathParser
                     return GetPrecedence(this.GetEffectiveNodeType(inner)) <= GetPrecedence(outerEffectiveType);
                 }
 
-                return base.NeedsLeftBrackets(outerEffectiveType, outer, inner);
+                return base.NeedsLeftBrackets(outerEffectiveType, outer, innerEffectiveType, inner);
             }
 
             /// <summary>
@@ -219,7 +219,7 @@ namespace MathParser
             protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => StringTransformer.GetEffectiveTypeComplexInternal(real, imaginary);
 
             /// <inheritdoc />
-            protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
+            protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
             {
                 if (outerEffectiveType == ExpressionType.Power &&
                     ((outer is MethodCallExpression outerMethod && outerMethod.Method.Name == "Sqrt") || (inner is MethodCallExpression innerMethod && innerMethod.Method.Name == "Sqrt")))
@@ -227,13 +227,37 @@ namespace MathParser
                     return false;
                 }
 
-                return outerEffectiveType != ExpressionType.Divide && base.NeedsLeftBrackets(outerEffectiveType, outer, inner);
+                if (outerEffectiveType == ExpressionType.Divide)
+                {
+                    // A fraction does not need parentheses around the dividend.
+                    return false;
+                }
+
+                return base.NeedsLeftBrackets(outerEffectiveType, outer, innerEffectiveType, inner);
             }
 
             /// <inheritdoc />
-            protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, Expression inner)
+            protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
             {
-                return outerEffectiveType != ExpressionType.Power && outerEffectiveType != ExpressionType.Divide && base.NeedsRightBrackets(outerEffectiveType, outer, inner);
+                if (outerEffectiveType == ExpressionType.Power)
+                {
+                    return false;
+                }
+
+                if (outerEffectiveType == ExpressionType.Divide)
+                {
+                    // A fraction does not need parentheses around the divisor.
+                    return false;
+                }
+
+                if (outerEffectiveType == ExpressionType.Negate &&
+                    innerEffectiveType == ExpressionType.Divide)
+                {
+                    // Negating a fraction does not requre parentheses around the fraction.
+                    return false;
+                }
+
+                return base.NeedsRightBrackets(outerEffectiveType, outer, innerEffectiveType, inner);
             }
 
             private static VisualNode CreateInlineBinary(VisualNode left, string op, VisualNode right) => new BaselineAlignedVisualNode(left, new StringVisualNode(op), right);

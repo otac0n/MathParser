@@ -77,6 +77,12 @@ namespace MathParser.Tests
             "(1^(2^(3^4)))",
             "((1^(2^3))^4)",
             "(1^((2^3)^4))",
+            "e^(iτ)-1",
+            "√(1+√√√2+3/4+√(1/3)+√(i^2))",
+            "m·v/√(1-v^2/c^2)",
+            "1/sqrt(τ)e^-(x^2/2)",
+            "4v^2/√π(m/(2k T))^(3/2)e^-(m v^2/(2 k T))",
+            "((1+i)/(1-i))^3-((1-i)/(1+i))^3",
         };
 
         [TestCaseSource(typeof(ExpressionTransformerTests), nameof(ExpressionTransformerTests.ExpressionTestCases))]

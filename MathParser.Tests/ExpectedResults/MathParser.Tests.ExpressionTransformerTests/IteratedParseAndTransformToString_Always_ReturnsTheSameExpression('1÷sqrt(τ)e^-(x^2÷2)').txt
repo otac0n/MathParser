@@ -1,0 +1,8 @@
+1/sqrt(τ)e^-(x^2/2)
+(parsed)
+((Convert(1) / Sqrt(Convert(6.28318530717959))) * Pow(Convert(2.71828182845905), -(Pow(x, 2) / Convert(2))))
+(transformed)
+1/√τ·e^(-(x^2/2))
+(parsed)
+((Convert(1) / Sqrt(Convert(6.28318530717959))) * Pow(Convert(2.71828182845905), -(Pow(x, 2) / Convert(2))))
+(stable)

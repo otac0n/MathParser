@@ -1,0 +1,6 @@
+m·v/√(1-v^2/c^2)
+(parsed)
+((m * v) / Sqrt((Convert(1) - (Pow(v, 2) / Pow(c, 2)))))
+(transformed)
+m·v/√(1-v^2/c^2)
+(stable)
