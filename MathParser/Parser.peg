@@ -1,4 +1,4 @@
-﻿@namespace MathParser
+@namespace MathParser
 @classname Parser
 @using System.Linq
 @using System.Linq.Expressions
@@ -20,6 +20,16 @@
         }
 
         return expression;
+    }
+
+    private static Expression Ceiling(Expression expression)
+    {
+        return Expression.Call(typeof(Math).GetMethod(nameof(Math.Ceiling), new[] { expression.Type }), expression);
+    }
+
+    private static Expression Floor(Expression expression)
+    {
+        return Expression.Call(typeof(Math).GetMethod(nameof(Math.Floor), new[] { expression.Type }), expression);
     }
 
     private static Expression Pow(Expression @base, Expression exponent)
@@ -113,7 +123,8 @@ primary <Expression> -memoize
     / variable
     / "√" _ negation:negationPrimary { Sqrt(negation) }
     / "(" _ additive:additive _ ")" { additive }
-
+    / "⌈" _ additive:additive _ "⌉" { Ceiling(additive) }
+    / "⌊" _ additive:additive _ "⌋" { Floor(additive) }
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }

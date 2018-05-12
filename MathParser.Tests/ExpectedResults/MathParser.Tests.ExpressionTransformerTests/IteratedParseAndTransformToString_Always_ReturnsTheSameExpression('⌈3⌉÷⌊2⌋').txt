@@ -1,0 +1,6 @@
+⌈3⌉/⌊2⌋
+(parsed)
+(Ceiling(3) / Floor(2))
+(transformed)
+⌈3⌉/⌊2⌋
+(stable)

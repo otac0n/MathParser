@@ -1,4 +1,4 @@
-﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser
 {
@@ -103,7 +103,7 @@ namespace MathParser
                             : ExpressionType.Multiply;
 
             /// <inheritdoc />
-            protected override string AddBrackets(string expression) => "(" + expression + ")";
+            protected override string AddBrackets(string left, string expression, string right) => left + expression + right;
 
             /// <inheritdoc />
             protected override string CreateAdd(string augend, string addend) => augend + "+" + addend;
@@ -179,7 +179,7 @@ namespace MathParser
         public class VisualNodeTransformer : ExpressionTransformer<VisualNode>
         {
             /// <inheritdoc />
-            protected override VisualNode AddBrackets(VisualNode expression) => new BracketedVisualNode("(", expression, ")");
+            protected override VisualNode AddBrackets(string left, VisualNode expression, string right) => new BracketedVisualNode(left, expression, right);
 
             /// <inheritdoc />
             protected override VisualNode CreateAdd(VisualNode augend, VisualNode addend) => CreateInlineBinary(augend, "+", addend);

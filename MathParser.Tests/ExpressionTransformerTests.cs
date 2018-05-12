@@ -1,4 +1,4 @@
-﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser.Tests
 {
@@ -83,6 +83,7 @@ namespace MathParser.Tests
             "1/sqrt(τ)e^-(x^2/2)",
             "4v^2/√π(m/(2k T))^(3/2)e^-(m v^2/(2 k T))",
             "((1+i)/(1-i))^3-((1-i)/(1+i))^3",
+            "⌈3⌉/⌊2⌋",
         };
 
         [TestCaseSource(typeof(ExpressionTransformerTests), nameof(ExpressionTransformerTests.ExpressionTestCases))]

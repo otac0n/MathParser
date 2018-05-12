@@ -1,4 +1,4 @@
-﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser
 {
@@ -147,7 +147,16 @@ namespace MathParser
         /// </summary>
         /// <param name="expression">The expression that will be bracketed.</param>
         /// <returns>The bracketed expression.</returns>
-        protected abstract T AddBrackets(T expression);
+        protected virtual T AddBrackets(T expression) => this.AddBrackets("(", expression, ")");
+
+        /// <summary>
+        /// Constructs a bracketed expression.
+        /// </summary>
+        /// <param name="left">The left bracket character.</param>
+        /// <param name="expression">The expression that will be bracketed.</param>
+        /// <param name="right">The right bracket character.</param>
+        /// <returns>The bracketed expression.</returns>
+        protected abstract T AddBrackets(string left, T expression, string right);
 
         /// <summary>
         /// Constructs an additive expression.
@@ -479,6 +488,14 @@ namespace MathParser
                     }
 
                     this.Result = this.CreateRadical(inner);
+                }
+                else if (node.Method.Name == nameof(Math.Ceiling) && arguments.Length == 1)
+                {
+                    this.Result = this.AddBrackets("⌈", arguments[0], "⌉");
+                }
+                else if (node.Method.Name == nameof(Math.Floor) && arguments.Length == 1)
+                {
+                    this.Result = this.AddBrackets("⌊", arguments[0], "⌋");
                 }
                 else
                 {

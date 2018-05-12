@@ -278,6 +278,9 @@
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27∞%27%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%27⌈3⌉÷⌊2⌋%27%29.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionRendererTests\MeasureAndDrawExpression_ApprovalTest%28%28%29 =_ %28new Complex%28-2, -3%29 + Convert%284%29%29%29.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -597,6 +600,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27∞%27%29.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ExpectedResults\MathParser.Tests.ExpressionTransformerTests\IteratedParseAndTransformToString_Always_ReturnsTheSameExpression%28%27⌈3⌉÷⌊2⌋%27%29.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
