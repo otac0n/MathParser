@@ -33,6 +33,7 @@
             this.resultPanel = new System.Windows.Forms.Panel();
             this.expressionDisplay = new System.Windows.Forms.PictureBox();
             this.resultDisplay = new System.Windows.Forms.TextBox();
+            this.FontDialog = new System.Windows.Forms.FontDialog();
             this.resultPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.expressionDisplay)).BeginInit();
             this.SuspendLayout();
@@ -48,12 +49,14 @@
             resources.ApplyResources(this.resultPanel, "resultPanel");
             this.resultPanel.Controls.Add(this.expressionDisplay);
             this.resultPanel.Name = "resultPanel";
+            this.resultPanel.DoubleClick += new System.EventHandler(this.ResultPanel_DoubleClick);
             //
             // expressionDisplay
             //
             resources.ApplyResources(this.expressionDisplay, "expressionDisplay");
             this.expressionDisplay.Name = "expressionDisplay";
             this.expressionDisplay.TabStop = false;
+            this.expressionDisplay.DoubleClick += new System.EventHandler(this.ResultPanel_DoubleClick);
             //
             // resultDisplay
             //
@@ -89,6 +92,7 @@
         private System.Windows.Forms.Panel resultPanel;
         private System.Windows.Forms.PictureBox expressionDisplay;
         private System.Windows.Forms.TextBox resultDisplay;
+        private System.Windows.Forms.FontDialog FontDialog;
     }
 }
 

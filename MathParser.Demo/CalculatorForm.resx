@@ -237,6 +237,9 @@
   <data name="&gt;&gt;resultDisplay.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
+  <metadata name="FontDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
@@ -251,6 +254,12 @@
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>Calculator</value>
+  </data>
+  <data name="&gt;&gt;FontDialog.Name" xml:space="preserve">
+    <value>FontDialog</value>
+  </data>
+  <data name="&gt;&gt;FontDialog.Type" xml:space="preserve">
+    <value>System.Windows.Forms.FontDialog, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>CalculatorForm</value>

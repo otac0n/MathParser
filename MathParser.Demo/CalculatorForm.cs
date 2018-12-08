@@ -55,6 +55,16 @@ namespace MathParser.Demo
             this.expressionDisplay.Image = this.display.ExpressionImage;
         }
 
+        private void ResultPanel_DoubleClick(object sender, EventArgs e)
+        {
+            this.FontDialog.Font = this.display.Font;
+            if (this.FontDialog.ShowDialog() == DialogResult.OK)
+            {
+                this.display.Font = this.FontDialog.Font;
+                this.expressionDisplay.Image = this.display.ExpressionImage;
+            }
+        }
+
         private class Display
         {
             private static readonly Bitmap EmptyDisplayImage = new Bitmap(1, 1);
@@ -66,18 +76,34 @@ namespace MathParser.Demo
                 Font = new Font("Calibri", 20, FontStyle.Regular),
             };
 
+            private Expression expression;
+
             public Bitmap ExpressionImage { get; private set; }
 
             public string ExpressionText { get; private set; }
+
+            public Font Font
+            {
+                get
+                {
+                    return this.renderer.Font;
+                }
+
+                set
+                {
+                    this.renderer.Font = value;
+                    this.RenderExpression();
+                }
+            }
 
             public string ResultText { get; private set; }
 
             public void SetInput(string value)
             {
-                Expression expression;
+                this.expression = null;
                 try
                 {
-                    expression = this.parser.Parse(value);
+                    this.expression = this.parser.Parse(value);
                 }
                 catch (Exception)
                 {
@@ -89,7 +115,7 @@ namespace MathParser.Demo
 
                 try
                 {
-                    this.ExpressionImage = this.renderer.RenderExpression(expression);
+                    this.RenderExpression();
                 }
                 catch (Exception)
                 {
@@ -98,7 +124,7 @@ namespace MathParser.Demo
 
                 try
                 {
-                    this.ExpressionText = expression.TransformToString();
+                    this.ExpressionText = this.expression.TransformToString();
                 }
                 catch (Exception)
                 {
@@ -109,15 +135,23 @@ namespace MathParser.Demo
                 {
                     var converted = Expression.Call(
                         typeof(ExpressionTransformers).GetMethod(nameof(ExpressionTransformers.TransformToString), new[] { typeof(Complex) }),
-                        expression.Type == typeof(Complex)
-                            ? expression
-                            : Expression.Convert(expression, typeof(Complex)));
+                        this.expression.Type == typeof(Complex)
+                            ? this.expression
+                            : Expression.Convert(this.expression, typeof(Complex)));
 
                     this.ResultText = ((Expression<Func<string>>)Expression.Lambda(converted)).Compile()();
                 }
                 catch (Exception)
                 {
                     this.ResultText = "?";
+                }
+            }
+
+            private void RenderExpression()
+            {
+                if (this.expression != null)
+                {
+                    this.ExpressionImage = this.renderer.RenderExpression(this.expression);
                 }
             }
         }
