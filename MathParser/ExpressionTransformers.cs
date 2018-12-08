@@ -14,6 +14,8 @@ namespace MathParser
     /// </summary>
     public static class ExpressionTransformers
     {
+        private static readonly string DoubleFormat = "0." + new string('#', 339);
+
         /// <summary>
         /// Converts a complex value to its string representation.
         /// </summary>
@@ -160,7 +162,7 @@ namespace MathParser
                 (value == Math.PI) ? "π" :
                 (value == Math.E) ? "e" :
                 (value == (1 + Math.Sqrt(5)) / 2) ? "φ" :
-                value.ToString("R", CultureInfo.CurrentCulture);
+                value.ToString(DoubleFormat, CultureInfo.CurrentCulture);
 
             /// <summary>
             /// Gets the effective type of the real number's notation when converted using <see cref="FormatReal(double)"/>.
