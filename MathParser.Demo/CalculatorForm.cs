@@ -33,15 +33,22 @@ namespace MathParser.Demo
 
                 return;
             }
-            else
-            {
-                this.enterState = 0;
-            }
-
-            if (e.KeyChar == (char)Keys.Escape)
+            else if (e.KeyChar == (char)Keys.Escape)
             {
                 this.inputBox.Text = string.Empty;
                 e.Handled = true;
+            }
+        }
+
+        private void Control_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.IsInputKey = true;
+            }
+            else
+            {
+                this.enterState = 0;
             }
         }
 

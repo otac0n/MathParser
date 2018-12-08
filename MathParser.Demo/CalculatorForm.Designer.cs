@@ -37,37 +37,39 @@
             this.resultPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.expressionDisplay)).BeginInit();
             this.SuspendLayout();
-            //
+            // 
             // inputBox
-            //
+            // 
             resources.ApplyResources(this.inputBox, "inputBox");
             this.inputBox.Name = "inputBox";
             this.inputBox.TextChanged += new System.EventHandler(this.InputBox_TextChanged);
-            //
+            this.inputBox.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
+            // 
             // resultPanel
-            //
+            // 
             resources.ApplyResources(this.resultPanel, "resultPanel");
             this.resultPanel.Controls.Add(this.expressionDisplay);
             this.resultPanel.Name = "resultPanel";
             this.resultPanel.DoubleClick += new System.EventHandler(this.ResultPanel_DoubleClick);
-            //
+            // 
             // expressionDisplay
-            //
+            // 
             resources.ApplyResources(this.expressionDisplay, "expressionDisplay");
             this.expressionDisplay.Name = "expressionDisplay";
             this.expressionDisplay.TabStop = false;
             this.expressionDisplay.DoubleClick += new System.EventHandler(this.ResultPanel_DoubleClick);
-            //
+            // 
             // resultDisplay
-            //
+            // 
             this.resultDisplay.BackColor = System.Drawing.SystemColors.Window;
             this.resultDisplay.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             resources.ApplyResources(this.resultDisplay, "resultDisplay");
             this.resultDisplay.Name = "resultDisplay";
             this.resultDisplay.ReadOnly = true;
-            //
+            this.resultDisplay.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
+            // 
             // CalculatorForm
-            //
+            // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.resultPanel);
