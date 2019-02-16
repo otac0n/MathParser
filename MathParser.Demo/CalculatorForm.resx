@@ -126,13 +126,13 @@
     <value>Calibri, 12pt</value>
   </data>
   <data name="inputBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 52</value>
+    <value>12, 12</value>
   </data>
   <data name="inputBox.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>0, 0, 0, 0</value>
   </data>
   <data name="inputBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>463, 27</value>
+    <value>560, 27</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="inputBox.TabIndex" type="System.Int32, mscorlib">
@@ -148,10 +148,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;inputBox.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
-  <data name="resultPanel.AutoScroll" type="System.Boolean, mscorlib">
+  <data name="resultPanel.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
+  </data>
+  <data name="resultPanel.AutoSizeMode" type="System.Windows.Forms.AutoSizeMode, System.Windows.Forms">
+    <value>GrowAndShrink</value>
+  </data>
+  <data name="expressionDisplay.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
   </data>
   <data name="expressionDisplay.Location" type="System.Drawing.Point, System.Drawing">
     <value>0, 0</value>
@@ -181,13 +187,19 @@
     <value>Fill</value>
   </data>
   <data name="resultPanel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 79</value>
+    <value>12, 145</value>
+  </data>
+  <data name="resultPanel.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 250</value>
+  </data>
+  <data name="resultPanel.MinimumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 50</value>
   </data>
   <data name="resultPanel.Size" type="System.Drawing.Size, System.Drawing">
-    <value>463, 72</value>
+    <value>560, 75</value>
   </data>
   <data name="resultPanel.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="&gt;&gt;resultPanel.Name" xml:space="preserve">
     <value>resultPanel</value>
@@ -202,19 +214,19 @@
     <value>0</value>
   </data>
   <data name="resultDisplay.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
-    <value>Top</value>
+    <value>Bottom</value>
   </data>
   <data name="resultDisplay.Font" type="System.Drawing.Font, System.Drawing">
     <value>Calibri, 20pt</value>
   </data>
   <data name="resultDisplay.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 12</value>
+    <value>12, 220</value>
   </data>
   <data name="resultDisplay.Size" type="System.Drawing.Size, System.Drawing">
-    <value>463, 40</value>
+    <value>560, 40</value>
   </data>
   <data name="resultDisplay.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
+    <value>2</value>
   </data>
   <data name="resultDisplay.Text" xml:space="preserve">
     <value>?</value>
@@ -240,14 +252,50 @@
   <metadata name="FontDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
+  <data name="keyPad.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <data name="keyPad.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 39</value>
+  </data>
+  <data name="keyPad.MinimumSize" type="System.Drawing.Size, System.Drawing">
+    <value>0, 106</value>
+  </data>
+  <data name="keyPad.Size" type="System.Drawing.Size, System.Drawing">
+    <value>560, 106</value>
+  </data>
+  <data name="keyPad.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;keyPad.Name" xml:space="preserve">
+    <value>keyPad</value>
+  </data>
+  <data name="&gt;&gt;keyPad.Type" xml:space="preserve">
+    <value>MathParser.Demo.KeyPad, MathParser.Demo, Version=0.1.36.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;keyPad.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;keyPad.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
     <value>6, 13</value>
   </data>
+  <data name="$this.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>487, 163</value>
+    <value>584, 272</value>
+  </data>
+  <data name="$this.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="$this.MinimumSize" type="System.Drawing.Size, System.Drawing">
+    <value>500, 39</value>
   </data>
   <data name="$this.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>12, 12, 12, 12</value>

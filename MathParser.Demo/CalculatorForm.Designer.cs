@@ -34,6 +34,7 @@
             this.expressionDisplay = new System.Windows.Forms.PictureBox();
             this.resultDisplay = new System.Windows.Forms.TextBox();
             this.FontDialog = new System.Windows.Forms.FontDialog();
+            this.keyPad = new MathParser.Demo.KeyPad();
             this.resultPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.expressionDisplay)).BeginInit();
             this.SuspendLayout();
@@ -68,18 +69,27 @@
             this.resultDisplay.ReadOnly = true;
             this.resultDisplay.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
             // 
+            // keyPad
+            // 
+            resources.ApplyResources(this.keyPad, "keyPad");
+            this.keyPad.Name = "keyPad";
+            this.keyPad.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.KeyPad_KeyPress);
+            this.keyPad.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
+            // 
             // CalculatorForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.resultPanel);
-            this.Controls.Add(this.inputBox);
+            this.Controls.Add(this.keyPad);
             this.Controls.Add(this.resultDisplay);
+            this.Controls.Add(this.inputBox);
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "CalculatorForm";
             this.ShowIcon = false;
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CalculatorForm_KeyPress);
+            this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
             this.resultPanel.ResumeLayout(false);
             this.resultPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.expressionDisplay)).EndInit();
@@ -95,6 +105,7 @@
         private System.Windows.Forms.PictureBox expressionDisplay;
         private System.Windows.Forms.TextBox resultDisplay;
         private System.Windows.Forms.FontDialog FontDialog;
+        private KeyPad keyPad;
     }
 }
 

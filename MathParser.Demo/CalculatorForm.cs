@@ -1,4 +1,4 @@
-﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser.Demo
 {
@@ -57,6 +57,42 @@ namespace MathParser.Demo
             this.display.SetInput(this.inputBox.Text);
             this.resultDisplay.Text = this.display.ResultText;
             this.expressionDisplay.Image = this.display.ExpressionImage;
+        }
+
+        private void KeyPad_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            this.enterState = 0;
+
+            if (e.KeyChar == (char)Keys.Back)
+            {
+                if (this.inputBox.SelectionLength != 0)
+                {
+                    this.inputBox.SelectedText = string.Empty;
+                }
+                else
+                {
+                    var start = this.inputBox.SelectionStart;
+                    if (start > 0)
+                    {
+                        var newStart = start - 1;
+                        var text = this.inputBox.Text;
+                        this.inputBox.Text = text.Substring(0, newStart) + text.Substring(start);
+                        this.inputBox.SelectionStart = newStart;
+                    }
+                }
+            }
+            else if (!char.IsControl(e.KeyChar))
+            {
+                var value = e.KeyChar.ToString();
+                if (this.inputBox.SelectionStart == this.inputBox.TextLength)
+                {
+                    this.inputBox.AppendText(value);
+                }
+                else
+                {
+                    this.inputBox.SelectedText = value;
+                }
+            }
         }
 
         private void ResultPanel_DoubleClick(object sender, EventArgs e)

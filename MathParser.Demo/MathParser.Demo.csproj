@@ -91,6 +91,15 @@
       <Link>CustomDictionary.xml</Link>
     </CodeAnalysisDictionary>
     <Compile Include="Display.cs" />
+    <Compile Include="KeyPad.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="KeyPad.Designer.cs">
+      <DependentUpon>KeyPad.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="KeyPad.resx">
+      <DependentUpon>KeyPad.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <Compile Include="Program.cs" />
     <AdditionalFiles Include="..\stylecop.json">
