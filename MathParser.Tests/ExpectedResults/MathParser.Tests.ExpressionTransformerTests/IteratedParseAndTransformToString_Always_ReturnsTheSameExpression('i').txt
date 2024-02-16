@@ -1,6 +1,6 @@
 i
 (parsed)
-(0, 1)
+<0; 1>
 (transformed)
 i
 (stable)

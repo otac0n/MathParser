@@ -1,15 +1,24 @@
-os: Visual Studio 2015
+os: Visual Studio 2022
 configuration: Release
 install:
-  - "C:\\ProgramData\\chocolatey\\bin;%PATH%"
-  - choco install gitversion.portable -pre -y
-before_build:
-  - nuget restore
+  - "SET PATH=C:\\ProgramData\\chocolatey\\bin;%PATH%"
+  - choco install gitversion.portable -y --version 5.10.3
   - gitversion /l console /output buildserver
+  - choco install GitReleaseNotes.Portable
+  - choco install opencover.portable
+  - choco install codecov
+before_build:
+  - dotnet restore
+  - GitReleaseNotes . /AllTags /C breaking /O ReleaseNotes.md || exit 0
 build:
   project: MathParser.sln
-cache:
-  - packages -> **\packages.config
+test_script:
+  - OpenCover.Console.exe -target:dotnet.exe -targetargs:"test --configuration %CONFIGURATION% --no-build" -register:user -filter:"+[*]* -[*.Tests]* -[xunit*]*" -output:coverage.xml -oldStyle
+after_test:
+  - codecov -f "coverage.xml"
+artifacts:
+  - path: 'ReleaseNotes.md'
+  - path: '**\*.nupkg'
 skip_commits:
   files:
     - .gitattributes

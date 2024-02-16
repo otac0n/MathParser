@@ -1,8 +1,8 @@
 (1^(2^(3^4)))
 (parsed)
-Pow(Convert(1), Pow(Convert(2), Pow(Convert(3), 4)))
+Pow(Convert(1, Complex), Pow(Convert(2, Complex), Pow(Convert(3, Complex), 4)))
 (transformed)
 1^2^3^4
 (parsed)
-Pow(Convert(1), Pow(Convert(2), Pow(Convert(3), 4)))
+Pow(Convert(1, Complex), Pow(Convert(2, Complex), Pow(Convert(3, Complex), 4)))
 (stable)

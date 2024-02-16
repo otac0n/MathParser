@@ -1,6 +1,6 @@
 2^5
 (parsed)
-Pow(Convert(2), 5)
+Pow(Convert(2, Complex), 5)
 (transformed)
 2^5
 (stable)

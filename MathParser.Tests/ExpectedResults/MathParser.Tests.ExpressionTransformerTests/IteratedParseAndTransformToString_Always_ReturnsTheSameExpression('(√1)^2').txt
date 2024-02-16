@@ -1,6 +1,6 @@
 (√1)^2
 (parsed)
-Pow(Sqrt(Convert(1)), 2)
+Pow(Sqrt(Convert(1, Complex)), 2)
 (transformed)
 (√1)^2
 (stable)

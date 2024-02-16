@@ -1,6 +1,6 @@
 2^2^2^2
 (parsed)
-Pow(Convert(2), Pow(Convert(2), Pow(Convert(2), 2)))
+Pow(Convert(2, Complex), Pow(Convert(2, Complex), Pow(Convert(2, Complex), 2)))
 (transformed)
 2^2^2^2
 (stable)

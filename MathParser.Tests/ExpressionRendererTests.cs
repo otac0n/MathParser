@@ -53,7 +53,7 @@ namespace MathParser.Tests
             () => Complex.Pow(new Complex(0, -2), 4),
             () => Complex.Pow(1, Complex.Pow(Complex.ImaginaryOne, 3)),
             () => Complex.Pow(-1, -1 * 2),
-            () => Complex.Pow(5, Complex.Divide(1, 2)),
+            () => Complex.Pow(5, Complex.Divide((Complex)1, (Complex)2)),
             () => Complex.Pow(5, Complex.ImaginaryOne * 2),
             () => Complex.Pow(-1, 0.5).Real,
         };

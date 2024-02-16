@@ -130,7 +130,7 @@ decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
 
 namedConstant <Expression>
-    = "τ" { Expression.Constant(2 * Math.PI) }
+    = "τ" { Expression.Constant(Math.Tau) }
     / "π" { Expression.Constant(Math.PI) }
     / "e" ![_a-z0-9]i { Expression.Constant(Math.E) }
     / "φ" { Expression.Constant((1 + Math.Sqrt(5)) / 2) }

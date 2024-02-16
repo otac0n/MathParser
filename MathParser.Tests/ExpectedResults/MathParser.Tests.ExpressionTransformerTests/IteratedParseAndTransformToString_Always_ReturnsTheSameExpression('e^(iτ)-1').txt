@@ -1,8 +1,8 @@
 e^(iτ)-1
 (parsed)
-(Pow(Convert(2.71828182845905), ((0, 1) * Convert(6.28318530717959))) - Convert(1))
+(Pow(Convert(2.718281828459045, Complex), (<0; 1> * Convert(6.283185307179586, Complex))) - Convert(1, Complex))
 (transformed)
 e^(i·τ)-1
 (parsed)
-(Pow(Convert(2.71828182845905), ((0, 1) * Convert(6.28318530717959))) - Convert(1))
+(Pow(Convert(2.718281828459045, Complex), (<0; 1> * Convert(6.283185307179586, Complex))) - Convert(1, Complex))
 (stable)
