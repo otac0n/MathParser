@@ -1,14 +1,20 @@
-// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser.Demo
 {
     using System;
+    using System.Linq.Expressions;
+    using System.Numerics;
     using System.Windows.Forms;
+    using OxyPlot;
+    using OxyPlot.Series;
 
     internal partial class CalculatorForm : Form
     {
+        private readonly Parser parser = new Parser();
         private readonly Display display = new Display();
         private int enterState;
+        private Expression expression;
 
         public CalculatorForm()
         {
@@ -54,9 +60,69 @@ namespace MathParser.Demo
 
         private void InputBox_TextChanged(object sender, System.EventArgs e)
         {
-            this.display.SetInput(this.inputBox.Text);
+            this.expression = null;
+            try
+            {
+                this.expression = this.parser.Parse(this.inputBox.Text);
+                this.display.SetInput(this.expression);
+            }
+            catch (Exception)
+            {
+                this.display.SetInput(null);
+            }
+
             this.resultDisplay.Text = this.display.ResultText;
             this.expressionDisplay.Image = this.display.ExpressionImage;
+
+            this.plotView.Model = null;
+            if (this.expression != null)
+            {
+                if (this.expression is LambdaExpression lambda && lambda.Parameters.Count == 1)
+                {
+                    Func<double, double> plot = null;
+
+                    try
+                    {
+                        var compiled = lambda.Compile();
+
+                        if (lambda.Body.Type == typeof(Complex))
+                        {
+                            if (lambda.Parameters[0].Type == typeof(Complex))
+                            {
+                                var concrete = (Func<Complex, Complex>)compiled;
+                                plot = x => concrete(x).Real;
+                            }
+                            else if (lambda.Parameters[0].Type == typeof(double))
+                            {
+                                var concrete = (Func<double, Complex>)compiled;
+                                plot = x => concrete(x).Real;
+                            }
+                        }
+                        else if (lambda.Body.Type == typeof(double))
+                        {
+                            if (lambda.Parameters[0].Type == typeof(Complex))
+                            {
+                                var concrete = (Func<Complex, double>)compiled;
+                                plot = x => concrete(x);
+                            }
+                            else if (lambda.Parameters[0].Type == typeof(double))
+                            {
+                                plot = (Func<double, double>)compiled;
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    if (plot != null)
+                    {
+                        var model = new PlotModel();
+                        model.Series.Add(new FunctionSeries(plot, -10, 10, 0.01, this.display.ExpressionText));
+                        this.plotView.Model = model;
+                    }
+                }
+            }
         }
 
         private void KeyPad_KeyPress(object sender, KeyPressEventArgs e)

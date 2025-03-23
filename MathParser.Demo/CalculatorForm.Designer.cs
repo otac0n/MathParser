@@ -28,58 +28,69 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CalculatorForm));
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof(CalculatorForm));
             this.inputBox = new System.Windows.Forms.TextBox();
             this.resultPanel = new System.Windows.Forms.Panel();
             this.expressionDisplay = new System.Windows.Forms.PictureBox();
             this.resultDisplay = new System.Windows.Forms.TextBox();
             this.FontDialog = new System.Windows.Forms.FontDialog();
-            this.keyPad = new MathParser.Demo.KeyPad();
+            this.keyPad = new KeyPad();
+            this.plotView = new OxyPlot.WindowsForms.PlotView();
             this.resultPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.expressionDisplay)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)this.expressionDisplay).BeginInit();
             this.SuspendLayout();
             // 
             // inputBox
             // 
             resources.ApplyResources(this.inputBox, "inputBox");
             this.inputBox.Name = "inputBox";
-            this.inputBox.TextChanged += new System.EventHandler(this.InputBox_TextChanged);
-            this.inputBox.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
+            this.inputBox.TextChanged += this.InputBox_TextChanged;
+            this.inputBox.PreviewKeyDown += this.Control_PreviewKeyDown;
             // 
             // resultPanel
             // 
             resources.ApplyResources(this.resultPanel, "resultPanel");
             this.resultPanel.Controls.Add(this.expressionDisplay);
             this.resultPanel.Name = "resultPanel";
-            this.resultPanel.DoubleClick += new System.EventHandler(this.ResultPanel_DoubleClick);
+            this.resultPanel.DoubleClick += this.ResultPanel_DoubleClick;
             // 
             // expressionDisplay
             // 
             resources.ApplyResources(this.expressionDisplay, "expressionDisplay");
             this.expressionDisplay.Name = "expressionDisplay";
             this.expressionDisplay.TabStop = false;
-            this.expressionDisplay.DoubleClick += new System.EventHandler(this.ResultPanel_DoubleClick);
+            this.expressionDisplay.DoubleClick += this.ResultPanel_DoubleClick;
             // 
             // resultDisplay
             // 
+            resources.ApplyResources(this.resultDisplay, "resultDisplay");
             this.resultDisplay.BackColor = System.Drawing.SystemColors.Window;
             this.resultDisplay.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            resources.ApplyResources(this.resultDisplay, "resultDisplay");
             this.resultDisplay.Name = "resultDisplay";
             this.resultDisplay.ReadOnly = true;
-            this.resultDisplay.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
+            this.resultDisplay.PreviewKeyDown += this.Control_PreviewKeyDown;
             // 
             // keyPad
             // 
             resources.ApplyResources(this.keyPad, "keyPad");
             this.keyPad.Name = "keyPad";
-            this.keyPad.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.KeyPad_KeyPress);
-            this.keyPad.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
+            this.keyPad.KeyPress += this.KeyPad_KeyPress;
+            this.keyPad.PreviewKeyDown += this.Control_PreviewKeyDown;
+            // 
+            // plotView
+            // 
+            resources.ApplyResources(this.plotView, "plotView");
+            this.plotView.Name = "plotView";
+            this.plotView.PanCursor = System.Windows.Forms.Cursors.Hand;
+            this.plotView.ZoomHorizontalCursor = System.Windows.Forms.Cursors.SizeWE;
+            this.plotView.ZoomRectangleCursor = System.Windows.Forms.Cursors.SizeNWSE;
+            this.plotView.ZoomVerticalCursor = System.Windows.Forms.Cursors.SizeNS;
             // 
             // CalculatorForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.plotView);
             this.Controls.Add(this.resultPanel);
             this.Controls.Add(this.keyPad);
             this.Controls.Add(this.resultDisplay);
@@ -88,14 +99,13 @@
             this.MaximizeBox = false;
             this.Name = "CalculatorForm";
             this.ShowIcon = false;
-            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CalculatorForm_KeyPress);
-            this.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.Control_PreviewKeyDown);
+            this.KeyPress += this.CalculatorForm_KeyPress;
+            this.PreviewKeyDown += this.Control_PreviewKeyDown;
             this.resultPanel.ResumeLayout(false);
             this.resultPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.expressionDisplay)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)this.expressionDisplay).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
@@ -106,6 +116,7 @@
         private System.Windows.Forms.TextBox resultDisplay;
         private System.Windows.Forms.FontDialog FontDialog;
         private KeyPad keyPad;
+        private OxyPlot.WindowsForms.PlotView plotView;
     }
 }
 

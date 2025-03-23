@@ -1,4 +1,4 @@
-// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser.Demo
 {
@@ -10,8 +10,6 @@ namespace MathParser.Demo
     internal class Display
     {
         private static readonly Bitmap EmptyDisplayImage = new Bitmap(1, 1);
-
-        private readonly Parser parser = new Parser();
 
         private readonly ExpressionRenderer renderer = new ExpressionRenderer
         {
@@ -40,14 +38,10 @@ namespace MathParser.Demo
 
         public string ResultText { get; private set; }
 
-        public void SetInput(string value)
+        public void SetInput(Expression expression)
         {
-            this.expression = null;
-            try
-            {
-                this.expression = this.parser.Parse(value);
-            }
-            catch (Exception)
+            this.expression = expression;
+            if (this.expression == null)
             {
                 this.ResultText = "?";
                 this.ExpressionImage = EmptyDisplayImage;
