@@ -128,7 +128,7 @@ namespace MathParser.Tests
             Directory.CreateDirectory(Path.GetDirectoryName(actualPath));
             bitmap.Save(actualPath);
 
-            Assert.That(File.Exists(expectedPath), Is.True);
+            Assert.That(File.Exists(expectedPath), Is.True, () => $"A file matching '{actualPath}' is expected at '{expectedPath}'.");
             using (var expected = Image.FromFile(expectedPath))
             {
                 Assert.That(bitmap.Width, Is.EqualTo(expected.Width));

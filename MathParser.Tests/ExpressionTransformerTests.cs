@@ -1,4 +1,4 @@
-// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser.Tests
 {
@@ -94,7 +94,14 @@ namespace MathParser.Tests
             string previousInput = null;
             string previousParsed = null;
 
-            var sb = new StringBuilder().AppendLine(input);
+            var sb = new StringBuilder();
+            void Write(string line)
+            {
+                TestContext.WriteLine(line);
+                sb.AppendLine(line);
+            }
+
+            Write(input);
             var parser = new Parser();
             allInput.Add(previousInput = input);
 
@@ -102,17 +109,17 @@ namespace MathParser.Tests
             {
                 var expression = parser.Parse(input);
                 var parsed = expression.ToString();
-                sb.AppendLine("(parsed)");
-                sb.AppendLine(parsed);
+                Write("(parsed)");
+                Write(parsed);
 
                 if (parsed == previousParsed)
                 {
-                    sb.AppendLine("(stable)");
+                    Write("(stable)");
                     break;
                 }
                 else if (!allParsed.Add(parsed))
                 {
-                    sb.AppendLine("(astable)");
+                    Write("(astable)");
                     break;
                 }
                 else
@@ -121,17 +128,17 @@ namespace MathParser.Tests
                 }
 
                 input = expression.TransformToString();
-                sb.AppendLine("(transformed)");
-                sb.AppendLine(input);
+                Write("(transformed)");
+                Write(input);
 
                 if (input == previousInput)
                 {
-                    sb.AppendLine("(stable)");
+                    Write("(stable)");
                     break;
                 }
                 else if (!allInput.Add(input))
                 {
-                    sb.AppendLine("(astable)");
+                    Write("(astable)");
                     break;
                 }
                 else
@@ -158,7 +165,7 @@ namespace MathParser.Tests
             File.WriteAllText(actualPath, contents);
 
             Assert.That(contents.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Last(), Is.EqualTo("(stable)"));
-            Assert.That(File.Exists(expectedPath), Is.True);
+            Assert.That(File.Exists(expectedPath), Is.True, () => $"A file matching '{actualPath}' is expected at '{expectedPath}'.");
             var expected = File.ReadAllText(expectedPath);
             Assert.That(contents, Is.EqualTo(expected));
         }
