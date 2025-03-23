@@ -84,6 +84,16 @@ namespace MathParser.Tests
             "4v^2/√π(m/(2k T))^(3/2)e^-(m v^2/(2 k T))",
             "((1+i)/(1-i))^3-((1-i)/(1+i))^3",
             "⌈3⌉/⌊2⌋",
+            "f(x)=1/x",
+            "g(x):=sin(x)*x",
+            "y==log(z)",
+            "a>b",
+            "π≥3",
+            "e>=1",
+            "x*y<x+y",
+            "√(x^2+b^2)≤2",
+            "cos(τ)<=sin(x)",
+            "1≠2",
         };
 
         [TestCaseSource(typeof(ExpressionTransformerTests), nameof(ExpressionTransformerTests.ExpressionTestCases))]

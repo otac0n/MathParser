@@ -1,0 +1,8 @@
+g(x):=sin(x)*x
+(parsed)
+x => (Sin(x) * x)
+(transformed)
+g(x)=Sin(x)·x
+(parsed)
+x => (Sin(x) * x)
+(stable)

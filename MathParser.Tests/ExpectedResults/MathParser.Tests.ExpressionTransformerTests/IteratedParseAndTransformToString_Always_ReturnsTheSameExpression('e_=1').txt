@@ -1,0 +1,6 @@
+e>=1
+(parsed)
+(2.718281828459045 >= 1)
+(transformed)
+e>=1
+(stable)

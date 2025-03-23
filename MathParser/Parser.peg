@@ -1,10 +1,37 @@
 @namespace MathParser
 @classname Parser
+@using System.Linq
 @using System.Linq.Expressions
 @using System.Numerics
 
 math <Expression>
-  = _ value:additive _ EOF { value }
+  = _ value:statement _ EOF { value }
+
+statement <Expression>
+  = lambda
+  / equality
+  / additive
+
+lambda <Expression>
+  = name:identifier _ names:nameTuple _ ("==" / "=" / ":=") _ body:additive #{ foreach(var p in names) CreateVariable(state, p); } { Expression.Lambda(body, name, names.Select(p => (ParameterExpression)state[p])) }
+
+nameTuple <IList<string>>
+  = "(" _ names:identifier<1,,_ "," _> _ ")" { names }
+
+equality <Expression>
+  = left:additive _ op:equalityOperator _ right:additive {
+    op == ExpressionType.Equal || op == ExpressionType.NotEqual
+      ? Expression.MakeBinary(op, ConvertIfLower(left, to: right), ConvertIfLower(right, to: left))
+      : Expression.MakeBinary(op, LowerToReal(left), LowerToReal(right))
+  }
+
+equalityOperator <ExpressionType>
+  = ("==" / "=" / ":=")        { ExpressionType.Equal }
+  / ("!=" / "~=" / "<>" / "≠") { ExpressionType.NotEqual }
+  / (">=" / "≥")               { ExpressionType.GreaterThanOrEqual }
+  / ">"                        { ExpressionType.GreaterThan }
+  / ("<=" / "≤")               { ExpressionType.LessThanOrEqual }
+  / "<"                        { ExpressionType.LessThan }
 
 additive <Expression> -memoize
     = left:additive _ "+" _ right:multiplicative { Expression.Add(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }

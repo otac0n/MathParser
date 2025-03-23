@@ -1,0 +1,6 @@
+f(x)=1/x
+(parsed)
+x => (Convert(1, Complex) / x)
+(transformed)
+f(x)=1/x
+(stable)

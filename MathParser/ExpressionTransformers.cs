@@ -1,4 +1,4 @@
-// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser
 {
@@ -132,6 +132,12 @@ namespace MathParser
             protected override string CreateRadical(string expression) => "√" + expression;
 
             /// <inheritdoc />
+            protected override string CreateEquality(string left, ExpressionType op, string right) => left + FormatEqualityOperator(op) + right;
+
+            /// <inheritdoc />
+            protected override string CreateLambda(string name, string[] parameters, string body) => name + "(" + string.Join(", ", parameters) + ")" + FormatEqualityOperator(ExpressionType.Equal) + body;
+
+            /// <inheritdoc />
             protected override string FormatComplex(double real, double imaginary) => FormatComplexExported(real, imaginary);
 
             /// <inheritdoc />
@@ -151,6 +157,22 @@ namespace MathParser
 
                 return base.NeedsLeftBrackets(outerEffectiveType, outer, innerEffectiveType, inner);
             }
+
+            /// <summary>
+            /// Formats an equality operator as a string.
+            /// </summary>
+            /// <param name="op">The equality operator.</param>
+            /// <returns>The string representation of the operator.</returns>
+            private static string FormatEqualityOperator(ExpressionType op) =>
+                op switch
+                {
+                    ExpressionType.Equal => "=",
+                    ExpressionType.NotEqual => "!=",
+                    ExpressionType.GreaterThan => ">",
+                    ExpressionType.GreaterThanOrEqual => ">=",
+                    ExpressionType.LessThan => "<",
+                    ExpressionType.LessThanOrEqual => "<=",
+                };
 
             /// <summary>
             /// Formats a real number as a string.
@@ -212,6 +234,16 @@ namespace MathParser
             protected override VisualNode CreateRadical(VisualNode expression) => new RadicalVisualNode(expression);
 
             /// <inheritdoc />
+            protected override VisualNode CreateEquality(VisualNode left, ExpressionType op, VisualNode right) => new BaselineAlignedVisualNode(left, new StringVisualNode(FormatEqualityOperator(op)), right);
+
+            /// <inheritdoc />
+            protected override VisualNode CreateLambda(string name, VisualNode[] parameters, VisualNode body)
+            {
+                var argumentNodes = Enumerable.Range(0, parameters.Length * 2 - 1).Select(i => i % 2 == 0 ? parameters[i / 2] : new StringVisualNode(",")).ToArray();
+                return new BaselineAlignedVisualNode(new StringVisualNode(name), new BracketedVisualNode("(", new BaselineAlignedVisualNode(argumentNodes), ")"), new StringVisualNode(FormatEqualityOperator(ExpressionType.Equal)), body);
+            }
+
+            /// <inheritdoc />
             protected override VisualNode FormatComplex(double real, double imaginary) => new StringVisualNode(StringTransformer.FormatComplexExported(real, imaginary));
 
             /// <inheritdoc />
@@ -261,6 +293,22 @@ namespace MathParser
 
                 return base.NeedsRightBrackets(outerEffectiveType, outer, innerEffectiveType, inner);
             }
+
+            /// <summary>
+            /// Formats an equality operator as a string.
+            /// </summary>
+            /// <param name="op">The equality operator.</param>
+            /// <returns>The string representation of the operator.</returns>
+            private static string FormatEqualityOperator(ExpressionType op) =>
+                op switch
+                {
+                    ExpressionType.Equal => "=",
+                    ExpressionType.NotEqual => "≠",
+                    ExpressionType.GreaterThan => ">",
+                    ExpressionType.GreaterThanOrEqual => "≥",
+                    ExpressionType.LessThan => "<",
+                    ExpressionType.LessThanOrEqual => "≤",
+                };
 
             private static VisualNode CreateInlineBinary(VisualNode left, string op, VisualNode right) => new BaselineAlignedVisualNode(left, new StringVisualNode(op), right);
         }

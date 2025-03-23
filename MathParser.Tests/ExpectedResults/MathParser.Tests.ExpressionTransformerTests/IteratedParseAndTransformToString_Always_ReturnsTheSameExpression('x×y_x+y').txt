@@ -1,0 +1,8 @@
+x*y<x+y
+(parsed)
+((x * y).Real < (x + y).Real)
+(transformed)
+Re(x·y)<Re(x+y)
+(parsed)
+((x * y).Real < (x + y).Real)
+(stable)

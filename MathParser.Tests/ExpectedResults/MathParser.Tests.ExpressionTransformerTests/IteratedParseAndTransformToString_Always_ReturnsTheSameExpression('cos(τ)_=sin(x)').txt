@@ -1,0 +1,8 @@
+cos(τ)<=sin(x)
+(parsed)
+(Cos(Convert(6.283185307179586, Complex)).Real <= Sin(x).Real)
+(transformed)
+Re(Cos(τ))<=Re(Sin(x))
+(parsed)
+(Cos(Convert(6.283185307179586, Complex)).Real <= Sin(x).Real)
+(stable)

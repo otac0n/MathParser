@@ -26,6 +26,17 @@
             return expression;
         }
 
+        private static Expression LowerToReal(Expression expression)
+        {
+            var from = expression.Type;
+            if (from == typeof(Complex))
+            {
+                return Expression.MakeMemberAccess(expression, typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
+            }
+
+            return expression;
+        }
+
         private static Expression Ceiling(Expression expression)
         {
             return Expression.Call(typeof(Math).GetMethod(nameof(Math.Ceiling), new[] { expression.Type }), expression);
@@ -50,6 +61,19 @@
 
         private static Expression Function(string name, IList<Expression> arguments)
         {
+            if (arguments.Count == 1)
+            {
+                if (name.Equals("Re", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return Expression.Property(ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
+                }
+
+                if (name.Equals("Im", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return Expression.Property(ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Imaginary), BindingFlags.Public | BindingFlags.Instance));
+                }
+            }
+
             Expression[] mappedArguments;
             var found = FindFunction(typeof(Complex), name, arguments.Select(a => a.Type).ToArray());
             if (found == null)

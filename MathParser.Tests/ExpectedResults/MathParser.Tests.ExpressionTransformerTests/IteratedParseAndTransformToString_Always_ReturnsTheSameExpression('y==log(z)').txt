@@ -1,0 +1,8 @@
+y==log(z)
+(parsed)
+(y == Log(z))
+(transformed)
+y=Log(z)
+(parsed)
+(y == Log(z))
+(stable)

@@ -1,4 +1,4 @@
-// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser
 {
@@ -96,6 +96,14 @@ namespace MathParser
         {
             switch (effectiveType)
             {
+                case ExpressionType.Equal:
+                case ExpressionType.NotEqual:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                    return -1;
+
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
                     return 0;
@@ -219,6 +227,24 @@ namespace MathParser
         /// <param name="expression">The expression under the radical.</param>
         /// <returns>The radical expression.</returns>
         protected abstract T CreateRadical(T expression);
+
+        /// <summary>
+        /// Constructs an equality or inequlaity expression.
+        /// </summary>
+        /// <param name="left">The left side of the equality.</param>
+        /// <param name="op">The equality operator.</param>
+        /// <param name="right">The right side of the equality.</param>
+        /// <returns>The equality expression.</returns>
+        protected abstract T CreateEquality(T left, ExpressionType op, T right);
+
+        /// <summary>
+        /// Constructs a lambda expression.
+        /// </summary>
+        /// <param name="name">The name of the function.</param>
+        /// <param name="parameters">The parameters to the function.</param>
+        /// <param name="body">The the expression defining the function.</param>
+        /// <returns>The lambda expression.</returns>
+        protected abstract T CreateLambda(string name, T[] parameters, T body);
 
         /// <summary>
         /// Constructs an expression representing a complex number.
@@ -351,6 +377,15 @@ namespace MathParser
                 case ExpressionType.Power:
                     this.Result = this.CreatePower(left, right);
                     break;
+
+                case ExpressionType.Equal:
+                case ExpressionType.NotEqual:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                    this.Result = this.CreateEquality(left, effectiveType, right);
+                    break;
             }
 
             return node;
@@ -373,6 +408,23 @@ namespace MathParser
                 this.Result = this.FormatComplex(value.Real, value.Imaginary);
             }
 
+            return node;
+        }
+
+        /// <inheritdoc />
+        protected override Expression VisitLambda<TFunc>(Expression<TFunc> node)
+        {
+            this.Visit(node.Body);
+            var body = this.Result;
+
+            var parameters = new T[node.Parameters.Count];
+            for (var i = 0; i < node.Parameters.Count; i++)
+            {
+                this.Visit(node.Parameters[i]);
+                parameters[i] = this.Result;
+            }
+
+            this.Result = this.CreateLambda(node.Name, parameters, body);
             return node;
         }
 
@@ -463,6 +515,15 @@ namespace MathParser
 
                     case ExpressionType.Power:
                         this.Result = this.CreatePower(left, right);
+                        return node;
+
+                    case ExpressionType.Equal:
+                    case ExpressionType.NotEqual:
+                    case ExpressionType.GreaterThan:
+                    case ExpressionType.GreaterThanOrEqual:
+                    case ExpressionType.LessThan:
+                    case ExpressionType.LessThanOrEqual:
+                        this.Result = this.CreateEquality(left, effectiveType, right);
                         return node;
                 }
             }
