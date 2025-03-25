@@ -1,8 +1,8 @@
 ((1^(2^3))^4)
 (parsed)
-Pow(Pow(Convert(1, Complex), Pow(Convert(2, Complex), 3)), 4)
+((1 ** (2 ** 3)) ** 4)
 (transformed)
 (1^2^3)^4
 (parsed)
-Pow(Pow(Convert(1, Complex), Pow(Convert(2, Complex), 3)), 4)
+((1 ** (2 ** 3)) ** 4)
 (stable)
