@@ -13,6 +13,9 @@
             return Regex.Replace(testName.Replace('"', '\'').Replace('*', '×').Replace('/', '÷'), "[" + Regex.Escape(new string(Path.GetInvalidFileNameChars())) + "]", "_");
         }
 
+        public static void ApproveFromFile(this TestContext context, string actual, Action<string, string> assert) =>
+            context.ApproveFromFile(actual, ".txt", File.WriteAllText, File.ReadAllText, assert);
+
         public static void ApproveFromFile<T>(this TestContext context, T actual, string extension, Action<string, T> save, Func<string, T> load, Action<T, T> assert)
         {
             var test = TestContext.CurrentContext.Test;

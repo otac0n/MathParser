@@ -23,10 +23,8 @@ namespace MathParser.Tests
 
         private static void WriteAndAssertResult(string contents)
         {
-            TestContext.CurrentContext.ApproveFromFile(contents, ".txt", File.WriteAllText, File.ReadAllText, (expected, actual) =>
-            {
-                Assert.That(actual, Is.EqualTo(expected));
-            });
+            TestContext.CurrentContext.ApproveFromFile(contents, (expected, actual) =>
+                Assert.That(actual, Is.EqualTo(expected)));
         }
     }
 }

@@ -80,7 +80,7 @@ namespace MathParser.Tests
 
         private static void WriteAndAssertResult(string contents)
         {
-            TestContext.CurrentContext.ApproveFromFile(contents, ".txt", File.WriteAllText, File.ReadAllText, (expected, actual) =>
+            TestContext.CurrentContext.ApproveFromFile(contents, (expected, actual) =>
             {
                 Assert.That(actual.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Last(), Is.EqualTo("(stable)"));
                 Assert.That(actual, Is.EqualTo(expected));
