@@ -8,8 +8,8 @@ namespace MathParser.Tests
     using System.Linq.Expressions;
     using System.Numerics;
     using System.Reflection;
-    using System.Text.RegularExpressions;
     using NUnit.Framework;
+    using static TestExtensions;
 
     [TestFixture]
     public class ExpressionRendererTests
@@ -112,11 +112,6 @@ namespace MathParser.Tests
                     WriteAndAssertResult(bitmap);
                 }
             }
-        }
-
-        private static string SanitizeName(string testName)
-        {
-            return Regex.Replace(testName.Replace('"', '\'').Replace('*', '×').Replace('/', '÷'), "[" + Regex.Escape(new string(Path.GetInvalidFileNameChars())) + "]", "_");
         }
 
         private static void WriteAndAssertResult(Bitmap bitmap)

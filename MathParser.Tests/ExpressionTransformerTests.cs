@@ -8,8 +8,8 @@ namespace MathParser.Tests
     using System.Linq;
     using System.Reflection;
     using System.Text;
-    using System.Text.RegularExpressions;
     using NUnit.Framework;
+    using static TestExtensions;
 
     public class ExpressionTransformerTests
     {
@@ -158,11 +158,6 @@ namespace MathParser.Tests
             }
 
             WriteAndAssertResult(sb.ToString());
-        }
-
-        private static string SanitizeName(string testName)
-        {
-            return Regex.Replace(testName.Replace('"', '\'').Replace('*', '×').Replace('/', '÷'), "[" + Regex.Escape(new string(Path.GetInvalidFileNameChars())) + "]", "_");
         }
 
         private static void WriteAndAssertResult(string contents)
