@@ -1,4 +1,4 @@
-﻿namespace MathParser.Transforms
+﻿namespace MathParser
 {
     using System;
     using System.Linq;

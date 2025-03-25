@@ -1,10 +1,9 @@
 ﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
-namespace MathParser.Tests.Transforms
+namespace MathParser.Tests
 {
     using System.IO;
     using MathParser.Testing;
-    using MathParser.Transforms;
     using NUnit.Framework;
 
     [TestFixture]
