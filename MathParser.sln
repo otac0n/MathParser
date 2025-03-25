@@ -20,9 +20,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser", "MathParser\Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Demo", "MathParser.Demo\MathParser.Demo.csproj", "{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Tests", "MathParser.Tests\MathParser.Tests.csproj", "{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Drawing", "MathParser.Drawing\MathParser.Drawing.csproj", "{C6753264-F0D9-4F91-A2F4-891C8AD438DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Transforms", "MathParser.Transforms\MathParser.Transforms.csproj", "{D4084927-8181-4B1D-987F-6C06054F47FA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Drawing.Tests", "MathParser.Drawing.Tests\MathParser.Drawing.Tests.csproj", "{0D8413F4-3E7D-4C8E-A176-565DAD6D773F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Testing", "MathParser.Testing\MathParser.Testing.csproj", "{DD81D886-CBFB-4D59-A9EB-0EFE58A5088E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathParser.Tests", "MathParser.Tests\MathParser.Tests.csproj", "{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,14 +42,22 @@ Global
 		{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70DAF3FF-52D0-4F5C-9664-4FD201D1E503}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6753264-F0D9-4F91-A2F4-891C8AD438DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6753264-F0D9-4F91-A2F4-891C8AD438DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6753264-F0D9-4F91-A2F4-891C8AD438DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6753264-F0D9-4F91-A2F4-891C8AD438DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D8413F4-3E7D-4C8E-A176-565DAD6D773F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D8413F4-3E7D-4C8E-A176-565DAD6D773F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D8413F4-3E7D-4C8E-A176-565DAD6D773F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D8413F4-3E7D-4C8E-A176-565DAD6D773F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD81D886-CBFB-4D59-A9EB-0EFE58A5088E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD81D886-CBFB-4D59-A9EB-0EFE58A5088E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD81D886-CBFB-4D59-A9EB-0EFE58A5088E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD81D886-CBFB-4D59-A9EB-0EFE58A5088E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7BC52FC6-0F81-48E2-99C9-8A34FD781B3C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D4084927-8181-4B1D-987F-6C06054F47FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D4084927-8181-4B1D-987F-6C06054F47FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D4084927-8181-4B1D-987F-6C06054F47FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D4084927-8181-4B1D-987F-6C06054F47FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

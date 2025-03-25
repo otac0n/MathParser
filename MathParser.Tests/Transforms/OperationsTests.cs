@@ -2,36 +2,17 @@
 
 namespace MathParser.Tests.Transforms
 {
-    using System;
     using System.IO;
-    using System.Linq;
-    using System.Linq.Expressions;
-    using System.Numerics;
     using System.Reflection;
+    using MathParser.Testing;
     using MathParser.Transforms;
     using NUnit.Framework;
-    using static TestExtensions;
+    using static MathParser.Testing.TestExtensions;
 
     [TestFixture]
     internal class OperationsTests
     {
-        public static string[] TestCases =
-        [
-            "0*x",
-            "x*0",
-            "1*x",
-            "x*1",
-            "0+x",
-            "x+0",
-            "x*x",
-            "x^2*x",
-            "x*x^2",
-            "x^2/x",
-            "x/x^2",
-            "x/x",
-        ];
-
-        [TestCaseSource(nameof(OperationsTests.TestCases))]
+        [TestCaseSource(typeof(TestData), nameof(TestData.SimplifyStrings))]
         public void Simplify_Always_ReturnsTheExpectedExpression(string input)
         {
             var parser = new Parser();

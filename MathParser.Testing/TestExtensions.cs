@@ -1,9 +1,9 @@
-﻿namespace MathParser.Tests
+﻿namespace MathParser.Testing
 {
     using System.IO;
     using System.Text.RegularExpressions;
 
-    internal static class TestExtensions
+    public static class TestExtensions
     {
         public static string SanitizeName(string testName)
         {

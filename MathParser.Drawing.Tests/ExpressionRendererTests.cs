@@ -1,70 +1,27 @@
 ﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
-namespace MathParser.Tests
+namespace MathParser.Drawing.Tests
 {
     using System;
     using System.Drawing;
     using System.IO;
     using System.Linq.Expressions;
-    using System.Numerics;
     using System.Reflection;
+    using MathParser.Testing;
     using NUnit.Framework;
-    using static TestExtensions;
+    using static MathParser.Testing.TestExtensions;
 
     [TestFixture]
     public class ExpressionRendererTests
     {
-        public static Expression<Func<Complex>>[] ExpressionTestCases => new Expression<Func<Complex>>[]
-        {
-            () => new Complex(1, 3) / 4,
-            () => new Complex(1, 0) / 4,
-            () => new Complex(0, 3) / 4,
-            () => new Complex(-2, 3) / 4,
-            () => new Complex(-2, -3) / 4,
-            () => new Complex(-2, 0) / 4,
-            () => new Complex(0, -2) / 4,
-            () => new Complex(1, 3) * 4,
-            () => new Complex(1, 0) * 4,
-            () => new Complex(0, 3) * 4,
-            () => new Complex(-2, 3) * 4,
-            () => new Complex(-2, -3) * 4,
-            () => new Complex(-2, 0) * 4,
-            () => new Complex(0, -2) * 4,
-            () => new Complex(1, 3) + 4,
-            () => new Complex(1, 0) + 4,
-            () => new Complex(0, 3) + 4,
-            () => new Complex(-2, 3) + 4,
-            () => new Complex(-2, -3) + 4,
-            () => new Complex(-2, 0) + 4,
-            () => new Complex(0, -2) + 4,
-            () => new Complex(1, 3) - 4,
-            () => new Complex(1, 0) - 4,
-            () => new Complex(0, 3) - 4,
-            () => new Complex(-2, 3) - 4,
-            () => new Complex(-2, -3) - 4,
-            () => new Complex(-2, 0) - 4,
-            () => new Complex(0, -2) - 4,
-            () => Complex.Pow(new Complex(1, 3), 4),
-            () => Complex.Pow(new Complex(1, 0), 4),
-            () => Complex.Pow(new Complex(0, 3), 4),
-            () => Complex.Pow(new Complex(-2, 3), 4),
-            () => Complex.Pow(new Complex(-2, -3), 4),
-            () => Complex.Pow(new Complex(-2, 0), 4),
-            () => Complex.Pow(new Complex(0, -2), 4),
-            () => Complex.Pow(1, Complex.Pow(Complex.ImaginaryOne, 3)),
-            () => Complex.Pow(-1, -1 * 2),
-            () => Complex.Pow(5, Complex.Divide((Complex)1, (Complex)2)),
-            () => Complex.Pow(5, Complex.ImaginaryOne * 2),
-            () => Complex.Pow(-1, 0.5).Real,
-        };
 
-        [TestCaseSource(typeof(ExpressionTransformerTests), nameof(ExpressionTransformerTests.ExpressionTestCases))]
+        [TestCaseSource(typeof(TestData), nameof(TestData.ExpressionStrings))]
         public void MeasureAndDrawExpression_ApprovalTest(string input)
         {
             ExpressionRendererTestHelper(input);
         }
 
-        [TestCaseSource(typeof(ExpressionRendererTests), nameof(ExpressionTestCases))]
+        [TestCaseSource(typeof(TestData), nameof(TestData.ComplexExpressions))]
         public void MeasureAndDrawExpression_ApprovalTest(LambdaExpression lambda)
         {
             ExpressionRendererTestHelper(lambda.Body);

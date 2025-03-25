@@ -9,94 +9,13 @@ namespace MathParser.Tests
     using System.Reflection;
     using System.Text;
     using NUnit.Framework;
-    using static TestExtensions;
+    using MathParser.Testing;
+    using static MathParser.Testing.TestExtensions;
 
     public class ExpressionTransformerTests
     {
-        public static string[] ExpressionTestCases => new string[]
-        {
-            "τ+π",
-            "i",
-            "e",
-            "φ",
-            "∞",
-            "sin(x)",
-            "COS(x)",
-            "Atan(x)",
-            "pOw(x,y)",
-            "a (x)",
-            "1.1",
-            "10/2",
-            "(((((((1+1)^2)^3)^4)^5)^6)^7)^8",
-            "3*5",
-            "1+1",
-            "2^5",
-            "2^2^2^2",
-            "3-8",
-            "(1+2^3^4)^(5*(6+7))",
-            "((1+2)^(3+4))^5",
-            "(1+2)*(3+4)",
-            "1+2÷(2*4)",
-            "8-(5+2)",
-            "8+(5+2)",
-            "(8+5)+2",
-            "8-5-2",
-            "(-2)^2",
-            "-(2^2)",
-            "(√1)^2",
-            "√(1^2)",
-            "√-1",
-            "√Sqrt(√2)",
-            "√(1+2)",
-            "√(1*2)",
-            "√(1*2)^√3*4",
-            "√(1*2)+√3*4",
-            "√(1*2)^√3*4",
-            "((1+2)+(3+4))",
-            "(((1+2)+3)+4)",
-            "(1+(2+(3+4)))",
-            "((1+(2+3))+4)",
-            "(1+((2+3)+4))",
-            "((1*2)*(3*4))",
-            "(((1*2)*3)*4)",
-            "(1*(2*(3*4)))",
-            "((1*(2*3))*4)",
-            "(1*((2*3)*4))",
-            "((1÷2)÷(3÷4))",
-            "(((1÷2)÷3)÷4)",
-            "(1÷(2÷(3÷4)))",
-            "((1÷(2÷3))÷4)",
-            "(1÷((2÷3)÷4))",
-            "((1-2)-(3-4))",
-            "(((1-2)-3)-4)",
-            "(1-(2-(3-4)))",
-            "((1-(2-3))-4)",
-            "(1-((2-3)-4))",
-            "((1^2)^(3^4))",
-            "(((1^2)^3)^4)",
-            "(1^(2^(3^4)))",
-            "((1^(2^3))^4)",
-            "(1^((2^3)^4))",
-            "e^(iτ)-1",
-            "√(1+√√√2+3/4+√(1/3)+√(i^2))",
-            "m·v/√(1-v^2/c^2)",
-            "1/sqrt(τ)e^-(x^2/2)",
-            "4v^2/√π(m/(2k T))^(3/2)e^-(m v^2/(2 k T))",
-            "((1+i)/(1-i))^3-((1-i)/(1+i))^3",
-            "⌈3⌉/⌊2⌋",
-            "f(x)=1/x",
-            "g(x):=sin(x)*x",
-            "y==log(z)",
-            "a>b",
-            "π≥3",
-            "e>=1",
-            "x*y<x+y",
-            "√(x^2+b^2)≤2",
-            "cos(τ)<=sin(x)",
-            "1≠2",
-        };
 
-        [TestCaseSource(typeof(ExpressionTransformerTests), nameof(ExpressionTransformerTests.ExpressionTestCases))]
+        [TestCaseSource(typeof(TestData), nameof(TestData.ExpressionStrings))]
         public void IteratedParseAndTransformToString_Always_ReturnsTheSameExpression(string input)
         {
             var allInput = new HashSet<string>();

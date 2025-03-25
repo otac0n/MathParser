@@ -1,6 +1,6 @@
 ﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
-namespace MathParser.Tests
+namespace MathParser.Drawing.Tests
 {
     using System.Drawing;
     using System.Drawing.Drawing2D;

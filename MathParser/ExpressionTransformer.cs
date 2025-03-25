@@ -35,7 +35,7 @@ namespace MathParser
     /// </summary>
     /// <typeparam name="T">The type of nodes in the mathematical expression.</typeparam>
     /// <remarks>
-    /// The <see cref="ExpressionTransformers"/> class contains default implementations.
+    /// The <see cref="ExpressionExtensions"/> class contains default implementations.
     /// </remarks>
     public abstract class ExpressionTransformer<T> : ExpressionVisitor
     {

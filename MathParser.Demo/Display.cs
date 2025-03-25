@@ -6,6 +6,7 @@ namespace MathParser.Demo
     using System.Drawing;
     using System.Linq.Expressions;
     using System.Numerics;
+    using MathParser.Drawing;
 
     internal class Display
     {
@@ -70,7 +71,7 @@ namespace MathParser.Demo
             try
             {
                 var converted = Expression.Call(
-                    typeof(ExpressionTransformers).GetMethod(nameof(ExpressionTransformers.TransformToString), new[] { typeof(Complex) }),
+                    typeof(MathParser.ExpressionExtensions).GetMethod(nameof(MathParser.ExpressionExtensions.TransformToString), new[] { typeof(Complex) }),
                     this.expression.Type == typeof(Complex)
                         ? this.expression
                         : Expression.Convert(this.expression, typeof(Complex)));

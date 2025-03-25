@@ -23,9 +23,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556" PrivateAssets="All" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MathParser\MathParser.csproj" />
+    <ProjectReference Include="..\MathParser.Drawing\MathParser.Drawing.csproj" />
     <ProjectReference Include="..\MathParser.Testing\MathParser.Testing.csproj" />
   </ItemGroup>
   <ItemGroup>

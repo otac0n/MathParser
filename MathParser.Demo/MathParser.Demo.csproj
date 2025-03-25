@@ -11,7 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MathParser\MathParser.csproj" />
-    <ProjectReference Include="..\MathParser.Transforms\MathParser.Transforms.csproj" />
+    <ProjectReference Include="..\MathParser.Drawing\MathParser.Drawing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\AssemblyInfo.cs" />
