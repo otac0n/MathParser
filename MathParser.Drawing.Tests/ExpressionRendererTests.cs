@@ -4,12 +4,9 @@ namespace MathParser.Drawing.Tests
 {
     using System;
     using System.Drawing;
-    using System.IO;
     using System.Linq.Expressions;
-    using System.Reflection;
     using MathParser.Testing;
     using NUnit.Framework;
-    using static MathParser.Testing.TestExtensions;
 
     [TestFixture]
     public class ExpressionRendererTests
@@ -73,22 +70,14 @@ namespace MathParser.Drawing.Tests
 
         private static void WriteAndAssertResult(Bitmap bitmap)
         {
-            var test = TestContext.CurrentContext.Test;
-            var testPath = Path.Combine(test.ClassName, SanitizeName(test.Name) + ".png");
-            var actualPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ActualResults", testPath);
-            var expectedPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ExpectedResults", testPath);
-            Directory.CreateDirectory(Path.GetDirectoryName(actualPath));
-            bitmap.Save(actualPath);
-
-            Assert.That(File.Exists(expectedPath), Is.True, () => $"A file matching '{actualPath}' is expected at '{expectedPath}'.");
-            using (var expected = Image.FromFile(expectedPath))
+            TestContext.CurrentContext.ApproveFromFile(bitmap, ".png", (path, b) => b.Save(path), Image.FromFile, (expected, actual) =>
             {
                 Assert.That(bitmap.Width, Is.EqualTo(expected.Width));
                 Assert.That(bitmap.Height, Is.EqualTo(expected.Height));
                 var actualColors = bitmap.GetColors();
                 var expectedColors = expected.GetColors();
                 Assert.That(actualColors, Is.EqualTo(expectedColors));
-            }
+            });
         }
     }
 }

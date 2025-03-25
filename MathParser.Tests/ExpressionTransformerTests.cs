@@ -6,12 +6,11 @@ namespace MathParser.Tests
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
-    using NUnit.Framework;
     using MathParser.Testing;
-    using static MathParser.Testing.TestExtensions;
+    using NUnit.Framework;
 
+    [TestFixture]
     public class ExpressionTransformerTests
     {
 
@@ -81,17 +80,11 @@ namespace MathParser.Tests
 
         private static void WriteAndAssertResult(string contents)
         {
-            var test = TestContext.CurrentContext.Test;
-            var testPath = Path.Combine(test.ClassName, SanitizeName(test.Name) + ".txt");
-            var actualPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ActualResults", testPath);
-            var expectedPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ExpectedResults", testPath);
-            Directory.CreateDirectory(Path.GetDirectoryName(actualPath));
-            File.WriteAllText(actualPath, contents);
-
-            Assert.That(contents.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Last(), Is.EqualTo("(stable)"));
-            Assert.That(File.Exists(expectedPath), Is.True, () => $"A file matching '{actualPath}' is expected at '{expectedPath}'.");
-            var expected = File.ReadAllText(expectedPath);
-            Assert.That(contents, Is.EqualTo(expected));
+            TestContext.CurrentContext.ApproveFromFile(contents, ".txt", File.WriteAllText, File.ReadAllText, (expected, actual) =>
+            {
+                Assert.That(actual.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Last(), Is.EqualTo("(stable)"));
+                Assert.That(actual, Is.EqualTo(expected));
+            });
         }
     }
 }
