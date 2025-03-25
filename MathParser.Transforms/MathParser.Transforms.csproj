@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <DebugType>portable</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+    <TargetFrameworks>net9.0</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="FixMe" Version="1.0.0" PrivateAssets="All" />
