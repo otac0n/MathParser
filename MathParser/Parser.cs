@@ -49,6 +49,11 @@
 
         private static Expression Pow(Expression @base, Expression exponent)
         {
+            if (@base.Type == typeof(double) && exponent.Type == typeof(double))
+            {
+                return Expression.Power(@base, exponent);
+            }
+
             @base = ConvertIfLower(@base, to: typeof(Complex));
             return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), new[] { @base.Type, exponent.Type }), @base, exponent);
         }
