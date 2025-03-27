@@ -1,5 +1,6 @@
 ﻿namespace MathParser
 {
+    using System;
     using System.Linq.Expressions;
 
     /// <summary>
@@ -59,7 +60,7 @@
         protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
             if (outerEffectiveType == ExpressionType.Power &&
-                ((outer is MethodCallExpression outerMethod && outerMethod.Method.Name == "Sqrt") || (inner is MethodCallExpression innerMethod && innerMethod.Method.Name == "Sqrt")))
+                ((outer is MethodCallExpression outerMethod && outerMethod.Method.Name == nameof(Math.Sqrt)) || (inner is MethodCallExpression innerMethod && innerMethod.Method.Name == nameof(Math.Sqrt))))
             {
                 return GetPrecedence(this.GetEffectiveNodeType(inner)) <= GetPrecedence(outerEffectiveType);
             }

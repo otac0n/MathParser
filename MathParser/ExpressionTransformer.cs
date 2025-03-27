@@ -48,9 +48,10 @@ namespace MathParser
             { (Complex l, Complex r) => Complex.Pow(l, r), ExpressionType.Power },
             { (Complex l, double r) => Complex.Pow(l, r), ExpressionType.Power },
             { (double l, double r) => Math.Pow(l, r), ExpressionType.Power },
+            { (Complex a) => Complex.Exp(a), ExpressionType.Power },
             { (double a) => Math.Exp(a), ExpressionType.Power },
-            { (double a) => Math.Sqrt(a), ExpressionType.Power },
             { (Complex a) => Complex.Sqrt(a), ExpressionType.Power },
+            { (double a) => Math.Sqrt(a), ExpressionType.Power },
             { (Complex a) => Complex.Negate(a), ExpressionType.Negate },
         };
 
