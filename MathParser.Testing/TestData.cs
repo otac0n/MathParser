@@ -8,6 +8,42 @@ namespace MathParser.Testing
 
     public static class TestData
     {
+        public static Expression<Func<double, double>>[] LambdaExpressions =>
+        [
+            x => 2,
+            x => x,
+            x => 2 * x,
+            x => Math.Pow(x, 2),
+            x => x * x,
+            x => Math.Sqrt(x),
+            x => Math.Pow(x, 0.5),
+            x => Math.Abs(x),
+            x => Math.Sqrt(Math.Pow(x, 2)),
+            x => Math.Exp(x),
+            x => Math.Pow(Math.E, x),
+            x => Math.Log(x),
+            x => Math.Sin(x),
+            x => Math.Cos(x),
+            x => Math.Tan(x),
+            x => Math.Cosh(x),
+            x => Math.Sinh(x),
+            x => Math.Tanh(x),
+            x => Math.Asin(x),
+            x => Math.Acos(x),
+            x => Math.Atan(x),
+            x => Math.Asinh(x),
+            x => Math.Acosh(x),
+            x => Math.Atanh(x),
+            x => Math.Sin(x) * x,
+            x => Math.Sin(Math.Pow(x, 2)),
+            x => Math.Cos(Math.Pow(x, 2)) * x,
+            x => Math.Exp(2 * x),
+            x => Math.Pow(Math.Log(x), Math.E),
+            x => Math.Pow(x, 1 / x),
+            x => Math.Exp(-Math.Pow(x, 2) / 2) / Math.Tau,
+            x => 1 / (1 + Math.Exp(-x)),
+        ];
+
         public static Expression<Func<Complex>>[] ComplexExpressions =>
         [
             () => new Complex(1, 3) / 4,

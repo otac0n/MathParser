@@ -1,0 +1,4 @@
+(x)=Sin(x)
+(x)=Cos(x)
+(x)=-Sin(x)
+(x)=-Cos(x)

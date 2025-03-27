@@ -1,0 +1,4 @@
+(x)=Sinh(x)
+(x)=Cosh(x)
+(x)=Sinh(x)
+(x)=Cosh(x)

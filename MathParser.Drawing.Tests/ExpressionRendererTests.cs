@@ -24,6 +24,12 @@ namespace MathParser.Drawing.Tests
             ExpressionRendererTestHelper(lambda.Body);
         }
 
+        [TestCaseSource(typeof(TestData), nameof(TestData.LambdaExpressions))]
+        public void MeasureAndDrawExpression_ApprovalTest(Expression lambda)
+        {
+            ExpressionRendererTestHelper(lambda);
+        }
+
         private static void ExpressionRendererTestHelper(string math)
         {
             var parser = new Parser();
