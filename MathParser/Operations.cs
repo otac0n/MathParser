@@ -33,14 +33,16 @@ namespace MathParser
                 ExpressionType.Add when expression is BinaryExpression binary => Add(Derivative(binary.Left, variable), Derivative(binary.Right, variable)),
                 ExpressionType.Subtract when expression is BinaryExpression binary => Subtract(Derivative(binary.Left, variable), Derivative(binary.Right, variable)),
                 ExpressionType.Multiply when expression is BinaryExpression binary => Add(Multiply(Derivative(binary.Left, variable), binary.Right), Multiply(binary.Left, Derivative(binary.Right, variable))),
-                ExpressionType.Divide when expression is BinaryExpression binary => Divide(Subtract(Multiply(Derivative(binary.Left, variable), binary.Right), Multiply(binary.Left, Derivative(binary.Right, variable))), Multiply(binary.Right, binary.Right)),
+                ExpressionType.Divide when expression is BinaryExpression binary => Divide(Subtract(Multiply(Derivative(binary.Left, variable), binary.Right), Multiply(binary.Left, Derivative(binary.Right, variable))), MathMethod(nameof(Math.Pow), binary.Right, Expression.Constant(2))),
                 ExpressionType.Call when expression is MethodCallExpression methodCall && methodCall.Object is null && (methodCall.Method.DeclaringType == typeof(Math) || methodCall.Method.DeclaringType == typeof(Complex)) => methodCall.Method.Name switch
                 {
-                    nameof(Math.Sin) when methodCall.Arguments.Count == 1 => Multiply(MathMethod(nameof(Math.Cos), methodCall.Arguments[0]), Derivative(methodCall.Arguments[0], variable)),
-                    nameof(Math.Cos) when methodCall.Arguments.Count == 1 => Multiply(Negate(MathMethod(nameof(Math.Sin), methodCall.Arguments[0])), Derivative(methodCall.Arguments[0], variable)),
+                    nameof(Math.Abs) when methodCall.Arguments.Count == 1 => Divide(Multiply(Derivative(methodCall.Arguments[0], variable), expression), methodCall.Arguments[0]),
+                    nameof(Math.Sin) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), MathMethod(nameof(Math.Cos), methodCall.Arguments[0])),
+                    nameof(Math.Cos) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Negate(MathMethod(nameof(Math.Sin), methodCall.Arguments[0]))),
+                    nameof(Math.Tan) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), MathMethod(nameof(Math.Pow), MathMethod(nameof(Math.Cos), methodCall.Arguments[0]), Expression.Constant(2))),
                     nameof(Math.Sqrt) when methodCall.Arguments.Count == 1 => Multiply(expression, Multiply(Expression.Constant(0.5), Divide(Derivative(methodCall.Arguments[0], variable), methodCall.Arguments[0]))),
                     nameof(Math.Exp) when methodCall.Arguments.Count == 1 => Multiply(expression, Derivative(methodCall.Arguments[0], variable)),
-                    nameof(Math.Log) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), methodCall.Arguments[0]),
+                    nameof(Math.Log) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), methodCall.Arguments[0]), // TODO: Domain of the function is Reals > 0.
                     nameof(Math.Pow) when methodCall.Arguments.Count == 2 => Multiply(expression, Add(Multiply(Derivative(methodCall.Arguments[1], variable), MathMethod(nameof(Math.Log), methodCall.Arguments[0])), Multiply(methodCall.Arguments[1], Divide(Derivative(methodCall.Arguments[0], variable), methodCall.Arguments[0])))),
                     _ => throw new NotImplementedException($"The method, {methodCall.Method}, is not implemented."),
                 },
