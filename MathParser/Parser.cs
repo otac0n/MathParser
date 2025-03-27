@@ -37,6 +37,11 @@
             return expression;
         }
 
+        private static Expression Abs(Expression expression)
+        {
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Abs), new[] { expression.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Abs), new[] { expression.Type }), expression);
+        }
+
         private static Expression Ceiling(Expression expression)
         {
             return Expression.Call(typeof(Math).GetMethod(nameof(Math.Ceiling), new[] { expression.Type }), expression);

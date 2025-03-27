@@ -1,0 +1,10 @@
+abs(abs(b)-5)
+(parsed)
+Abs(Convert((Abs(b) - 5), Complex))
+(transformed)
+||b|-5|
+(parsed)
+Abs((Abs(b) - 5))
+(transformed)
+||b|-5|
+(stable)

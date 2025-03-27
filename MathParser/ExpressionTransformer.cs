@@ -48,6 +48,7 @@ namespace MathParser
             { (Complex l, Complex r) => Complex.Pow(l, r), ExpressionType.Power },
             { (Complex l, double r) => Complex.Pow(l, r), ExpressionType.Power },
             { (double l, double r) => Math.Pow(l, r), ExpressionType.Power },
+            { (double a) => Math.Exp(a), ExpressionType.Power },
             { (double a) => Math.Sqrt(a), ExpressionType.Power },
             { (Complex a) => Complex.Sqrt(a), ExpressionType.Power },
             { (Complex a) => Complex.Negate(a), ExpressionType.Negate },
@@ -247,6 +248,13 @@ namespace MathParser
         protected abstract T CreateLambda(string name, T[] parameters, T body);
 
         /// <summary>
+        /// Constructs an expression representing a real number.
+        /// </summary>
+        /// <param name="real">The real value.</param>
+        /// <returns>The real number as an expression.</returns>
+        protected abstract T FormatReal(double real);
+
+        /// <summary>
         /// Constructs an expression representing a complex number.
         /// </summary>
         /// <param name="real">The real part.</param>
@@ -262,6 +270,13 @@ namespace MathParser
         protected abstract T FormatVariable(string name);
 
         /// <summary>
+        /// Gets the effective type of the real number's notation when converted using <see cref="FormatReal(double)"/>.
+        /// </summary>
+        /// <param name="real">The real value.</param>
+        /// <returns>The effective expression type.</returns>
+        protected abstract ExpressionType GetEffectiveTypeReal(double real);
+
+        /// <summary>
         /// Gets the effective type of the complex number's notation when converted using <see cref="FormatComplex(double, double)"/>.
         /// </summary>
         /// <param name="real">The real part.</param>
@@ -274,6 +289,7 @@ namespace MathParser
         /// </summary>
         /// <param name="outerEffectiveType">The effective node type of the outer expression.</param>
         /// <param name="outer">The outer expression.</param>
+        /// <param name="innerEffectiveType">The effective node type of the inner expression.</param>
         /// <param name="inner">The inner expression.</param>
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
         protected virtual bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
@@ -304,6 +320,7 @@ namespace MathParser
         /// </summary>
         /// <param name="outerEffectiveType">The effective node type of the outer expression.</param>
         /// <param name="outer">The outer expression.</param>
+        /// <param name="innerEffectiveType">The effective node type of the inner expression.</param>
         /// <param name="inner">The inner expression.</param>
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
         protected virtual bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
@@ -550,6 +567,27 @@ namespace MathParser
 
                     this.Result = this.CreateRadical(inner);
                 }
+                else if (node.Method.Name == nameof(Math.Exp) && arguments.Length == 1)
+                {
+                    var @base = this.FormatReal(double.E);
+                    var baseEffectiveType = this.GetEffectiveTypeReal(double.E);
+
+                    if (this.NeedsLeftBrackets(ExpressionType.Power, node, baseEffectiveType, null))
+                    {
+                        @base = this.AddBrackets(@base);
+                    }
+
+                    var inner = arguments[0];
+                    var power = node.Arguments[0];
+                    var powerEffectiveType = this.GetEffectiveNodeType(power);
+
+                    if (this.NeedsRightBrackets(ExpressionType.Power, node, powerEffectiveType, power))
+                    {
+                        inner = this.AddBrackets(inner);
+                    }
+
+                    this.Result = this.CreatePower(@base, inner);
+                }
                 else if (node.Method.Name == nameof(Math.Ceiling) && arguments.Length == 1)
                 {
                     this.Result = this.AddBrackets("⌈", arguments[0], "⌉");
@@ -557,6 +595,10 @@ namespace MathParser
                 else if (node.Method.Name == nameof(Math.Floor) && arguments.Length == 1)
                 {
                     this.Result = this.AddBrackets("⌊", arguments[0], "⌋");
+                }
+                else if (node.Method.Name == nameof(Math.Abs) && arguments.Length == 1)
+                {
+                    this.Result = this.AddBrackets("|", arguments[0], "|");
                 }
                 else
                 {

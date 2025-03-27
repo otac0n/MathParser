@@ -39,7 +39,7 @@ additive <Expression> -memoize
     / multiplicative
 
 multiplicative <Expression> -memoize
-    = left:multiplicative _ ("*" / "×" / "·" / ![-+]) _ right:negation { Expression.Multiply(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
+    = left:multiplicative _ ("*" / "×" / "·" / ![-+|]) _ right:negation { Expression.Multiply(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
     / left:multiplicative _ ("/" / "∕" / "÷") _ right:negation { Expression.Divide(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
     / negation
 
@@ -64,6 +64,7 @@ primary <Expression> -memoize
     / variable
     / "√" _ negation:negationPrimary { Sqrt(negation) }
     / "(" _ additive:additive _ ")" { additive }
+    / "|" _ additive:additive _ "|" { Abs(additive) }
     / "⌈" _ additive:additive _ "⌉" { Ceiling(additive) }
     / "⌊" _ additive:additive _ "⌋" { Floor(additive) }
 

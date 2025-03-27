@@ -169,6 +169,18 @@ namespace MathParser.Testing
             "√(x^2+b^2)≤2",
             "cos(τ)<=sin(x)",
             "1≠2",
+            "3*|x|^|y|+5",
+            "e^|a|",
+            "|a|^2",
+            "e^(|y|*|z|)",
+            "exp(|y|+|z|)",
+            "(|a|+|b|)+5",
+            "(|a|+|b|)*5",
+            "10+(|a|+|b|)",
+            "10*(|a|+|b|)",
+            "abs(a)",
+            "abs(abs(b)-5)",
+            "abs(5-abs(b))",
         ];
 
         public static string[] SimplifyStrings =>

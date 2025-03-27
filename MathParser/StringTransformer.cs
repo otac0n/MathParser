@@ -1,7 +1,5 @@
 ﻿namespace MathParser
 {
-    using System;
-    using System.Globalization;
     using System.Linq.Expressions;
 
     /// <summary>
@@ -43,10 +41,16 @@
         protected override string CreateLambda(string name, string[] parameters, string body) => name + "(" + string.Join(", ", parameters) + ")" + FormatEqualityOperator(ExpressionType.Equal) + body;
 
         /// <inheritdoc />
+        protected override string FormatReal(double real) => NumberFormatter.FormatReal(real);
+
+        /// <inheritdoc />
         protected override string FormatComplex(double real, double imaginary) => NumberFormatter.FormatComplexNumber(real, imaginary);
 
         /// <inheritdoc />
         protected override string FormatVariable(string name) => name;
+
+        /// <inheritdoc />
+        protected override ExpressionType GetEffectiveTypeReal(double real) => NumberFormatter.GetEffectiveTypeReal(real);
 
         /// <inheritdoc />
         protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => NumberFormatter.GetEffectiveTypeComplex(real, imaginary);

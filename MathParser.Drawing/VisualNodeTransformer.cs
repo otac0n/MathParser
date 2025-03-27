@@ -53,10 +53,16 @@ namespace MathParser.Drawing
         }
 
         /// <inheritdoc />
+        protected override VisualNode FormatReal(double real) => new StringVisualNode(NumberFormatter.FormatReal(real));
+
+        /// <inheritdoc />
         protected override VisualNode FormatComplex(double real, double imaginary) => new StringVisualNode(NumberFormatter.FormatComplexNumber(real, imaginary));
 
         /// <inheritdoc />
         protected override VisualNode FormatVariable(string name) => new StringVisualNode(name);
+
+        /// <inheritdoc />
+        protected override ExpressionType GetEffectiveTypeReal(double real) => NumberFormatter.GetEffectiveTypeReal(real);
 
         /// <inheritdoc />
         protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => NumberFormatter.GetEffectiveTypeComplex(real, imaginary);

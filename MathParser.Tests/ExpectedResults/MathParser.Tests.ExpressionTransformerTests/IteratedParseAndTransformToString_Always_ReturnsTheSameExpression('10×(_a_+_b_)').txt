@@ -1,0 +1,8 @@
+10*(|a|+|b|)
+(parsed)
+(10 * (Abs(a) + Abs(b)))
+(transformed)
+10·(|a|+|b|)
+(parsed)
+(10 * (Abs(a) + Abs(b)))
+(stable)
