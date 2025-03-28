@@ -33,12 +33,27 @@
                             }
                         }
 
-                        if (TryConvert(simpleLeft, false, (double x) => x == 0))
+                        if (IsZero(simpleLeft))
                         {
                             return simpleRight;
                         }
 
-                        if (TryConvert(simpleRight, false, (double x) => x == 0))
+                        if (IsZero(simpleRight))
+                        {
+                            return simpleLeft;
+                        }
+
+                        break;
+                    }
+
+                case ExpressionType.Subtract:
+                    {
+                        if (IsZero(simpleLeft))
+                        {
+                            return Expression.Negate(simpleRight);
+                        }
+
+                        if (IsZero(simpleRight))
                         {
                             return simpleLeft;
                         }
@@ -107,6 +122,25 @@
                     }
 
                     break;
+
+                case ExpressionType.Divide:
+                    {
+                        if (IsZero(simpleRight))
+                        {
+                            return Expression.Divide(simpleLeft, simpleRight);
+                        }
+                        else if (IsOne(simpleRight))
+                        {
+                            return simpleLeft;
+                        }
+
+                        if (IsZero(simpleLeft))
+                        {
+                            return simpleLeft;
+                        }
+
+                        break;
+                    }
             }
 
             return Expression.MakeBinary(node.NodeType, simpleLeft, simpleRight);

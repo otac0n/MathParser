@@ -24,9 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\readme.md" Pack="true" PackagePath="\" />
-    <Compile Update="Parser.cs">
-      <DependentUpon>Parser.peg</DependentUpon>
-    </Compile>
     <PegGrammar Include="Parser.peg" />
     <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>

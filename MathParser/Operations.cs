@@ -3,6 +3,7 @@
 namespace MathParser
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
@@ -55,12 +56,55 @@ namespace MathParser
                     nameof(Math.Pow) when methodCall.Arguments.Count == 2 => Multiply(expression, Add(Multiply(Derivative(methodCall.Arguments[1], variable), MathMethod(nameof(Math.Log), methodCall.Arguments[0])), Multiply(Derivative(methodCall.Arguments[0], variable), Divide(methodCall.Arguments[1], methodCall.Arguments[0])))),
                     _ => throw new NotImplementedException($"The method, {methodCall.Method}, is not implemented."),
                 },
+                ExpressionType.Power when expression is BinaryExpression binary => Multiply(expression, Add(Multiply(Derivative(binary.Right, variable), MathMethod(nameof(Math.Log), binary.Left)), Multiply(Derivative(binary.Left, variable), Divide(binary.Right, binary.Left)))),
                 _ => throw new NotImplementedException($"The {expression.NodeType}, {expression}, is not implemented."),
             };
 
         public static ConstantExpression Zero() => Expression.Constant(0.0);
 
         public static ConstantExpression One() => Expression.Constant(1.0);
+
+        public static Expression ConvertIfLower(Expression expression, Expression to)
+        {
+            return ConvertIfLower(expression, to: to.Type);
+        }
+
+        public static Expression ConvertIfLower(Expression expression, Type to)
+        {
+            var from = expression.Type;
+            if (to == typeof(Complex) && from != typeof(Complex))
+            {
+                return Expression.Convert(expression, to);
+            }
+
+            return expression;
+        }
+
+        public static Expression LowerToReal(Expression expression)
+        {
+            var from = expression.Type;
+            if (from == typeof(Complex))
+            {
+                return Expression.MakeMemberAccess(expression, typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
+            }
+
+            return expression;
+        }
+
+        public static Expression Abs(Expression expression)
+        {
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Abs), new[] { expression.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Abs), new[] { expression.Type }), expression);
+        }
+
+        public static Expression Ceiling(Expression expression)
+        {
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Ceiling), new[] { expression.Type }), expression);
+        }
+
+        public static Expression Floor(Expression expression)
+        {
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Floor), new[] { expression.Type }), expression);
+        }
 
         public static Expression Negate(Expression a)
         {
@@ -74,84 +118,92 @@ namespace MathParser
 
         public static Expression Add(Expression a, Expression b)
         {
-            if (IsZero(a))
-            {
-                return b;
-            }
-
-            if (IsZero(b))
-            {
-                return a;
-            }
-
-            return Expression.Add(a, b);
+            return Expression.Add(ConvertIfLower(a, to: b), ConvertIfLower(b, to: a));
         }
 
         public static Expression Subtract(Expression a, Expression b)
         {
-            if (IsZero(a))
-            {
-                return Expression.Negate(b);
-            }
-
-            if (IsZero(b))
-            {
-                return a;
-            }
-
-            return Expression.Subtract(a, b);
+            return Expression.Subtract(ConvertIfLower(a, to: b), ConvertIfLower(b, to: a));
         }
 
         public static Expression Multiply(Expression a, Expression b)
         {
-            if (IsZero(a))
-            {
-                return a;
-            }
-            else if (IsOne(a))
-            {
-                return b;
-            }
-
-            if (IsZero(b))
-            {
-                return b;
-            }
-            else if (IsOne(b))
-            {
-                return a;
-            }
-
-            return Expression.Multiply(a, b);
+            return Expression.Multiply(ConvertIfLower(a, to: b), ConvertIfLower(b, to: a));
         }
 
         public static Expression Divide(Expression a, Expression b)
         {
-            if (IsZero(b))
-            {
-                return Expression.Divide(a, b);
-            }
-            else if (IsOne(b))
-            {
-                return a;
-            }
-
-            if (IsZero(a))
-            {
-                return a;
-            }
-
-            return Expression.Divide(a, b);
+            return Expression.Divide(ConvertIfLower(a, to: b), ConvertIfLower(b, to: a));
         }
 
         public static Expression Pow(Expression @base, Expression exponent)
         {
-            return Expression.Power(@base, exponent);
+            if (@base.Type == typeof(double) && exponent.Type == typeof(double))
+            {
+                return Expression.Power(@base, exponent);
+            }
+
+            @base = Operations.ConvertIfLower(@base, to: typeof(Complex));
+            return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), new[] { @base.Type, exponent.Type }), @base, exponent);
         }
 
-        public static Expression Sqrt(Expression inner)
+        public static Expression Sqrt(Expression @base)
         {
-            return MathMethod(nameof(Math.Sqrt), inner);
+            if (TryConvert(@base, false, (double value) => value > 0))
+            {
+                return MathMethod(nameof(Math.Sqrt), @base);
+            }
+
+            @base = ConvertIfLower(@base, to: typeof(Complex));
+            return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Sqrt), new[] { @base.Type }), @base);
+        }
+
+        public static Expression Function(string name, IList<Expression> arguments)
+        {
+            if (arguments.Count == 1)
+            {
+                if (name.Equals("Re", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return Expression.Property(Operations.ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
+                }
+
+                if (name.Equals("Im", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    return Expression.Property(Operations.ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Imaginary), BindingFlags.Public | BindingFlags.Instance));
+                }
+            }
+
+            Expression[] mappedArguments;
+            var found = FindFunction(typeof(Complex), name, arguments.Select(a => a.Type).ToArray());
+            if (found == null)
+            {
+                found = FindFunction(typeof(Complex), name, arguments.Select(_ => typeof(Complex)).ToArray());
+                if (found == null)
+                {
+                    throw new MissingMethodException(typeof(Complex).FullName, name + "(" + string.Join(", ", arguments.Select(a => a.Type.FullName)) + ")");
+                }
+                else
+                {
+                    mappedArguments = arguments.Select(a => Operations.ConvertIfLower(a, to: typeof(Complex))).ToArray();
+                }
+            }
+            else
+            {
+                mappedArguments = arguments.ToArray();
+            }
+
+            return Expression.Call(found, mappedArguments);
+        }
+
+        public static MethodInfo FindFunction(Type type, string name, Type[] argTypes)
+        {
+            return (from m in type.GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    where m.DeclaringType == type
+                    where m.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                    let parameters = m.GetParameters()
+                    where parameters.Length == argTypes.Length
+                    where Enumerable.Range(0, argTypes.Length).All(i => parameters[i].ParameterType.IsAssignableFrom(argTypes[i]))
+                    select m).FirstOrDefault();
         }
 
         public static bool IsConstantValue(Expression expression, [NotNullWhen(true)] out ConstantExpression? constantExpression)

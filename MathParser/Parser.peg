@@ -3,6 +3,17 @@
 @using System.Linq
 @using System.Linq.Expressions
 @using System.Numerics
+@members
+{
+    private static void CreateVariable(Cursor state, string variable)
+    {
+        var existing = state[variable] as Expression;
+        if (existing == null)
+        {
+            state[variable] = Expression.Parameter(typeof(Complex), variable);
+        }
+    }
+}
 
 math <Expression>
   = _ value:statement _ EOF { value }
@@ -21,8 +32,8 @@ nameTuple <IList<string>>
 equality <Expression>
   = left:additive _ op:equalityOperator _ right:additive {
     op == ExpressionType.Equal || op == ExpressionType.NotEqual
-      ? Expression.MakeBinary(op, ConvertIfLower(left, to: right), ConvertIfLower(right, to: left))
-      : Expression.MakeBinary(op, LowerToReal(left), LowerToReal(right))
+      ? Expression.MakeBinary(op, Operations.ConvertIfLower(left, to: right), Operations.ConvertIfLower(right, to: left))
+      : Expression.MakeBinary(op, Operations.LowerToReal(left), Operations.LowerToReal(right))
   }
 
 equalityOperator <ExpressionType>
@@ -34,39 +45,39 @@ equalityOperator <ExpressionType>
   / "<"                        { ExpressionType.LessThan }
 
 additive <Expression> -memoize
-    = left:additive _ "+" _ right:multiplicative { Expression.Add(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
-    / left:additive _ "-" _ right:multiplicative { Expression.Subtract(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
+    = left:additive _ "+" _ right:multiplicative { Operations.Add(left, right) }
+    / left:additive _ "-" _ right:multiplicative { Operations.Subtract(left, right) }
     / multiplicative
 
 multiplicative <Expression> -memoize
-    = left:multiplicative _ ("*" / "×" / "·" / ![-+|]) _ right:negation { Expression.Multiply(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
-    / left:multiplicative _ ("/" / "∕" / "÷") _ right:negation { Expression.Divide(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left)) }
+    = left:multiplicative _ ("*" / "×" / "·" / ![-+|]) _ right:negation { Operations.Multiply(left, right) }
+    / left:multiplicative _ ("/" / "∕" / "÷") _ right:negation { Operations.Divide(left, right) }
     / negation
 
 negation <Expression>
-    = "-" _ negation:negation { Expression.Negate(negation) }
+    = "-" _ negation:negation { Operations.Negate(negation) }
     / "+" _ negation:negation { negation }
     / power
 
 negationPrimary <Expression>
-    = "-" _ negation:negationPrimary { Expression.Negate(negation) }
+    = "-" _ negation:negationPrimary { Operations.Negate(negation) }
     / "+" _ negation:negationPrimary { negation }
     / primary
 
 power <Expression> -memoize
-    = left:primary _ "^" _ right:negation { Pow(left, right) }
+    = left:primary _ "^" _ right:negation { Operations.Pow(left, right) }
     / primary
 
 primary <Expression> -memoize
     = decimal
     / namedConstant
-    / name:identifier "(" _ arguments:additive<0,,_ "," _> _ ")" { Function(name, arguments) }
+    / name:identifier "(" _ arguments:additive<0,,_ "," _> _ ")" { Operations.Function(name, arguments) }
     / variable
-    / "√" _ negation:negationPrimary { Sqrt(negation) }
+    / "√" _ negation:negationPrimary { Operations.Sqrt(negation) }
     / "(" _ additive:additive _ ")" { additive }
-    / "|" _ additive:additive _ "|" { Abs(additive) }
-    / "⌈" _ additive:additive _ "⌉" { Ceiling(additive) }
-    / "⌊" _ additive:additive _ "⌋" { Floor(additive) }
+    / "|" _ additive:additive _ "|" { Operations.Abs(additive) }
+    / "⌈" _ additive:additive _ "⌉" { Operations.Ceiling(additive) }
+    / "⌊" _ additive:additive _ "⌋" { Operations.Floor(additive) }
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }

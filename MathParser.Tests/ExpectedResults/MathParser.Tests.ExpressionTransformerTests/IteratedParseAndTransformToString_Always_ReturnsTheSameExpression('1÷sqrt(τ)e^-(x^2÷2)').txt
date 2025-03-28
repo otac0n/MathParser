@@ -4,5 +4,7 @@
 (transformed)
 1/√τ·e^(-(x^2/2))
 (parsed)
-((Convert(1, Complex) / Sqrt(Convert(6.283185307179586, Complex))) * Pow(Convert(2.718281828459045, Complex), -(Pow(x, 2) / Convert(2, Complex))))
+(Convert((1 / Sqrt(6.283185307179586)), Complex) * Pow(Convert(2.718281828459045, Complex), -(Pow(x, 2) / Convert(2, Complex))))
+(transformed)
+1/√τ·e^(-(x^2/2))
 (stable)
