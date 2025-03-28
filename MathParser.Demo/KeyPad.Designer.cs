@@ -44,8 +44,9 @@
             System.Windows.Forms.Button key0;
             System.Windows.Forms.Button keyPow;
             System.Windows.Forms.Button keyAdd;
-            System.Windows.Forms.Button keyPi;
+            System.Windows.Forms.Button keyInf;
             System.Windows.Forms.Button keyRoot;
+            System.Windows.Forms.Button keyPi;
             System.Windows.Forms.Button keyTau;
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             key7 = new System.Windows.Forms.Button();
@@ -64,8 +65,9 @@
             key0 = new System.Windows.Forms.Button();
             keyPow = new System.Windows.Forms.Button();
             keyAdd = new System.Windows.Forms.Button();
-            keyPi = new System.Windows.Forms.Button();
+            keyInf = new System.Windows.Forms.Button();
             keyRoot = new System.Windows.Forms.Button();
+            keyPi = new System.Windows.Forms.Button();
             keyTau = new System.Windows.Forms.Button();
             this.tableLayoutPanel.SuspendLayout();
             this.SuspendLayout();
@@ -294,17 +296,17 @@
             keyAdd.KeyPress += this.Key_KeyPress;
             keyAdd.PreviewKeyDown += this.Key_PreviewKeyDown;
             // 
-            // keyPi
+            // keyInf
             // 
-            keyPi.Dock = System.Windows.Forms.DockStyle.Fill;
-            keyPi.Location = new System.Drawing.Point(0, 336);
-            keyPi.Margin = new System.Windows.Forms.Padding(0);
-            keyPi.Name = "keyPi";
-            keyPi.Size = new System.Drawing.Size(132, 112);
-            keyPi.TabIndex = 17;
-            keyPi.Text = "π";
-            keyPi.UseVisualStyleBackColor = true;
-            keyPi.Click += this.Key_Click;
+            keyInf.Dock = System.Windows.Forms.DockStyle.Fill;
+            keyInf.Location = new System.Drawing.Point(0, 336);
+            keyInf.Margin = new System.Windows.Forms.Padding(0);
+            keyInf.Name = "keyInf";
+            keyInf.Size = new System.Drawing.Size(132, 112);
+            keyInf.TabIndex = 17;
+            keyInf.Text = "∞";
+            keyInf.UseVisualStyleBackColor = true;
+            keyInf.Click += this.Key_Click;
             // 
             // keyRoot
             // 
@@ -318,17 +320,17 @@
             keyRoot.UseVisualStyleBackColor = true;
             keyRoot.Click += this.Key_Click;
             // 
-            // keyTau
+            // keyPi
             // 
-            keyTau.Dock = System.Windows.Forms.DockStyle.Fill;
-            keyTau.Location = new System.Drawing.Point(0, 448);
-            keyTau.Margin = new System.Windows.Forms.Padding(0);
-            keyTau.Name = "keyTau";
-            keyTau.Size = new System.Drawing.Size(132, 112);
-            keyTau.TabIndex = 18;
-            keyTau.Text = "τ";
-            keyTau.UseVisualStyleBackColor = true;
-            keyTau.Click += this.Key_Click;
+            keyPi.Dock = System.Windows.Forms.DockStyle.Fill;
+            keyPi.Location = new System.Drawing.Point(0, 448);
+            keyPi.Margin = new System.Windows.Forms.Padding(0);
+            keyPi.Name = "keyPi";
+            keyPi.Size = new System.Drawing.Size(132, 112);
+            keyPi.TabIndex = 18;
+            keyPi.Text = "π";
+            keyPi.UseVisualStyleBackColor = true;
+            keyPi.Click += this.Key_Click;
             // 
             // tableLayoutPanel
             // 
@@ -337,9 +339,10 @@
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel.Controls.Add(keyTau, 0, 4);
+            this.tableLayoutPanel.Controls.Add(keyTau, 1, 4);
+            this.tableLayoutPanel.Controls.Add(keyPi, 0, 4);
             this.tableLayoutPanel.Controls.Add(keyRoot, 2, 4);
-            this.tableLayoutPanel.Controls.Add(keyPi, 0, 3);
+            this.tableLayoutPanel.Controls.Add(keyInf, 0, 3);
             this.tableLayoutPanel.Controls.Add(keyAdd, 3, 3);
             this.tableLayoutPanel.Controls.Add(keyPow, 3, 4);
             this.tableLayoutPanel.Controls.Add(key0, 1, 3);
@@ -368,6 +371,18 @@
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.tableLayoutPanel.Size = new System.Drawing.Size(530, 560);
             this.tableLayoutPanel.TabIndex = 0;
+            // 
+            // keyTau
+            // 
+            keyTau.Dock = System.Windows.Forms.DockStyle.Fill;
+            keyTau.Location = new System.Drawing.Point(132, 448);
+            keyTau.Margin = new System.Windows.Forms.Padding(0);
+            keyTau.Name = "keyTau";
+            keyTau.Size = new System.Drawing.Size(132, 112);
+            keyTau.TabIndex = 19;
+            keyTau.Text = "τ";
+            keyTau.UseVisualStyleBackColor = true;
+            keyTau.Click += this.Key_Click;
             // 
             // KeyPad
             // 
