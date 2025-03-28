@@ -19,8 +19,13 @@ namespace MathParser
 
         public static Expression<Func<T, T>> Derivative<T>(Expression<Func<T, T>> expression)
         {
+            return (Expression<Func<T, T>>)Derivative((LambdaExpression)expression);
+        }
+
+        public static LambdaExpression Derivative(LambdaExpression expression)
+        {
             var variable = expression.Parameters.Single();
-            return (Expression<Func<T, T>>)Expression.Lambda(Simplify(Derivative(expression.Body, variable)), variable);
+            return Expression.Lambda(Simplify(Derivative(expression.Body, variable)), variable);
         }
 
         public static Expression Derivative(Expression expression, ParameterExpression variable) =>
@@ -30,6 +35,7 @@ namespace MathParser
                 ExpressionType.Parameter when expression is ParameterExpression parameter => parameter == variable ? One() : Zero(), // TODO: Check for NaN, Inf, etc.
                 ExpressionType.MemberAccess when expression is MemberExpression member => Zero(),
                 ExpressionType.Constant when expression is ConstantExpression constant => Zero(),
+                ExpressionType.Convert when expression is UnaryExpression unary => Expression.Convert(Derivative(unary.Operand, variable), unary.Type),
                 ExpressionType.Negate when expression is UnaryExpression unary => Negate(Derivative(unary.Operand, variable)),
                 ExpressionType.Add when expression is BinaryExpression binary => Add(Derivative(binary.Left, variable), Derivative(binary.Right, variable)),
                 ExpressionType.Subtract when expression is BinaryExpression binary => Subtract(Derivative(binary.Left, variable), Derivative(binary.Right, variable)),
@@ -53,10 +59,10 @@ namespace MathParser
                     nameof(Math.Sqrt) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Multiply(Expression.Constant(0.5), Divide(expression, methodCall.Arguments[0]))),
                     nameof(Math.Exp) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), expression),
                     nameof(Math.Log) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), methodCall.Arguments[0]), // TODO: Domain of the function is Reals > 0.
-                    nameof(Math.Pow) when methodCall.Arguments.Count == 2 => Multiply(expression, Add(Multiply(Derivative(methodCall.Arguments[1], variable), MathMethod(nameof(Math.Log), methodCall.Arguments[0])), Multiply(Derivative(methodCall.Arguments[0], variable), Divide(methodCall.Arguments[1], methodCall.Arguments[0])))),
+                    nameof(Math.Pow) when methodCall.Arguments.Count == 2 => Multiply(expression, Derivative(Multiply(Log(methodCall.Arguments[0]), methodCall.Arguments[1]), variable)),
                     _ => throw new NotImplementedException($"The method, {methodCall.Method}, is not implemented."),
                 },
-                ExpressionType.Power when expression is BinaryExpression binary => Multiply(expression, Add(Multiply(Derivative(binary.Right, variable), MathMethod(nameof(Math.Log), binary.Left)), Multiply(Derivative(binary.Left, variable), Divide(binary.Right, binary.Left)))),
+                ExpressionType.Power when expression is BinaryExpression binary => Multiply(expression, Derivative(Multiply(Log(binary.Left), binary.Right), variable)),
                 _ => throw new NotImplementedException($"The {expression.NodeType}, {expression}, is not implemented."),
             };
 
@@ -156,6 +162,11 @@ namespace MathParser
 
             @base = ConvertIfLower(@base, to: typeof(Complex));
             return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Sqrt), new[] { @base.Type }), @base);
+        }
+
+        public static Expression Log(Expression expression)
+        {
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Log), new[] { expression.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Log), new[] { expression.Type }), expression);
         }
 
         public static Expression Function(string name, IList<Expression> arguments)

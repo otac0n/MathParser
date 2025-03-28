@@ -15,6 +15,7 @@ namespace MathParser.Testing
             x => 2 * x,
             x => Math.Pow(x, 2),
             x => x * x,
+            x => Math.Exp(2 * Math.Log(x)),
             x => Math.Sqrt(x),
             x => Math.Pow(x, 0.5),
             x => Math.Abs(x),
@@ -181,6 +182,7 @@ namespace MathParser.Testing
             "abs(a)",
             "abs(abs(b)-5)",
             "abs(5-abs(b))",
+            "D(f(x)=2x)",
         ];
 
         public static string[] SimplifyStrings =>
