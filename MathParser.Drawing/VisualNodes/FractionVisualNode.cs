@@ -5,7 +5,9 @@ namespace MathParser.Drawing.VisualNodes
     using System;
     using System.Drawing;
     using System.Drawing.Drawing2D;
+    using System.Runtime.Versioning;
 
+    [SupportedOSPlatform("windows")]
     internal class FractionVisualNode : VisualNode
     {
         private const float FontSizeRatio = 0.9F;

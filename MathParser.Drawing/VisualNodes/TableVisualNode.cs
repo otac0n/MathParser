@@ -5,7 +5,9 @@ namespace MathParser.Drawing.VisualNodes
     using System;
     using System.Drawing;
     using System.Linq;
+    using System.Runtime.Versioning;
 
+    [SupportedOSPlatform("windows")]
     internal class TableVisualNode : VisualNode
     {
         public TableVisualNode(VisualNode[,] nodes)

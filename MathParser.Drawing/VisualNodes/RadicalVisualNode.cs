@@ -4,7 +4,9 @@ namespace MathParser.Drawing.VisualNodes
 {
     using System.Drawing;
     using System.Drawing.Drawing2D;
+    using System.Runtime.Versioning;
 
+    [SupportedOSPlatform("windows")]
     internal class RadicalVisualNode : VisualNode
     {
         private const string Radical = "√";

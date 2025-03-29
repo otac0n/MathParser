@@ -4,7 +4,9 @@ namespace MathParser.Drawing.VisualNodes
 {
     using System;
     using System.Drawing;
+    using System.Runtime.Versioning;
 
+    [SupportedOSPlatform("windows")]
     internal class StringVisualNode : VisualNode
     {
         public StringVisualNode(object value)

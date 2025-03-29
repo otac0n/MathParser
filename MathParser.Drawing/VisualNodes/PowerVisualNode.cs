@@ -3,7 +3,9 @@
 namespace MathParser.Drawing.VisualNodes
 {
     using System.Drawing;
+    using System.Runtime.Versioning;
 
+    [SupportedOSPlatform("windows")]
     internal class PowerVisualNode : VisualNode
     {
         private const float FontSizeRatio = 0.6F;

@@ -4,7 +4,9 @@ namespace MathParser.Drawing.VisualNodes
 {
     using System.Drawing;
     using System.Linq;
+    using System.Runtime.Versioning;
 
+    [SupportedOSPlatform("windows")]
     internal class BaselineAlignedVisualNode : VisualNode
     {
         public BaselineAlignedVisualNode(params VisualNode[] nodes)
