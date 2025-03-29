@@ -192,6 +192,7 @@ namespace MathParser.Testing
             "abs(a)",
             "abs(abs(b)-5)",
             "abs(5-abs(b))",
+            "abs(x)^abs(y)",
             "D(f(x)=2x)",
             "iif(x!=0,1/x,0)",
             "1/(x*iif(a>b,a,b))/2",

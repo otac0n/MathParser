@@ -1,0 +1,8 @@
+abs(x)^abs(y)
+(parsed)
+(Abs(x) ** Abs(y))
+(transformed)
+|x|^|y|
+(parsed)
+(Abs(x) ** Abs(y))
+(stable)
