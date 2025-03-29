@@ -35,13 +35,12 @@ namespace MathParser.Drawing.VisualNodes
             }
 
             var size = this.Node.Measure(graphics, font, out float baseline);
-            this.MeasureInternal(graphics, font, out _, out var bracketFont, out var bracketOffset);
-            var bracketShift = new SizeF(0, bracketOffset);
+            this.MeasureInternal(graphics, font, out _, out var bracketFont, out var leftOffset, out var leftWidth, out var rightOffset);
 
             if (this.LeftBracket != null)
             {
-                DrawString(graphics, this.LeftBracket, bracketFont, brush, pen, topLeft + bracketShift);
-                topLeft.X += graphics.MeasureString(this.LeftBracket, bracketFont).Width;
+                DrawString(graphics, this.LeftBracket, bracketFont, brush, pen, topLeft + leftOffset);
+                topLeft.X += leftWidth;
             }
 
             this.Node.Draw(graphics, font, brush, pen, topLeft);
@@ -49,7 +48,7 @@ namespace MathParser.Drawing.VisualNodes
 
             if (this.RightBracket != null)
             {
-                DrawString(graphics, this.RightBracket, bracketFont, brush, pen, topLeft + bracketShift);
+                DrawString(graphics, this.RightBracket, bracketFont, brush, pen, topLeft + rightOffset);
             }
         }
 
@@ -60,38 +59,72 @@ namespace MathParser.Drawing.VisualNodes
                 throw new ArgumentNullException(nameof(graphics));
             }
 
-            return this.MeasureInternal(graphics, font, out baseline, out var bracketFont, out var bracketOffset);
+            return this.MeasureInternal(graphics, font, out baseline, out _, out _, out _, out _);
         }
 
-        private SizeF MeasureInternal(Graphics graphics, Font font, out float baseline, out Font bracketFont, out float bracketOffset)
+        private SizeF MeasureInternal(Graphics graphics, Font font, out float baseline, out Font bracketFont, out SizeF leftOffset, out float leftWidth, out SizeF rightOffset)
         {
             var size = this.Node.Measure(graphics, font, out baseline);
 
-            RectangleF bothBounds;
-            using (var path = new GraphicsPath())
+            var top = baseline;
+            var bottom = 0f;
+            leftOffset = SizeF.Empty;
+            rightOffset = SizeF.Empty;
+
+            var leftSize = SizeF.Empty;
+            var leftBounds = RectangleF.Empty;
+            if (this.LeftBracket != null)
             {
-                path.AddString(
-                    this.bothBrackets,
-                    font.FontFamily,
-                    (int)font.Style,
-                    graphics.DpiY * font.Size / PointsPerInch,
-                    PointF.Empty,
-                    StringFormat.GenericDefault);
-                bothBounds = path.GetBounds();
+                leftSize = MeasureString(graphics, this.LeftBracket, font, out _);
+                using (var path = new GraphicsPath())
+                {
+                    path.AddString(
+                        this.LeftBracket,
+                        font.FontFamily,
+                        (int)font.Style,
+                        graphics.DpiY * font.Size / PointsPerInch,
+                        PointF.Empty,
+                        StringFormat.GenericDefault);
+                    leftBounds = path.GetBounds();
+                    top = Math.Min(leftBounds.Top, top);
+                    bottom = Math.Max(leftBounds.Bottom, bottom);
+                }
             }
 
-            var bothSize = MeasureString(graphics, this.bothBrackets, font, out _);
-            var targetBottom = size.Height - (bothSize.Height - bothBounds.Bottom);
-            var fontScale = Math.Max((bothBounds.Top - targetBottom) / (bothBounds.Top - bothBounds.Bottom), 1);
+            var rightSize = SizeF.Empty;
+            var rightBounds = RectangleF.Empty;
+            if (this.RightBracket != null)
+            {
+                rightSize = MeasureString(graphics, this.RightBracket, font, out _);
+                using (var path = new GraphicsPath())
+                {
+                    path.AddString(
+                        this.RightBracket,
+                        font.FontFamily,
+                        (int)font.Style,
+                        graphics.DpiY * font.Size / PointsPerInch,
+                        PointF.Empty,
+                        StringFormat.GenericDefault);
+                    rightBounds = path.GetBounds();
+                    top = Math.Min(rightBounds.Top, top);
+                    bottom = Math.Max(rightBounds.Bottom, bottom);
+                }
+            }
+
+            var maxHeight = Math.Max(leftSize.Height, rightSize.Height);
+            var targetTop = top;
+            var targetBottom = size.Height - (maxHeight - bottom);
+            var fontScale = Math.Max((targetTop - targetBottom) / (top - bottom), 1);
 
             bracketFont = fontScale <= 1 ? font : new Font(font.FontFamily, font.Size * fontScale, font.Style, font.Unit, font.GdiCharSet, font.GdiVerticalFont);
-            bracketOffset = -(fontScale * bothBounds.Top) + bothBounds.Top;
+            var verticalOffset = (1 - fontScale) * top;
+            leftOffset.Width = (1 - fontScale) * leftBounds.X;
+            rightOffset.Width = (1 - fontScale) * rightBounds.X;
+            rightOffset.Height = leftOffset.Height = verticalOffset;
+            leftWidth = leftSize.Width * fontScale + (1 - fontScale) * (leftSize.Width - leftBounds.Width);
+            var rightWidth = rightSize.Width * fontScale + (1 - fontScale) * (rightSize.Width - rightBounds.Width);
 
-            var leftBracketSize = this.LeftBracket == null ? SizeF.Empty : graphics.MeasureString(this.LeftBracket, bracketFont);
-            var rightBracketSize = this.RightBracket == null ? SizeF.Empty : graphics.MeasureString(this.RightBracket, bracketFont);
-
-            size.Width += leftBracketSize.Width + rightBracketSize.Width;
-            ////size.Height = Math.Max(size.Height, Math.Max(leftBracketSize.Height, rightBracketSize.Height) + bracketOffset);
+            size.Width += leftWidth + rightWidth;
 
             return size;
         }
