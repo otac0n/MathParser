@@ -40,11 +40,13 @@ namespace MathParser.Drawing.VisualNodes
             }
 
             var family = font.FontFamily;
-            var spacing = family.GetLineSpacing(font.Style);
-            var ascent = family.GetCellAscent(font.Style);
+            var scaling = font.GetHeight(graphics) / family.GetLineSpacing(font.Style);
+            var ascent = family.GetCellAscent(font.Style) * scaling;
+            var descent = family.GetCellDescent(font.Style) * scaling;
 
-            baseline = font.GetHeight(graphics) * ascent / spacing;
+            baseline = ascent;
             var size = graphics.MeasureString(text, font);
+            size.Height = ascent + descent;
             return size;
         }
 
