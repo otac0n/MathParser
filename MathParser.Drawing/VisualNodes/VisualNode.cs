@@ -31,15 +31,8 @@ namespace MathParser.Drawing.VisualNodes
         /// <returns>The bounding size of the text.</returns>
         public static SizeF MeasureString(Graphics graphics, string text, Font font, out float baseline)
         {
-            if (graphics == null)
-            {
-                throw new ArgumentNullException(nameof(graphics));
-            }
-
-            if (font == null)
-            {
-                throw new ArgumentNullException(nameof(font));
-            }
+            ArgumentNullException.ThrowIfNull(graphics);
+            ArgumentNullException.ThrowIfNull(font);
 
             var family = font.FontFamily;
             var scaling = font.GetHeight(graphics) / family.GetLineSpacing(font.Style);
@@ -63,25 +56,10 @@ namespace MathParser.Drawing.VisualNodes
         /// <param name="topLeft">The top left corner of the bounding region that will contain this portion of the expression.</param>
         public static void DrawString(Graphics graphics, string text, Font font, Brush brush, Pen pen, PointF topLeft)
         {
-            if (graphics == null)
-            {
-                throw new ArgumentNullException(nameof(graphics));
-            }
-
-            if (font == null)
-            {
-                throw new ArgumentNullException(nameof(font));
-            }
-
-            if (brush == null)
-            {
-                throw new ArgumentNullException(nameof(brush));
-            }
-
-            if (pen == null)
-            {
-                throw new ArgumentNullException(nameof(pen));
-            }
+            ArgumentNullException.ThrowIfNull(graphics);
+            ArgumentNullException.ThrowIfNull(font);
+            ArgumentNullException.ThrowIfNull(brush);
+            ArgumentNullException.ThrowIfNull(pen);
 
             using (var path = new GraphicsPath())
             {

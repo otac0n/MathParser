@@ -18,10 +18,7 @@ namespace MathParser.Drawing.VisualNodes
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
-            if (graphics == null)
-            {
-                throw new ArgumentNullException(nameof(graphics));
-            }
+            ArgumentNullException.ThrowIfNull(graphics);
 
             DrawString(graphics, this.Value, font, brush, pen, topLeft);
         }

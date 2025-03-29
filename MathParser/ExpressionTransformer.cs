@@ -359,10 +359,7 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
-            }
+            ArgumentNullException.ThrowIfNull(node);
 
             this.Visit(node.Left);
             var left = this.Result;
@@ -436,10 +433,7 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
-            }
+            ArgumentNullException.ThrowIfNull(node);
 
             if (node.Value is double || node.Value is float || node.Value is int || node.Value is uint || node.Value is long || node.Value is ulong || node.Value is short || node.Value is ushort)
             {
@@ -473,10 +467,7 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
-            }
+            ArgumentNullException.ThrowIfNull(node);
 
             if (node.Member.DeclaringType == typeof(Complex))
             {
@@ -508,10 +499,7 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
-            }
+            ArgumentNullException.ThrowIfNull(node);
 
             var effectiveType = this.GetEffectiveNodeType(node);
             if (node.Arguments.Count == 2 && effectiveType != ExpressionType.Call)
@@ -656,10 +644,7 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitNew(NewExpression node)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
-            }
+            ArgumentNullException.ThrowIfNull(node);
 
             if (node.Type == typeof(Complex) && node.Arguments.Count == 2 && node.Arguments[0].NodeType == ExpressionType.Constant && node.Arguments[1].NodeType == ExpressionType.Constant)
             {
@@ -675,10 +660,7 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
-            }
+            ArgumentNullException.ThrowIfNull(node);
 
             this.Result = this.FormatVariable(node.Name);
             return node;
@@ -687,10 +669,7 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            if (node == null)
-            {
-                throw new ArgumentNullException(nameof(node));
-            }
+            ArgumentNullException.ThrowIfNull(node);
 
             if (node.NodeType == ExpressionType.Negate ||
                 node.NodeType == ExpressionType.NegateChecked)
@@ -724,10 +703,7 @@ namespace MathParser
         /// <returns>The best operator type to represent the expression.</returns>
         protected ExpressionType GetEffectiveNodeType(Expression expression)
         {
-            if (expression == null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
+            ArgumentNullException.ThrowIfNull(expression);
 
             var actualType = expression.NodeType;
 

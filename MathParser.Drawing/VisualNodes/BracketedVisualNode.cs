@@ -29,10 +29,7 @@ namespace MathParser.Drawing.VisualNodes
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
-            if (graphics == null)
-            {
-                throw new ArgumentNullException(nameof(graphics));
-            }
+            ArgumentNullException.ThrowIfNull(graphics);
 
             var size = this.Node.Measure(graphics, font, out float baseline);
             this.MeasureInternal(graphics, font, out _, out var bracketFont, out var leftOffset, out var leftWidth, out var rightOffset);
@@ -54,10 +51,7 @@ namespace MathParser.Drawing.VisualNodes
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
-            if (graphics == null)
-            {
-                throw new ArgumentNullException(nameof(graphics));
-            }
+            ArgumentNullException.ThrowIfNull(graphics);
 
             return this.MeasureInternal(graphics, font, out baseline, out _, out _, out _, out _);
         }
