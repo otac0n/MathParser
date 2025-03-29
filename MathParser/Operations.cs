@@ -31,10 +31,9 @@ namespace MathParser
         public static Expression Derivative(Expression expression, ParameterExpression variable) =>
             expression.NodeType switch
             {
-                // TODO: We may need a way to communicate the higher order derivatives of parameters, fields, properties, etc. that change over time.
-                ExpressionType.Parameter when expression is ParameterExpression parameter => parameter == variable ? One() : Zero(), // TODO: Check for NaN, Inf, etc.
+                ExpressionType.Parameter when expression is ParameterExpression parameter => parameter == variable ? One() : Zero(),
                 ExpressionType.MemberAccess when expression is MemberExpression member => Zero(),
-                ExpressionType.Constant when expression is ConstantExpression constant => Zero(),
+                ExpressionType.Constant when expression is ConstantExpression constant => IsNaN(constant) ? constant : Zero(), // TODO: Does constant infinity have a derivative?
                 ExpressionType.Convert when expression is UnaryExpression unary => Expression.Convert(Derivative(unary.Operand, variable), unary.Type),
                 ExpressionType.Conditional when expression is ConditionalExpression conditional => Conditional(conditional.Test, Derivative(conditional.IfTrue, variable), Derivative(conditional.IfFalse, variable)),
                 ExpressionType.Negate when expression is UnaryExpression unary => Negate(Derivative(unary.Operand, variable)),
@@ -262,8 +261,14 @@ namespace MathParser
 
         public static bool IsConstantEqual(Expression expression, double value) =>
             TryConvert(expression, false, (int x) => x == value) ||
+            TryConvert(expression, false, (float x) => x == value) ||
             TryConvert(expression, false, (double x) => x == value) ||
             TryConvert(expression, false, (Complex x) => x == value);
+
+        public static bool IsNaN(Expression expression) =>
+            TryConvert(expression, false, (float x) => float.IsNaN(x)) ||
+            TryConvert(expression, false, (double x) => double.IsNaN(x)) ||
+            TryConvert(expression, false, (Complex x) => Complex.IsNaN(x));
 
         public static bool IsOne(Expression expression) => IsConstantEqual(expression, 1);
 
