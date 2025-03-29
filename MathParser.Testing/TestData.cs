@@ -196,6 +196,7 @@ namespace MathParser.Testing
             "D(f(x)=2x)",
             "iif(x!=0,1/x,0)",
             "1/(x*iif(a>b,a,b))/2",
+            "f(x)=iif(x<=-3,-3-x,iif(x<=0,x+3,iif(x<=3,3-2x,0.5x-4.5)))",
         ];
 
         public static string[] SimplifyStrings =>

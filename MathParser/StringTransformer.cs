@@ -1,6 +1,7 @@
 ﻿namespace MathParser
 {
     using System;
+    using System.Linq;
     using System.Linq.Expressions;
 
     /// <summary>
@@ -30,7 +31,7 @@
         protected override string CreateSubtract(string minuend, string subtrahend) => minuend + "-" + subtrahend;
 
         /// <inheritdoc />
-        protected override string CreateConditional(string condition, string consequent, string alternative) => "iif(" + condition + ", " + consequent + ", " + alternative + ")";
+        protected override string CreateConditional((string condition, string consequent)[] conditions, string alternative) => conditions.Reverse().Aggregate(alternative, (e, c) => "iif(" + c.condition + ", " + c.consequent + ", " + alternative + ")");
 
         /// <inheritdoc />
         protected override string CreateFunction(string name, params string[] arguments) => name + "(" + string.Join(", ", arguments) + ")";

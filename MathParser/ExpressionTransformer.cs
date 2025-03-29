@@ -5,6 +5,7 @@ namespace MathParser
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Numerics;
     using System.Reflection;
@@ -218,11 +219,10 @@ namespace MathParser
         /// <summary>
         /// Constructs a conditional expression.
         /// </summary>
-        /// <param name="condition">The condition expression.</param>
-        /// <param name="consequent">The consequent expression.</param>
+        /// <param name="conditions">The conditional expressions.</param>
         /// <param name="alternative">The alternative expression.</param>
         /// <returns>The conditional expression.</returns>
-        protected abstract T CreateConditional(T condition, T consequent, T alternative);
+        protected abstract T CreateConditional((T condition, T consequent)[] conditions, T alternative);
 
         /// <summary>
         /// Constructs a function expression.
@@ -418,14 +418,24 @@ namespace MathParser
         /// <inheritdoc />
         protected override Expression VisitConditional(ConditionalExpression node)
         {
-            this.Visit(node.Test);
-            var condition = this.Result;
-            this.Visit(node.IfTrue);
-            var consequent = this.Result;
-            this.Visit(node.IfFalse);
+            var conditions = new List<(T condition, T consequent)>();
+
+            var next = (Expression)node;
+            while (next is ConditionalExpression inner)
+            {
+                this.Visit(inner.Test);
+                var condition = this.Result;
+                this.Visit(inner.IfTrue);
+                var consequent = this.Result;
+                conditions.Add((condition, consequent));
+
+                next = inner.IfFalse;
+            }
+
+            this.Visit(next);
             var alternative = this.Result;
 
-            this.Result = this.CreateConditional(condition, consequent, alternative);
+            this.Result = this.CreateConditional(conditions.ToArray(), alternative);
 
             return node;
         }
