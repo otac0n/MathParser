@@ -72,6 +72,7 @@ power <Expression> -memoize
 primary <Expression> -memoize
     = decimal
     / namedConstant
+    / "iif(" _ condition:equality _ "," _ consequent:additive _ "," _ alternative:additive _ ")" { Operations.Conditional(condition, consequent, alternative) }
     / name:identifier "(" _ arguments:additive<0,,_ "," _> _ ")" { Operations.Function(name, arguments) }
     / variable
     / "√" _ negation:negationPrimary { Operations.Sqrt(negation) }

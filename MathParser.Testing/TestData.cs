@@ -3,11 +3,21 @@
 namespace MathParser.Testing
 {
     using System;
+    using System.Globalization;
     using System.Linq.Expressions;
     using System.Numerics;
 
     public static class TestData
     {
+        public static Expression[] NaNExpressions =
+        [
+            Expression.Constant(float.NaN),
+            Expression.Constant(double.NaN),
+            Expression.Constant(Complex.NaN),
+            Expression.Constant(new Complex(double.NaN, 0)),
+            Expression.Constant(new Complex(0, double.NaN)),
+        ];
+
         public static Expression<Func<double, double>>[] LambdaExpressions =>
         [
             x => 2,
@@ -183,6 +193,8 @@ namespace MathParser.Testing
             "abs(abs(b)-5)",
             "abs(5-abs(b))",
             "D(f(x)=2x)",
+            "iif(x!=0,1/x,0)",
+            "1/(x*iif(a>b,a,b))/2",
         ];
 
         public static string[] SimplifyStrings =>

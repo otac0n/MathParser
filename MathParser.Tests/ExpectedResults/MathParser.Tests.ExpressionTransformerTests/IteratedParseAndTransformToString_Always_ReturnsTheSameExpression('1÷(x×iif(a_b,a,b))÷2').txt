@@ -1,0 +1,8 @@
+1/(x*iif(a>b,a,b))/2
+(parsed)
+((Convert(1, Complex) / (x * IIF((a.Real > b.Real), a, b))) / Convert(2, Complex))
+(transformed)
+1/(x·iif(Re(a)>Re(b), a, b))/2
+(parsed)
+((Convert(1, Complex) / (x * IIF((a.Real > b.Real), a, b))) / Convert(2, Complex))
+(stable)

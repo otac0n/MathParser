@@ -30,6 +30,9 @@
         protected override string CreateSubtract(string minuend, string subtrahend) => minuend + "-" + subtrahend;
 
         /// <inheritdoc />
+        protected override string CreateConditional(string condition, string consequent, string alternative) => "iif(" + condition + ", " + consequent + ", " + alternative + ")";
+
+        /// <inheritdoc />
         protected override string CreateFunction(string name, params string[] arguments) => name + "(" + string.Join(", ", arguments) + ")";
 
         /// <inheritdoc />

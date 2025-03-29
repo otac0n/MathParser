@@ -30,13 +30,19 @@ namespace MathParser.Drawing.VisualNodes
             var size = this.Node.Measure(graphics, font, out float baseline);
             var bracketFont = GetBracketFont(graphics, font, this.LeftBracket, this.RightBracket, baseline);
 
-            DrawString(graphics, this.LeftBracket, bracketFont, brush, pen, topLeft);
-            topLeft.X += graphics.MeasureString(this.LeftBracket, bracketFont).Width;
+            if (this.LeftBracket != null)
+            {
+                DrawString(graphics, this.LeftBracket, bracketFont, brush, pen, topLeft);
+                topLeft.X += graphics.MeasureString(this.LeftBracket, bracketFont).Width;
+            }
 
             this.Node.Draw(graphics, font, brush, pen, topLeft);
             topLeft.X += size.Width;
 
-            DrawString(graphics, this.RightBracket, bracketFont, brush, pen, topLeft);
+            if (this.RightBracket != null)
+            {
+                DrawString(graphics, this.RightBracket, bracketFont, brush, pen, topLeft);
+            }
         }
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)
@@ -49,8 +55,8 @@ namespace MathParser.Drawing.VisualNodes
             var size = this.Node.Measure(graphics, font, out baseline);
             var bracketFont = GetBracketFont(graphics, font, this.LeftBracket, this.RightBracket, baseline);
 
-            var leftBracketSize = graphics.MeasureString(this.LeftBracket, bracketFont);
-            var rightBracketSize = graphics.MeasureString(this.RightBracket, bracketFont);
+            var leftBracketSize = this.LeftBracket == null ? SizeF.Empty : graphics.MeasureString(this.LeftBracket, bracketFont);
+            var rightBracketSize = this.RightBracket == null ? SizeF.Empty : graphics.MeasureString(this.RightBracket, bracketFont);
 
             size.Width += leftBracketSize.Width + rightBracketSize.Width;
             size.Height = Math.Max(size.Height, Math.Max(leftBracketSize.Height, rightBracketSize.Height));

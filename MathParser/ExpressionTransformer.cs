@@ -216,6 +216,15 @@ namespace MathParser
         protected abstract T CreateSubtract(T minuend, T subtrahend);
 
         /// <summary>
+        /// Constructs a conditional expression.
+        /// </summary>
+        /// <param name="condition">The condition expression.</param>
+        /// <param name="consequent">The consequent expression.</param>
+        /// <param name="alternative">The alternative expression.</param>
+        /// <returns>The conditional expression.</returns>
+        protected abstract T CreateConditional(T condition, T consequent, T alternative);
+
+        /// <summary>
         /// Constructs a function expression.
         /// </summary>
         /// <param name="name">The name of the function.</param>
@@ -405,6 +414,21 @@ namespace MathParser
                     this.Result = this.CreateEquality(left, effectiveType, right);
                     break;
             }
+
+            return node;
+        }
+
+        /// <inheritdoc />
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            this.Visit(node.Test);
+            var condition = this.Result;
+            this.Visit(node.IfTrue);
+            var consequent = this.Result;
+            this.Visit(node.IfFalse);
+            var alternative = this.Result;
+
+            this.Result = this.CreateConditional(condition, consequent, alternative);
 
             return node;
         }

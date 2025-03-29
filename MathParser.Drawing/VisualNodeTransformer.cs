@@ -34,6 +34,9 @@ namespace MathParser.Drawing
         protected override VisualNode CreateSubtract(VisualNode minuend, VisualNode subtrahend) => CreateInlineBinary(minuend, "-", subtrahend);
 
         /// <inheritdoc />
+        protected override VisualNode CreateConditional(VisualNode condition, VisualNode consequent, VisualNode alternative) => AddBrackets("{", new TableVisualNode(new[,] { { consequent, new BaselineAlignedVisualNode(new StringVisualNode("if "), condition) }, { alternative, new StringVisualNode("otherwise") } }), null);
+
+        /// <inheritdoc />
         protected override VisualNode CreateFunction(string name, params VisualNode[] arguments)
         {
             var argumentNodes = Enumerable.Range(0, arguments.Length * 2 - 1).Select(i => i % 2 == 0 ? arguments[i / 2] : new StringVisualNode(",")).ToArray();

@@ -36,6 +36,7 @@ namespace MathParser
                 ExpressionType.MemberAccess when expression is MemberExpression member => Zero(),
                 ExpressionType.Constant when expression is ConstantExpression constant => Zero(),
                 ExpressionType.Convert when expression is UnaryExpression unary => Expression.Convert(Derivative(unary.Operand, variable), unary.Type),
+                ExpressionType.Conditional when expression is ConditionalExpression conditional => Conditional(conditional.Test, Derivative(conditional.IfTrue, variable), Derivative(conditional.IfFalse, variable)),
                 ExpressionType.Negate when expression is UnaryExpression unary => Negate(Derivative(unary.Operand, variable)),
                 ExpressionType.Add when expression is BinaryExpression binary => Add(Derivative(binary.Left, variable), Derivative(binary.Right, variable)),
                 ExpressionType.Subtract when expression is BinaryExpression binary => Subtract(Derivative(binary.Left, variable), Derivative(binary.Right, variable)),
@@ -100,6 +101,11 @@ namespace MathParser
         public static Expression Abs(Expression expression)
         {
             return Expression.Call(typeof(Math).GetMethod(nameof(Math.Abs), new[] { expression.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Abs), new[] { expression.Type }), expression);
+        }
+
+        public static Expression Conditional(Expression condition, Expression consequent, Expression alternative)
+        {
+            return Expression.Condition(condition, ConvertIfLower(consequent, to: alternative), ConvertIfLower(alternative, to: consequent));
         }
 
         public static Expression Ceiling(Expression expression)
