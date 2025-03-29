@@ -17,15 +17,12 @@ namespace MathParser
             return new SimplifyVisitor().Visit(expression);
         }
 
-        public static Expression<Func<T, T>> Derivative<T>(Expression<Func<T, T>> expression)
-        {
-            return (Expression<Func<T, T>>)Derivative((LambdaExpression)expression);
-        }
-
         public static LambdaExpression Derivative(LambdaExpression expression)
         {
             var variable = expression.Parameters.Single();
-            return Expression.Lambda(Simplify(Derivative(expression.Body, variable)), variable);
+
+            // TODO: Should the name be altered, e.g. `f'`?
+            return Expression.Lambda(Simplify(Derivative(expression.Body, variable)), expression.Name, expression.TailCall, [variable]);
         }
 
         public static Expression Derivative(Expression expression, ParameterExpression variable) =>

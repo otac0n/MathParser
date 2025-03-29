@@ -12,7 +12,7 @@ namespace MathParser.Tests
     public class OperationsTests
     {
         [TestCaseSource(typeof(TestData), nameof(TestData.LambdaExpressions))]
-        public void Derivative_Always_ReturnsAnApprovedExpression(Expression<Func<double, double>> input)
+        public void Derivative_Always_ReturnsAnApprovedExpression(LambdaExpression input)
         {
             var result = new StringBuilder();
             result.AppendLine(input.TransformToString());
