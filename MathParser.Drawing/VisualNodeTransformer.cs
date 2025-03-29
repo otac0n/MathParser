@@ -5,11 +5,13 @@ namespace MathParser.Drawing
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using System.Runtime.Versioning;
     using MathParser.Drawing.VisualNodes;
 
     /// <summary>
     /// Converts expressions to their visual representation. Can be overridden.
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public class VisualNodeTransformer : ExpressionTransformer<VisualNode>
     {
         /// <inheritdoc />

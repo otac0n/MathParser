@@ -5,10 +5,12 @@ namespace MathParser.Drawing.VisualNodes
     using System;
     using System.Drawing;
     using System.Drawing.Drawing2D;
+    using System.Runtime.Versioning;
 
     /// <summary>
     /// Represents a portion of an expression that can be drawn.
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public abstract class VisualNode
     {
         /// <summary>

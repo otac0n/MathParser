@@ -8,10 +8,12 @@ namespace MathParser.Drawing
     using System.Drawing.Drawing2D;
     using System.Drawing.Text;
     using System.Linq.Expressions;
+    using System.Runtime.Versioning;
 
     /// <summary>
     /// Renders <see cref="Expression">Expressions</see> a an images.
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public class ExpressionRenderer
     {
         /// <summary>

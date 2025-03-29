@@ -1,6 +1,7 @@
 ﻿namespace MathParser.Drawing
 {
     using System.Linq.Expressions;
+    using System.Runtime.Versioning;
     using MathParser.Drawing.VisualNodes;
 
     /// <summary>
@@ -13,6 +14,7 @@
         /// </summary>
         /// <param name="expression">The expression.</param>
         /// <returns>The visual representation of the expression.</returns>
+        [SupportedOSPlatform("windows")]
         public static VisualNode TransformToVisualTree(this Expression expression)
         {
             var transformer = new VisualNodeTransformer();
