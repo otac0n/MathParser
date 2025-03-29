@@ -89,7 +89,7 @@ namespace MathParser.Drawing.VisualNodes
             }
 
             totalSize.Height += rowHeights.Sum();
-            baseline += totalSize.Height / 2;
+            baseline += (totalSize.Height - spacing.Height) / 2;
             return totalSize;
         }
     }
