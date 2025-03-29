@@ -61,18 +61,16 @@ namespace MathParser.Drawing.VisualNodes
             ArgumentNullException.ThrowIfNull(brush);
             ArgumentNullException.ThrowIfNull(pen);
 
-            using (var path = new GraphicsPath())
-            {
-                path.AddString(
-                    text,
-                    font.FontFamily,
-                    (int)font.Style,
-                    graphics.DpiY * font.Size / PointsPerInch,
-                    topLeft,
-                    StringFormat.GenericDefault);
-                graphics.DrawPath(pen, path);
-                graphics.FillPath(brush, path);
-            }
+            using var path = new GraphicsPath();
+            path.AddString(
+                text,
+                font.FontFamily,
+                (int)font.Style,
+                graphics.DpiY * font.Size / PointsPerInch,
+                topLeft,
+                StringFormat.GenericDefault);
+            graphics.DrawPath(pen, path);
+            graphics.FillPath(brush, path);
         }
 
         /// <summary>

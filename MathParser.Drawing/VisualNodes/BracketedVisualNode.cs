@@ -8,30 +8,21 @@ namespace MathParser.Drawing.VisualNodes
     using System.Runtime.Versioning;
 
     [SupportedOSPlatform("windows")]
-    internal class BracketedVisualNode : VisualNode
+    internal class BracketedVisualNode(string leftBracket, VisualNode node, string rightBracket) : VisualNode
     {
-        private readonly string bothBrackets;
+        private readonly string bothBrackets = leftBracket + rightBracket;
 
-        public BracketedVisualNode(string leftBracket, VisualNode node, string rightBracket)
-        {
-            this.LeftBracket = leftBracket;
-            this.Node = node;
-            this.RightBracket = rightBracket;
+        public string LeftBracket { get; } = leftBracket;
 
-            this.bothBrackets = leftBracket + rightBracket;
-        }
+        public VisualNode Node { get; } = node;
 
-        public string LeftBracket { get; }
-
-        public VisualNode Node { get; }
-
-        public string RightBracket { get; }
+        public string RightBracket { get; } = rightBracket;
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
             ArgumentNullException.ThrowIfNull(graphics);
 
-            var size = this.Node.Measure(graphics, font, out float baseline);
+            var size = this.Node.Measure(graphics, font, out var baseline);
             this.MeasureInternal(graphics, font, out _, out var bracketFont, out var leftOffset, out var leftWidth, out var rightOffset);
 
             if (this.LeftBracket != null)
@@ -70,19 +61,17 @@ namespace MathParser.Drawing.VisualNodes
             if (this.LeftBracket != null)
             {
                 leftSize = MeasureString(graphics, this.LeftBracket, font, out _);
-                using (var path = new GraphicsPath())
-                {
-                    path.AddString(
-                        this.LeftBracket,
-                        font.FontFamily,
-                        (int)font.Style,
-                        graphics.DpiY * font.Size / PointsPerInch,
-                        PointF.Empty,
-                        StringFormat.GenericDefault);
-                    leftBounds = path.GetBounds();
-                    top = Math.Min(leftBounds.Top, top);
-                    bottom = Math.Max(leftBounds.Bottom, bottom);
-                }
+                using var path = new GraphicsPath();
+                path.AddString(
+                    this.LeftBracket,
+                    font.FontFamily,
+                    (int)font.Style,
+                    graphics.DpiY * font.Size / PointsPerInch,
+                    PointF.Empty,
+                    StringFormat.GenericDefault);
+                leftBounds = path.GetBounds();
+                top = Math.Min(leftBounds.Top, top);
+                bottom = Math.Max(leftBounds.Bottom, bottom);
             }
 
             var rightSize = SizeF.Empty;
@@ -90,19 +79,17 @@ namespace MathParser.Drawing.VisualNodes
             if (this.RightBracket != null)
             {
                 rightSize = MeasureString(graphics, this.RightBracket, font, out _);
-                using (var path = new GraphicsPath())
-                {
-                    path.AddString(
-                        this.RightBracket,
-                        font.FontFamily,
-                        (int)font.Style,
-                        graphics.DpiY * font.Size / PointsPerInch,
-                        PointF.Empty,
-                        StringFormat.GenericDefault);
-                    rightBounds = path.GetBounds();
-                    top = Math.Min(rightBounds.Top, top);
-                    bottom = Math.Max(rightBounds.Bottom, bottom);
-                }
+                using var path = new GraphicsPath();
+                path.AddString(
+                    this.RightBracket,
+                    font.FontFamily,
+                    (int)font.Style,
+                    graphics.DpiY * font.Size / PointsPerInch,
+                    PointF.Empty,
+                    StringFormat.GenericDefault);
+                rightBounds = path.GetBounds();
+                top = Math.Min(rightBounds.Top, top);
+                bottom = Math.Max(rightBounds.Bottom, bottom);
             }
 
             var maxHeight = Math.Max(leftSize.Height, rightSize.Height);

@@ -6,25 +6,19 @@ namespace MathParser.Drawing.VisualNodes
     using System.Runtime.Versioning;
 
     [SupportedOSPlatform("windows")]
-    internal class PowerVisualNode : VisualNode
+    internal class PowerVisualNode(VisualNode left, VisualNode right) : VisualNode
     {
         private const float FontSizeRatio = 0.6F;
 
-        public PowerVisualNode(VisualNode left, VisualNode right)
-        {
-            this.Left = left;
-            this.Right = right;
-        }
+        public VisualNode Left { get; } = left;
 
-        public VisualNode Left { get; }
-
-        public VisualNode Right { get; }
+        public VisualNode Right { get; } = right;
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
             var superFont = GetSuperFont(font);
-            var leftSize = this.Left.Measure(graphics, font, out float leftBaseline);
-            var rightSize = this.Right.Measure(graphics, superFont, out float rightBaseline);
+            var leftSize = this.Left.Measure(graphics, font, out var leftBaseline);
+            var rightSize = this.Right.Measure(graphics, superFont, out var rightBaseline);
 
             var leftOffset = rightSize.Height - leftBaseline / 2;
             var leftLocation = new PointF(topLeft.X, topLeft.Y + (leftOffset > 0 ? leftOffset : 0));
@@ -38,8 +32,8 @@ namespace MathParser.Drawing.VisualNodes
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
             var superFont = GetSuperFont(font);
-            var leftSize = this.Left.Measure(graphics, font, out float leftBaseline);
-            var rightSize = this.Right.Measure(graphics, superFont, out float rightBaseline);
+            var leftSize = this.Left.Measure(graphics, font, out var leftBaseline);
+            var rightSize = this.Right.Measure(graphics, superFont, out var rightBaseline);
 
             var leftOffset = rightSize.Height - leftBaseline / 2;
 

@@ -80,7 +80,7 @@ namespace MathParser.Drawing
         public SizeF Measure(Graphics graphics, Expression expression)
         {
             var visualTree = expression.TransformToVisualTree();
-            return visualTree.Measure(graphics, this.Font, out float baseline);
+            return visualTree.Measure(graphics, this.Font, out _);
         }
 
         /// <summary>
@@ -90,12 +90,10 @@ namespace MathParser.Drawing
         /// <returns>The size of the bounding region of the measured expression.</returns>
         public Size Measure(Expression expression)
         {
-            using (var bitmap = new Bitmap(1, 1))
-            using (var graphics = CreateDefaultGraphics(bitmap))
-            {
-                var size = this.Measure(graphics, expression);
-                return new Size((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height));
-            }
+            using var bitmap = new Bitmap(1, 1);
+            using var graphics = CreateDefaultGraphics(bitmap);
+            var size = this.Measure(graphics, expression);
+            return new Size((int)Math.Ceiling(size.Width), (int)Math.Ceiling(size.Height));
         }
 
         /// <summary>

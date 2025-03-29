@@ -8,26 +8,20 @@ namespace MathParser.Drawing.VisualNodes
     using System.Runtime.Versioning;
 
     [SupportedOSPlatform("windows")]
-    internal class FractionVisualNode : VisualNode
+    internal class FractionVisualNode(VisualNode dividend, VisualNode divisor) : VisualNode
     {
         private const float FontSizeRatio = 0.9F;
         private const string FractionBar = "—";
 
-        public FractionVisualNode(VisualNode dividend, VisualNode divisor)
-        {
-            this.Dividend = dividend;
-            this.Divisor = divisor;
-        }
+        public VisualNode Dividend { get; private set; } = dividend;
 
-        public VisualNode Dividend { get; private set; }
-
-        public VisualNode Divisor { get; private set; }
+        public VisualNode Divisor { get; private set; } = divisor;
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
             var componentFont = GetComponentFont(font);
-            var dividendSize = this.Dividend.Measure(graphics, componentFont, out float dividendBaseline);
-            var divisorSize = this.Divisor.Measure(graphics, componentFont, out float divisorBaseline);
+            var dividendSize = this.Dividend.Measure(graphics, componentFont, out var dividendBaseline);
+            var divisorSize = this.Divisor.Measure(graphics, componentFont, out var divisorBaseline);
 
             RectangleF barBounds;
             using (var path = new GraphicsPath())
@@ -72,10 +66,10 @@ namespace MathParser.Drawing.VisualNodes
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
             var componentFont = GetComponentFont(font);
-            var dividendSize = this.Dividend.Measure(graphics, componentFont, out float dividendBaseline);
-            var divisorSize = this.Divisor.Measure(graphics, componentFont, out float divisorBaseline);
+            var dividendSize = this.Dividend.Measure(graphics, componentFont, out var dividendBaseline);
+            var divisorSize = this.Divisor.Measure(graphics, componentFont, out var divisorBaseline);
 
-            var barSize = MeasureString(graphics, FractionBar, font, out float barBaseline);
+            var barSize = MeasureString(graphics, FractionBar, font, out var barBaseline);
 
             RectangleF barBounds;
             using (var path = new GraphicsPath())

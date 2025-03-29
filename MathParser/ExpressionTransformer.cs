@@ -750,7 +750,7 @@ namespace MathParser
             {
                 var node = (MethodCallExpression)expression;
 
-                if (KnownMethods.TryGetValue(node.Method, out ExpressionType knownType))
+                if (KnownMethods.TryGetValue(node.Method, out var knownType))
                 {
                     return knownType;
                 }

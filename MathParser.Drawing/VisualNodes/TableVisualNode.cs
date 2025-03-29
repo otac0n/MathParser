@@ -8,18 +8,13 @@ namespace MathParser.Drawing.VisualNodes
     using System.Runtime.Versioning;
 
     [SupportedOSPlatform("windows")]
-    internal class TableVisualNode : VisualNode
+    internal class TableVisualNode(VisualNode[,] nodes) : VisualNode
     {
-        public TableVisualNode(VisualNode[,] nodes)
-        {
-            this.Nodes = nodes;
-        }
-
-        public VisualNode[,] Nodes { get; }
+        public VisualNode[,] Nodes { get; } = nodes;
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
-            this.MeasureInternal(graphics, font, out var baseline, out var spacing, out var columnWidths, out var rowHeights, out var rowBaselines, out var baselines);
+            this.MeasureInternal(graphics, font, out _, out var spacing, out var columnWidths, out var rowHeights, out var rowBaselines, out var baselines);
 
             var rows = this.Nodes.GetLength(0);
             var columns = this.Nodes.GetLength(1);
@@ -41,7 +36,7 @@ namespace MathParser.Drawing.VisualNodes
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
-            return this.MeasureInternal(graphics, font, out baseline, out var spacing, out var columnWidths, out var rowHeights, out var rowBaselines, out var baselines);
+            return this.MeasureInternal(graphics, font, out baseline, out _, out _, out _, out _, out _);
         }
 
         private SizeF MeasureInternal(Graphics graphics, Font font, out float baseline, out SizeF spacing, out float[] columnWidths, out float[] rowHeights, out float[] rowBaselines, out float[,] baselines)

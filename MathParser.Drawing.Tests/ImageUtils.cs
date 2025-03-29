@@ -42,10 +42,8 @@ namespace MathParser.Drawing.Tests
                 return bitmap.GetColors();
             }
 
-            using (var copy = image.Copy())
-            {
-                return copy.GetColors();
-            }
+            using var copy = image.Copy();
+            return copy.GetColors();
         }
 
         public static Color[,] GetColors(this Bitmap bitmap)

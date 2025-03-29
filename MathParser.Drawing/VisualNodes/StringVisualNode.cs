@@ -7,14 +7,9 @@ namespace MathParser.Drawing.VisualNodes
     using System.Runtime.Versioning;
 
     [SupportedOSPlatform("windows")]
-    internal class StringVisualNode : VisualNode
+    internal class StringVisualNode(object value) : VisualNode
     {
-        public StringVisualNode(object value)
-        {
-            this.Value = value?.ToString() ?? string.Empty;
-        }
-
-        public string Value { get; }
+        public string Value { get; } = value?.ToString() ?? string.Empty;
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {

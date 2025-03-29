@@ -9,7 +9,7 @@ namespace MathParser.Tests
     using NUnit.Framework;
 
     [TestFixture]
-    internal class OperationsTests
+    public class OperationsTests
     {
         [TestCaseSource(typeof(TestData), nameof(TestData.LambdaExpressions))]
         public void Derivative_Always_ReturnsAnApprovedExpression(Expression<Func<double, double>> input)

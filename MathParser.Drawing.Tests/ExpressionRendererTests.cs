@@ -39,38 +39,36 @@ namespace MathParser.Drawing.Tests
 
         private static void ExpressionRendererTestHelper(Expression expression)
         {
-            using (var font = new Font("Calibri", 20, FontStyle.Regular))
+            using var font = new Font("Calibri", 20, FontStyle.Regular);
+            var renderer = new ExpressionRenderer()
             {
-                var renderer = new ExpressionRenderer()
-                {
-                    Font = font,
-                    Brush = Brushes.Black,
-                };
+                Font = font,
+                Brush = Brushes.Black,
+            };
 
-                SizeF size;
-                float baseline;
+            SizeF size;
+            float baseline;
 
-                using (var bitmap = new Bitmap(1, 1))
-                using (var graphics = ExpressionRenderer.CreateDefaultGraphics(bitmap))
-                {
-                    size = renderer.Measure(graphics, expression, out baseline);
-                }
+            using (var bitmap = new Bitmap(1, 1))
+            using (var graphics = ExpressionRenderer.CreateDefaultGraphics(bitmap))
+            {
+                size = renderer.Measure(graphics, expression, out baseline);
+            }
 
-                const float Padding = 5;
-                using (var bitmap = new Bitmap((int)Math.Ceiling(size.Width + Padding * 2), (int)Math.Ceiling(size.Height + Padding * 2)))
-                using (var graphics = ExpressionRenderer.CreateDefaultGraphics(bitmap))
-                {
-                    renderer.DrawExpression(graphics, expression, new PointF(Padding, Padding));
+            const float Padding = 5;
+            using (var bitmap = new Bitmap((int)Math.Ceiling(size.Width + Padding * 2), (int)Math.Ceiling(size.Height + Padding * 2)))
+            using (var graphics = ExpressionRenderer.CreateDefaultGraphics(bitmap))
+            {
+                renderer.DrawExpression(graphics, expression, new PointF(Padding, Padding));
 
-                    var w = (int)Math.Round(size.Width);
-                    var a = (int)Math.Round(baseline);
-                    var h = (int)Math.Round(size.Height);
-                    var highlighter = new ImageUtils.Highlighter();
-                    highlighter.Highlight(graphics, new RectangleF(new PointF(Padding, Padding), new SizeF(w, a)));
-                    highlighter.Highlight(graphics, new RectangleF(new PointF(Padding, Padding + a + 1), new SizeF(w, h - a - 1)));
+                var w = (int)Math.Round(size.Width);
+                var a = (int)Math.Round(baseline);
+                var h = (int)Math.Round(size.Height);
+                var highlighter = new ImageUtils.Highlighter();
+                highlighter.Highlight(graphics, new RectangleF(new PointF(Padding, Padding), new SizeF(w, a)));
+                highlighter.Highlight(graphics, new RectangleF(new PointF(Padding, Padding + a + 1), new SizeF(w, h - a - 1)));
 
-                    WriteAndAssertResult(bitmap);
-                }
+                WriteAndAssertResult(bitmap);
             }
         }
 

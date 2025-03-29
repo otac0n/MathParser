@@ -7,23 +7,16 @@ namespace MathParser.Drawing.VisualNodes
     using System.Runtime.Versioning;
 
     [SupportedOSPlatform("windows")]
-    internal class RadicalVisualNode : VisualNode
+    internal class RadicalVisualNode(VisualNode node) : VisualNode
     {
         private const string Radical = "√";
         private const string Bar = "—";
 
-        public RadicalVisualNode(VisualNode node)
-        {
-            this.Node = node;
-        }
-
-        public VisualNode Node { get; }
+        public VisualNode Node { get; } = node;
 
         public override void Draw(Graphics graphics, Font font, Brush brush, Pen pen, PointF topLeft)
         {
-            var nodeSize = this.Node.Measure(graphics, font, out float nodeBaseline);
-
-            var barSize = MeasureString(graphics, Bar, font, out float barBaseline);
+            var nodeSize = this.Node.Measure(graphics, font, out _);
 
             RectangleF radicalBounds;
             RectangleF barBounds;
@@ -90,10 +83,7 @@ namespace MathParser.Drawing.VisualNodes
 
         public override SizeF Measure(Graphics graphics, Font font, out float baseline)
         {
-            var nodeSize = this.Node.Measure(graphics, font, out float nodeBaseline);
-
-            var barSize = MeasureString(graphics, Bar, font, out float barBaseline);
-            var radicalSize = MeasureString(graphics, Bar, font, out float radicalBaseline);
+            var nodeSize = this.Node.Measure(graphics, font, out var nodeBaseline);
 
             RectangleF radicalBounds;
             using (var path = new GraphicsPath())
