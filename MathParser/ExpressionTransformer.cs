@@ -40,20 +40,28 @@ namespace MathParser
     /// </remarks>
     public abstract class ExpressionTransformer<T> : ExpressionVisitor
     {
-        private static readonly MethodList KnownMethods = new MethodList
+        private static readonly MethodList<ExpressionType> KnownMethods = new()
         {
+            { (Complex l, double r) => Complex.Add(l, r), ExpressionType.Add },
+            { (double l, Complex r) => Complex.Add(l, r), ExpressionType.Add },
             { (Complex l, Complex r) => Complex.Add(l, r), ExpressionType.Add },
+            { (Complex l, double r) => Complex.Subtract(l, r), ExpressionType.Subtract },
+            { (double l, Complex r) => Complex.Subtract(l, r), ExpressionType.Subtract },
             { (Complex l, Complex r) => Complex.Subtract(l, r), ExpressionType.Subtract },
+            { (Complex l, double r) => Complex.Multiply(l, r), ExpressionType.Multiply },
+            { (double l, Complex r) => Complex.Multiply(l, r), ExpressionType.Multiply },
             { (Complex l, Complex r) => Complex.Multiply(l, r), ExpressionType.Multiply },
+            { (Complex l, double r) => Complex.Divide(l, r), ExpressionType.Divide },
+            { (double l, Complex r) => Complex.Divide(l, r), ExpressionType.Divide },
             { (Complex l, Complex r) => Complex.Divide(l, r), ExpressionType.Divide },
             { (Complex l, Complex r) => Complex.Pow(l, r), ExpressionType.Power },
             { (Complex l, double r) => Complex.Pow(l, r), ExpressionType.Power },
-            { (double l, double r) => Math.Pow(l, r), ExpressionType.Power },
-            { (Complex a) => Complex.Exp(a), ExpressionType.Power },
-            { (double a) => Math.Exp(a), ExpressionType.Power },
-            { (Complex a) => Complex.Sqrt(a), ExpressionType.Power },
-            { (double a) => Math.Sqrt(a), ExpressionType.Power },
-            { (Complex a) => Complex.Negate(a), ExpressionType.Negate },
+            { Math.Pow, ExpressionType.Power },
+            { Complex.Exp, ExpressionType.Power },
+            { Math.Exp, ExpressionType.Power },
+            { Complex.Sqrt, ExpressionType.Power },
+            { Math.Sqrt, ExpressionType.Power },
+            { Complex.Negate, ExpressionType.Negate },
         };
 
         /// <summary>
@@ -773,25 +781,6 @@ namespace MathParser
             }
 
             return actualType;
-        }
-
-        private class MethodList : Dictionary<MethodInfo, ExpressionType>
-        {
-            public void Add(Expression<Func<Complex, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
-
-            public void Add(Expression<Func<Complex, Complex, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
-
-            public void Add(Expression<Func<Complex, double, Complex>> expression, ExpressionType type) => this.AddInternal(expression, type);
-
-            public void Add(Expression<Func<double, double>> expression, ExpressionType type) => this.AddInternal(expression, type);
-
-            public void Add(Expression<Func<double, double, double>> expression, ExpressionType type) => this.AddInternal(expression, type);
-
-            private void AddInternal(LambdaExpression expression, ExpressionType type)
-            {
-                var methodCall = (MethodCallExpression)expression.Body;
-                this.Add(methodCall.Method, type);
-            }
         }
     }
 }
