@@ -201,6 +201,18 @@ namespace MathParser.Testing
 
         public static string[] SimplifyStrings =>
         [
+            "--a",
+            "a+-b",
+            "a--b",
+            "-a+b",
+            "-a+-b",
+            "-a--b",
+            "-(a+b)",
+            "-(a-b)",
+            "a-(b+c)",
+            "a-(b-c)",
+            "a+-(b-c)",
+            "a+-(b+c)",
             "0*x",
             "x*0",
             "1*x",

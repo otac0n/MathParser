@@ -18,14 +18,16 @@
             {
                 case ExpressionType.Add:
                     {
-                        if (IsConstantValue(simpleRight, out var rightConstant))
+                        if (IsConstantValue(simpleLeft, out var leftConstant))
                         {
-                            if (IsConstantValue(simpleLeft, out var leftConstant))
+                            if (IsConstantValue(simpleRight, out var rightConstant))
                             {
-                                //if (leftConstant.Value is T leftValue && rightConstant.Value is T rightValue)
-                                //{
-                                //    return Expression.Constant(leftValue + rightValue);
-                                //}
+                                // Convert "1 + 1" into "2"
+                                // TODO: Support all types.
+                                if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
+                                {
+                                    return Expression.Constant(leftValue + rightValue);
+                                }
                             }
                             else
                             {
@@ -43,6 +45,30 @@
                             return simpleLeft;
                         }
 
+                        // Convert "a + (b + c)" into "a + b + c"
+                        if (simpleRight.NodeType == ExpressionType.Add && simpleRight is BinaryExpression rightAdd)
+                        {
+                            return this.Visit(Add(Add(simpleLeft, rightAdd.Left), rightAdd.Right));
+                        }
+
+                        // Convert "a + (b - c)" into "a + b - c"
+                        if (simpleRight.NodeType == ExpressionType.Subtract && simpleRight is BinaryExpression rightSubtract)
+                        {
+                            return this.Visit(Subtract(Add(simpleLeft, rightSubtract.Left), rightSubtract.Right));
+                        }
+
+                        // Convert "a + -b" into "a - b"
+                        if (simpleRight.NodeType == ExpressionType.Negate && simpleRight is UnaryExpression rightNegate)
+                        {
+                            return this.Visit(Subtract(simpleLeft, rightNegate.Operand));
+                        }
+
+                        // Convert "-a + b" into "b - a"
+                        if (simpleLeft.NodeType == ExpressionType.Negate && simpleLeft is UnaryExpression leftNegate)
+                        {
+                            return this.Visit(Subtract(simpleRight, leftNegate.Operand));
+                        }
+
                         break;
                     }
 
@@ -58,6 +84,24 @@
                             return simpleLeft;
                         }
 
+                        // Convert "a - (b + c)" into "a - b - c"
+                        if (simpleRight.NodeType == ExpressionType.Add && simpleRight is BinaryExpression rightAdd)
+                        {
+                            return this.Visit(Subtract(Subtract(simpleLeft, rightAdd.Left), rightAdd.Right));
+                        }
+
+                        // Convert "a - (b - c)" into "a - b + c"
+                        if (simpleRight.NodeType == ExpressionType.Subtract && simpleRight is BinaryExpression rightSubtract)
+                        {
+                            return this.Visit(Add(Subtract(simpleLeft, rightSubtract.Left), rightSubtract.Right));
+                        }
+
+                        // Convert "a - -b" into "a + b"
+                        if (simpleRight.NodeType == ExpressionType.Negate && simpleRight is UnaryExpression negate)
+                        {
+                            return this.Visit(Add(simpleLeft, negate.Operand));
+                        }
+
                         break;
                     }
 
@@ -67,10 +111,12 @@
                         {
                             if (IsConstantValue(simpleLeft, out var leftConstant))
                             {
-                                //if (leftConstant.Value is T leftValue && rightConstant.Value is T rightValue)
-                                //{
-                                //    return Expression.Constant(leftValue * rightValue);
-                                //}
+                                // Convert "2 * 2" into "4"
+                                // TODO: Support all types.
+                                if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
+                                {
+                                    return Expression.Constant(leftValue * rightValue);
+                                }
                             }
                             else
                             {
@@ -98,26 +144,30 @@
                     }
 
                     {
+                        // Convert "(a / b) * c" into "a * c / b"
                         if (simpleLeft.NodeType == ExpressionType.Divide && simpleLeft is BinaryExpression left)
                         {
-                            return this.Visit(Expression.Divide(Expression.Multiply(left.Left, simpleRight), left.Right));
+                            return this.Visit(Divide(Multiply(left.Left, simpleRight), left.Right));
                         }
 
+                        // Convert "a * (b / c)" into "a * b / c"
                         if (simpleRight.NodeType == ExpressionType.Divide && simpleRight is BinaryExpression right)
                         {
-                            return this.Visit(Expression.Divide(Expression.Multiply(simpleLeft, right.Left), right.Right));
+                            return this.Visit(Divide(Multiply(simpleLeft, right.Left), right.Right));
                         }
                     }
 
                     {
+                        // Convert "-a * b" into "-(a * b)"
                         if (simpleLeft.NodeType == ExpressionType.Negate && simpleLeft is UnaryExpression leftNegate)
                         {
-                            return this.Visit(Expression.Negate(Expression.Multiply(leftNegate.Operand, simpleRight)));
+                            return this.Visit(Negate(Multiply(leftNegate.Operand, simpleRight)));
                         }
 
+                        // Convert "a * -b" into "-(a * b)"
                         if (simpleRight.NodeType == ExpressionType.Negate && simpleRight is UnaryExpression rightNegate)
                         {
-                            return this.Visit(Expression.Negate(Expression.Multiply(simpleLeft, rightNegate.Operand)));
+                            return this.Visit(Negate(Multiply(simpleLeft, rightNegate.Operand)));
                         }
                     }
 
@@ -127,7 +177,7 @@
                     {
                         if (IsZero(simpleRight))
                         {
-                            return Expression.Divide(simpleLeft, simpleRight);
+                            return Divide(simpleLeft, simpleRight);
                         }
                         else if (IsOne(simpleRight))
                         {
@@ -143,13 +193,13 @@
                     }
             }
 
-            return Expression.MakeBinary(node.NodeType, simpleLeft, simpleRight);
+            return node.Update(simpleLeft, node.Conversion, simpleRight);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var simpleObject = node.Object == null ? null : this.Visit(node.Object);
-            var simpleArguments = node.Arguments.Select(this.Visit).ToList();
+            var simpleArguments = node.Arguments.Select(a => this.Visit(a)).ToList();
 
             if (node.Object is null && (node.Method.DeclaringType == typeof(Math) || node.Method.DeclaringType == typeof(Complex)))
             {
@@ -165,7 +215,7 @@
                 }
             }
 
-            return Expression.Call(simpleObject, node.Method, simpleArguments);
+            return node.Update(simpleObject, simpleArguments);
         }
 
         /// <inheritdoc/>
@@ -174,6 +224,15 @@
             var simpleOperand = this.Visit(node.Operand);
             switch (node.NodeType)
             {
+                case ExpressionType.Convert:
+                    // TODO: Any integer type to any T : INumber<T>
+                    if (node.Type == typeof(int) && node.Operand.Type == typeof(double))
+                    {
+                        break; // Equivalent to Math.Truncate, and must be preserved.
+                    }
+
+                    return simpleOperand; // TODO: This could create a lot of churn, so it may be useful to communicate if the convert is still necessary before removing.
+
                 case ExpressionType.Negate:
                     {
                         if (simpleOperand.NodeType == ExpressionType.Negate && simpleOperand is UnaryExpression inner)
@@ -181,16 +240,26 @@
                             return inner.Operand;
                         }
 
+                        if (simpleOperand.NodeType == ExpressionType.Add && simpleOperand is BinaryExpression add)
+                        {
+                            return this.Visit(Subtract(Negate(add.Left), add.Right));
+                        }
+
+                        if (simpleOperand.NodeType == ExpressionType.Subtract && simpleOperand is BinaryExpression subtract)
+                        {
+                            return this.Visit(Subtract(subtract.Right, subtract.Left));
+                        }
+
                         if (simpleOperand.NodeType == ExpressionType.Divide && simpleOperand is BinaryExpression divide)
                         {
-                            return this.Visit(Expression.Divide(Expression.Negate(divide.Left), divide.Right));
+                            return this.Visit(Divide(Negate(divide.Left), divide.Right));
                         }
 
                         break;
                     }
             }
 
-            return Expression.MakeUnary(node.NodeType, simpleOperand, node.Type);
+            return node.Update(simpleOperand);
         }
     }
 }
