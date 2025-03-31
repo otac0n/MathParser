@@ -31,11 +31,7 @@ nameTuple <IList<string>>
   = "(" _ names:identifier<1,,_ "," _> _ ")" { names }
 
 equality <Expression>
-  = left:additive _ op:equalityOperator _ right:additive {
-    op == ExpressionType.Equal || op == ExpressionType.NotEqual
-      ? Expression.MakeBinary(op, Operations.ConvertIfLower(left, to: right), Operations.ConvertIfLower(right, to: left))
-      : Expression.MakeBinary(op, Operations.LowerToReal(left), Operations.LowerToReal(right))
-  }
+  = left:additive _ op:equalityOperator _ right:additive { Operations.Compare(left, op, right) }
 
 equalityOperator <ExpressionType>
   = ("==" / "=" / ":=")        { ExpressionType.Equal }

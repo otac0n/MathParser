@@ -114,34 +114,34 @@ namespace MathParser
             return Expression.Call(typeof(Math).GetMethod(nameof(Math.Floor), new[] { expression.Type }), expression);
         }
 
-        public static Expression Negate(Expression a)
+        public static Expression Negate(Expression operand)
         {
-            if (IsZero(a))
+            if (IsZero(operand))
             {
-                return a;
+                return operand;
             }
 
-            return Expression.Negate(a);
+            return Expression.Negate(operand);
         }
 
-        public static Expression Add(Expression a, Expression b)
+        public static Expression Add(Expression augend, Expression addend)
         {
-            return Expression.Add(ConvertIfLower(a, to: b), ConvertIfLower(b, to: a));
+            return Expression.Add(ConvertIfLower(augend, to: addend), ConvertIfLower(addend, to: augend));
         }
 
-        public static Expression Subtract(Expression a, Expression b)
+        public static Expression Subtract(Expression minuend, Expression subtrahend)
         {
-            return Expression.Subtract(ConvertIfLower(a, to: b), ConvertIfLower(b, to: a));
+            return Expression.Subtract(ConvertIfLower(minuend, to: subtrahend), ConvertIfLower(subtrahend, to: minuend));
         }
 
-        public static Expression Multiply(Expression a, Expression b)
+        public static Expression Multiply(Expression multiplicand, Expression multiplier)
         {
-            return Expression.Multiply(ConvertIfLower(a, to: b), ConvertIfLower(b, to: a));
+            return Expression.Multiply(ConvertIfLower(multiplicand, to: multiplier), ConvertIfLower(multiplier, to: multiplicand));
         }
 
-        public static Expression Divide(Expression a, Expression b)
+        public static Expression Divide(Expression dividend, Expression divisor)
         {
-            return Expression.Divide(ConvertIfLower(a, to: b), ConvertIfLower(b, to: a));
+            return Expression.Divide(ConvertIfLower(dividend, to: divisor), ConvertIfLower(divisor, to: dividend));
         }
 
         public static Expression Pow(Expression @base, Expression exponent)
@@ -151,7 +151,7 @@ namespace MathParser
                 return Expression.Power(@base, exponent);
             }
 
-            @base = Operations.ConvertIfLower(@base, to: typeof(Complex));
+            @base = ConvertIfLower(@base, to: typeof(Complex));
             return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), new[] { @base.Type, exponent.Type }), @base, exponent);
         }
 
@@ -171,18 +171,25 @@ namespace MathParser
             return Expression.Call(typeof(Math).GetMethod(nameof(Math.Log), new[] { expression.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Log), new[] { expression.Type }), expression);
         }
 
+        public static Expression Compare(Expression left, ExpressionType op, Expression right)
+        {
+            return op is ExpressionType.Equal or ExpressionType.NotEqual
+                ? Expression.MakeBinary(op, ConvertIfLower(left, to: right), ConvertIfLower(right, to: left))
+                : Expression.MakeBinary(op, LowerToReal(left), LowerToReal(right));
+        }
+
         public static Expression Function(string name, IList<Expression> arguments)
         {
             if (arguments.Count == 1)
             {
                 if (name.Equals("Re", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    return Expression.Property(Operations.ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
+                    return Expression.Property(ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
                 }
 
                 if (name.Equals("Im", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    return Expression.Property(Operations.ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Imaginary), BindingFlags.Public | BindingFlags.Instance));
+                    return Expression.Property(ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Imaginary), BindingFlags.Public | BindingFlags.Instance));
                 }
             }
 
@@ -197,7 +204,7 @@ namespace MathParser
                 }
                 else
                 {
-                    mappedArguments = arguments.Select(a => Operations.ConvertIfLower(a, to: typeof(Complex))).ToArray();
+                    mappedArguments = arguments.Select(a => ConvertIfLower(a, to: typeof(Complex))).ToArray();
                 }
             }
             else
