@@ -69,7 +69,7 @@
         public static ExpressionType GetEffectiveTypeComplex(double real, double imaginary) =>
             real != 0 && imaginary != 0
                 ? ExpressionType.Add
-                : real != 0
+                : imaginary == 0
                     ? GetEffectiveTypeReal(real)
                     : imaginary == 1
                         ? ExpressionType.Parameter

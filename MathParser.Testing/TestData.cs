@@ -3,7 +3,6 @@
 namespace MathParser.Testing
 {
     using System;
-    using System.Globalization;
     using System.Linq.Expressions;
     using System.Numerics;
 
@@ -116,6 +115,7 @@ namespace MathParser.Testing
             "(((((((1+1)^2)^3)^4)^5)^6)^7)^8",
             "3*5",
             "1+1",
+            "0^0",
             "2^5",
             "2^2^2^2",
             "3-8",
@@ -201,6 +201,26 @@ namespace MathParser.Testing
 
         public static string[] SimplifyStrings =>
         [
+            "1+0",
+            "0+1",
+            "1+1",
+            "1+1+1",
+            "0*2",
+            "2*0",
+            "1*2",
+            "2*1",
+            "2*2",
+            "2*2*2",
+            "0^0",
+            "0^2",
+            "2^0",
+            "2^1",
+            "2^2",
+            "2^2^2",
+            "(2^2)^2",
+            "exp(0)",
+            "exp(1)",
+            "log(e)",
             "--a",
             "a+-b",
             "a--b",
@@ -220,11 +240,22 @@ namespace MathParser.Testing
             "0+x",
             "x+0",
             "x*x",
+            "x^0",
+            "0^x",
+            "x^1",
+            "1^x",
             "x^2*x",
             "x*x^2",
+            "x^3^2",
+            "(x^3)^2",
+            "x^3*x^2",
             "x^2/x",
             "x/x^2",
             "x/x",
+            "(0+0)+x",
+            "x+(0+0)",
+            "(2*2)*x",
+            "x*(2*2)",
         ];
     }
 }
