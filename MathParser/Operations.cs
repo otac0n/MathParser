@@ -83,6 +83,12 @@ namespace MathParser
             return expression;
         }
 
+        public static Expression And(Expression left, Expression right) => Expression.AndAlso(left, right);
+
+        public static Expression Or(Expression left, Expression right) => Expression.OrElse(left, right);
+
+        public static Expression Not(Expression expression) => Expression.Not(expression);
+
         public static Expression LowerToReal(Expression expression)
         {
             var from = expression.Type;
@@ -282,6 +288,10 @@ namespace MathParser
         public static bool IsOne(Expression expression) => IsConstantEqual(expression, 1);
 
         public static bool IsZero(Expression expression) => IsConstantEqual(expression, 0);
+
+        public static bool IsTrue(Expression expression) => TryConvert(expression, false, (bool b) => b);
+
+        public static bool IsFalse(Expression expression) => TryConvert(expression, false, (bool b) => !b);
 
         private static MethodCallExpression MathMethod(string name, params Expression[] arguments)
         {

@@ -1,0 +1,8 @@
+¬true and (true or true)
+(parsed)
+(Not(True) AndAlso (True OrElse True))
+(transformed)
+!true and (true or true)
+(parsed)
+(Not(True) AndAlso (True OrElse True))
+(stable)

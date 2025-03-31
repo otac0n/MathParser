@@ -1,0 +1,8 @@
+¬true
+(parsed)
+Not(True)
+(transformed)
+!true
+(parsed)
+Not(True)
+(stable)

@@ -83,6 +83,8 @@ namespace MathParser
         {
             switch (precedence)
             {
+                case Precedence.Disjunction:
+                case Precedence.Conjunction:
                 case Precedence.Additive:
                 case Precedence.Multiplicative:
                     return Associativity.Left;
@@ -104,6 +106,12 @@ namespace MathParser
         {
             switch (effectiveType)
             {
+                case ExpressionType.Or:
+                    return Precedence.Disjunction;
+
+                case ExpressionType.And:
+                    return Precedence.Conjunction;
+
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
                 case ExpressionType.GreaterThan:
@@ -122,6 +130,7 @@ namespace MathParser
                     return Precedence.Multiplicative;
 
                 case ExpressionType.Negate:
+                case ExpressionType.Not:
                     return Precedence.Unary;
 
                 case ExpressionType.Power:
@@ -140,6 +149,16 @@ namespace MathParser
         /// <returns>A value indicating the whether or not the two specified operator types are fully associative.</returns>
         protected static bool IsFullyAssociative(ExpressionType left, ExpressionType right)
         {
+            if (left == ExpressionType.And && right == ExpressionType.And)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Or && right == ExpressionType.Or)
+            {
+                return true;
+            }
+
             if (left == ExpressionType.Add && right == ExpressionType.Add)
             {
                 return true;
@@ -173,6 +192,29 @@ namespace MathParser
         /// <param name="right">The right bracket character.</param>
         /// <returns>The bracketed expression.</returns>
         protected abstract T AddBrackets(string left, T expression, string right);
+
+        /// <summary>
+        /// Constructs a logical not expression.
+        /// </summary>
+        /// <param name="expression">The expression that will be negated.</param>
+        /// <returns>The negation expression.</returns>
+        protected abstract T CreateNot(T expression);
+
+        /// <summary>
+        /// Constructs a logical and expression.
+        /// </summary>
+        /// <param name="left">The left conjunct.</param>
+        /// <param name="right">The right conjunct.</param>
+        /// <returns>The conjunction expression.</returns>
+        protected abstract T CreateAnd(T left, T right);
+
+        /// <summary>
+        /// Constructs a logical or expression.
+        /// </summary>
+        /// <param name="left">The left disjunct.</param>
+        /// <param name="right">The right disjunct.</param>
+        /// <returns>The disjunction expression.</returns>
+        protected abstract T CreateOr(T left, T right);
 
         /// <summary>
         /// Constructs an additive expression.
@@ -261,6 +303,13 @@ namespace MathParser
         /// <param name="body">The the expression defining the function.</param>
         /// <returns>The lambda expression.</returns>
         protected abstract T CreateLambda(string name, T[] parameters, T body);
+
+        /// <summary>
+        /// Constructs an expression representing a boolean value.
+        /// </summary>
+        /// <param name="boolean">The truth value.</param>
+        /// <returns>The boolean value as an expression.</returns>
+        protected abstract T FormatBoolean(bool boolean);
 
         /// <summary>
         /// Constructs an expression representing a real number.
@@ -387,6 +436,14 @@ namespace MathParser
 
             switch (effectiveType)
             {
+                case ExpressionType.And:
+                    this.Result = this.CreateAnd(left, right);
+                    break;
+
+                case ExpressionType.Or:
+                    this.Result = this.CreateOr(left, right);
+                    break;
+
                 case ExpressionType.Add:
                     this.Result = this.CreateAdd(left, right);
                     break;
@@ -453,6 +510,10 @@ namespace MathParser
             if (node.Value is double || node.Value is float || node.Value is int || node.Value is uint || node.Value is long || node.Value is ulong || node.Value is short || node.Value is ushort)
             {
                 this.Result = this.FormatComplex(Convert.ToDouble(node.Value, CultureInfo.InvariantCulture), 0);
+            }
+            else if (node.Value is bool boolean)
+            {
+                this.Result = this.FormatBoolean(boolean);
             }
             else if (node.Value is Complex value)
             {
@@ -702,6 +763,21 @@ namespace MathParser
                 this.Result = this.CreateNegate(inner);
                 return node;
             }
+            else if (node.NodeType == ExpressionType.Not)
+            {
+                this.Visit(node.Operand);
+                var inner = this.Result;
+
+                var operandEffectiveType = this.GetEffectiveNodeType(node.Operand);
+
+                if (this.NeedsRightBrackets(ExpressionType.Not, node, operandEffectiveType, node.Operand))
+                {
+                    inner = this.AddBrackets(inner);
+                }
+
+                this.Result = this.CreateNot(inner);
+                return node;
+            }
             else if (node.NodeType == ExpressionType.Convert)
             {
                 this.Visit(node.Operand);
@@ -737,6 +813,14 @@ namespace MathParser
             else if (actualType == ExpressionType.NegateChecked)
             {
                 return ExpressionType.Negate;
+            }
+            else if (actualType == ExpressionType.AndAlso)
+            {
+                return ExpressionType.And;
+            }
+            else if (actualType == ExpressionType.OrElse)
+            {
+                return ExpressionType.Or;
             }
             else if (actualType == ExpressionType.New && expression.Type == typeof(Complex))
             {

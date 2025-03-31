@@ -13,6 +13,15 @@
         protected override string AddBrackets(string left, string expression, string right) => left + expression + right;
 
         /// <inheritdoc />
+        protected override string CreateNot(string expression) => "!" + expression;
+
+        /// <inheritdoc />
+        protected override string CreateAnd(string left, string right) => left + " and " + right;
+
+        /// <inheritdoc />
+        protected override string CreateOr(string left, string right) => left + " or " + right;
+
+        /// <inheritdoc />
         protected override string CreateAdd(string augend, string addend) => augend + "+" + addend;
 
         /// <inheritdoc />
@@ -44,6 +53,9 @@
 
         /// <inheritdoc />
         protected override string CreateLambda(string name, string[] parameters, string body) => name + "(" + string.Join(", ", parameters) + ")" + FormatEqualityOperator(ExpressionType.Equal) + body;
+
+        /// <inheritdoc />
+        protected override string FormatBoolean(bool boolean) => boolean ? "true" : "false";
 
         /// <inheritdoc />
         protected override string FormatReal(double real) => NumberFormatter.FormatReal(real);

@@ -20,7 +20,7 @@ math <Expression>
 
 statement <Expression>
   = lambda
-  / equality
+  / disjunction
   / additive
 
 lambda <LambdaExpression>
@@ -29,6 +29,27 @@ lambda <LambdaExpression>
 
 nameTuple <IList<string>>
   = "(" _ names:identifier<1,,_ "," _> _ ")" { names }
+
+disjunction <Expression> -memoize
+  = left:disjunction _ ("||" / "|" / "∨" / "or") _ right:conjunction { Operations.Or(left, right) }
+  / conjunction
+
+conjunction <Expression> -memoize
+  = left:conjunction _ ("&&" / "&" / "∧" / "and") _ right:conjunctionRest { Operations.And(left, right) }
+  / conjunctionRest
+
+conjunctionRest
+  = complement
+  / equality
+
+complement <Expression>
+  =  ("not" / "!" / "¬") _ complement:complement { Operations.Not(complement) }
+  / atomic
+
+atomic <Expression>
+  = [Tt] "rue" { Expression.Constant(true) }
+  / [Ff] "alse" { Expression.Constant(false) }
+  / "(" _ disjunction:disjunction _ ")" { disjunction }
 
 equality <Expression>
   = left:additive _ op:equalityOperator _ right:additive { Operations.Compare(left, op, right) }
@@ -68,7 +89,7 @@ power <Expression> -memoize
 primary <Expression> -memoize
     = decimal
     / namedConstant
-    / "iif(" _ condition:equality _ "," _ consequent:additive _ "," _ alternative:additive _ ")" { Operations.Conditional(condition, consequent, alternative) }
+    / "iif(" _ condition:disjunction _ "," _ consequent:additive _ "," _ alternative:additive _ ")" { Operations.Conditional(condition, consequent, alternative) }
     / name:identifier "(" _ arguments:additive<0,,_ "," _> _ ")" { Operations.Function(name, arguments) }
     / variable
     / "√" _ negation:negationPrimary { Operations.Sqrt(negation) }
@@ -92,7 +113,14 @@ variable <Expression>
     = name:identifier #{ CreateVariable(state, name); } { (Expression)state[name] }
 
 identifier
-    = [_a-z]i [_a-z0-9]i*
+    = !keyword [_a-z]i [_a-z0-9]i*
+
+keyword
+    = [Tt] "rue"
+    / [Ff] "alse"
+    / "and"
+    / "or"
+    / "not"
 
 _ = [ \t\r\n]*
 

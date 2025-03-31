@@ -13,6 +13,16 @@ namespace MathParser
         None = 0,
 
         /// <summary>
+        /// OR operators.
+        /// </summary>
+        Disjunction,
+
+        /// <summary>
+        /// AND operators.
+        /// </summary>
+        Conjunction,
+
+        /// <summary>
         /// Equality and Relational operators.
         /// </summary>
         Comparison,

@@ -18,6 +18,15 @@ namespace MathParser.Drawing
         protected override VisualNode AddBrackets(string left, VisualNode expression, string right) => new BracketedVisualNode(left, expression, right);
 
         /// <inheritdoc />
+        protected override VisualNode CreateNot(VisualNode expression) => new BaselineAlignedVisualNode(new StringVisualNode("¬"), expression);
+
+        /// <inheritdoc />
+        protected override VisualNode CreateAnd(VisualNode left, VisualNode right) => CreateInlineBinary(left, "∧", right);
+
+        /// <inheritdoc />
+        protected override VisualNode CreateOr(VisualNode left, VisualNode right) => CreateInlineBinary(left, "∨", right);
+
+        /// <inheritdoc />
         protected override VisualNode CreateAdd(VisualNode augend, VisualNode addend) => CreateInlineBinary(augend, "+", addend);
 
         /// <inheritdoc />
@@ -74,6 +83,9 @@ namespace MathParser.Drawing
             var argumentNodes = Enumerable.Range(0, parameters.Length * 2 - 1).Select(i => i % 2 == 0 ? parameters[i / 2] : new StringVisualNode(",")).ToArray();
             return new BaselineAlignedVisualNode(new StringVisualNode(name), new BracketedVisualNode("(", new BaselineAlignedVisualNode(argumentNodes), ")"), new StringVisualNode(FormatEqualityOperator(ExpressionType.Equal)), body);
         }
+
+        /// <inheritdoc />
+        protected override VisualNode FormatBoolean(bool boolean) => new StringVisualNode(boolean ? "true" : "false");
 
         /// <inheritdoc />
         protected override VisualNode FormatReal(double real) => new StringVisualNode(NumberFormatter.FormatReal(real));

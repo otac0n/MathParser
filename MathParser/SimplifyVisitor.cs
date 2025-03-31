@@ -24,6 +24,14 @@
                 case ExpressionType.LessThanOrEqual:
                     return this.SimplifyCompare(simpleLeft, node.NodeType, simpleRight);
 
+                case ExpressionType.And:
+                case ExpressionType.AndAlso:
+                    return this.SimplifyAnd(simpleLeft, simpleRight);
+
+                case ExpressionType.Or:
+                case ExpressionType.OrElse:
+                    return this.SimplifyOr(simpleLeft, simpleRight);
+
                 case ExpressionType.Add:
                     return this.SimplifyAdd(simpleLeft, simpleRight);
 
@@ -84,11 +92,92 @@
 
                     return simpleOperand; // TODO: This could create a lot of churn, so it may be useful to communicate if the convert is still necessary before removing.
 
+                case ExpressionType.Not:
+                    return this.SimplifyNot(simpleOperand);
+
                 case ExpressionType.Negate:
                     return this.SimplifyNegate(simpleOperand);
             }
 
             return node.Update(simpleOperand);
+        }
+
+        private Expression SimplifyNot(Expression expression)
+        {
+            // Convert "not not a" into "a"
+            if (expression.NodeType == ExpressionType.Not && expression is UnaryExpression inner)
+            {
+                return inner.Operand;
+            }
+
+            if (IsConstantValue(expression, out var constant))
+            {
+                // Convert "not true" into "false"
+                if (constant.Value is bool constantValue)
+                {
+                    return Expression.Constant(!constantValue);
+                }
+            }
+
+            return Not(expression);
+        }
+
+        private Expression SimplifyAnd(Expression left, Expression right)
+        {
+            // Convert "false and a" into "false"
+            if (IsFalse(left))
+            {
+                return left;
+            }
+
+            // Convert "true and a" into "a"
+            if (IsTrue(left))
+            {
+                return right;
+            }
+
+            // Convert "a and false" into "false"
+            if (IsFalse(right))
+            {
+                return right;
+            }
+
+            // Convert "a and true" into "a"
+            if (IsTrue(right))
+            {
+                return left;
+            }
+
+            return And(left, right);
+        }
+
+        private Expression SimplifyOr(Expression left, Expression right)
+        {
+            // Convert "false or a" into "a"
+            if (IsFalse(left))
+            {
+                return right;
+            }
+
+            // Convert "true or a" into "true"
+            if (IsTrue(left))
+            {
+                return left;
+            }
+
+            // Convert "a or false" into "a"
+            if (IsFalse(right))
+            {
+                return left;
+            }
+
+            // Convert "a or true" into "true"
+            if (IsTrue(right))
+            {
+                return right;
+            }
+
+            return Or(left, right);
         }
 
         private Expression SimplifyNegate(Expression operand)
