@@ -155,6 +155,11 @@ namespace MathParser
             return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), new[] { @base.Type, exponent.Type }), @base, exponent);
         }
 
+        public static Expression Exp(Expression exponent)
+        {
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Exp), new[] { exponent.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Exp), new[] { exponent.Type }), exponent);
+        }
+
         public static Expression Sqrt(Expression @base)
         {
             if (TryConvert(@base, false, (double value) => value > 0))

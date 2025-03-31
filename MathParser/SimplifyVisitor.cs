@@ -315,6 +315,38 @@
 
         private Expression SimplifyPower(Expression @base, Expression exponent)
         {
+            // Convert "1 ^ a" to "1"
+            if (IsOne(@base))
+            {
+                return @base;
+            }
+
+            // Convert "a ^ 1" to "a"
+            if (IsOne(exponent))
+            {
+                return @base;
+            }
+
+            // Convert "a ^ 0" to "1"
+            if (IsZero(exponent))
+            {
+                return Expression.Constant(1);
+            }
+
+            if (IsZero(@base))
+            {
+                // Convert "0 ^ 2" to "0"
+                if (IsConstantValue(exponent, out _))
+                {
+                    return @base;
+                }
+            }
+
+            if (IsConstantEqual(@base, Math.E))
+            {
+                return this.Visit(Exp(exponent));
+            }
+
             return Pow(@base, exponent);
         }
 
