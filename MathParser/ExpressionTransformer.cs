@@ -79,16 +79,15 @@ namespace MathParser
         /// </summary>
         /// <param name="precedence">The precedence obtained by calling <see cref="GetPrecedence(ExpressionType)"/>.</param>
         /// <returns>The operator's associativity.</returns>
-        protected static Associativity GetAssociativity(int precedence)
+        protected static Associativity GetAssociativity(Precedence precedence)
         {
             switch (precedence)
             {
-                case 0:
-                case 1:
-                case 2:
+                case Precedence.Additive:
+                case Precedence.Multiplicative:
                     return Associativity.Left;
 
-                case 3:
+                case Precedence.Exponential:
                     return Associativity.Right;
 
                 default:
@@ -101,7 +100,7 @@ namespace MathParser
         /// </summary>
         /// <param name="effectiveType">The operator type.</param>
         /// <returns>A value indicating the precedence of the specified operator type.</returns>
-        protected static int GetPrecedence(ExpressionType effectiveType)
+        protected static Precedence GetPrecedence(ExpressionType effectiveType)
         {
             switch (effectiveType)
             {
@@ -111,25 +110,25 @@ namespace MathParser
                 case ExpressionType.GreaterThanOrEqual:
                 case ExpressionType.LessThan:
                 case ExpressionType.LessThanOrEqual:
-                    return -1;
+                    return Precedence.Comparison;
 
                 case ExpressionType.Add:
                 case ExpressionType.Subtract:
-                    return 0;
+                    return Precedence.Additive;
 
                 case ExpressionType.Multiply:
                 case ExpressionType.Divide:
                 case ExpressionType.Modulo:
-                    return 1;
+                    return Precedence.Multiplicative;
 
                 case ExpressionType.Negate:
-                    return 2;
+                    return Precedence.Unary;
 
                 case ExpressionType.Power:
-                    return 3;
+                    return Precedence.Exponential;
 
                 default:
-                    return int.MaxValue;
+                    return Precedence.Unknown;
             }
         }
 
