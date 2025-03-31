@@ -196,10 +196,10 @@ namespace MathParser
         /// <summary>
         /// Constructs a multiplicative expression.
         /// </summary>
-        /// <param name="multiplier">The multiplier expression.</param>
         /// <param name="multiplicand">The multiplicand expression.</param>
+        /// <param name="multiplier">The multiplier expression.</param>
         /// <returns>The multiplicative expression.</returns>
-        protected abstract T CreateMultiply(T multiplier, T multiplicand);
+        protected abstract T CreateMultiply(T multiplicand, T multiplier);
 
         /// <summary>
         /// Constructs a negation expression.

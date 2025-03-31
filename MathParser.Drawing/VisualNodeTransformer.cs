@@ -24,7 +24,7 @@ namespace MathParser.Drawing
         protected override VisualNode CreateDivide(VisualNode dividend, VisualNode divisor) => new FractionVisualNode(dividend, divisor);
 
         /// <inheritdoc />
-        protected override VisualNode CreateMultiply(VisualNode multiplier, VisualNode multiplicand) => CreateInlineBinary(multiplier, "·", multiplicand);
+        protected override VisualNode CreateMultiply(VisualNode multiplicand, VisualNode multiplier) => CreateInlineBinary(multiplicand, "·", multiplier);
 
         /// <inheritdoc />
         protected override VisualNode CreateNegate(VisualNode expression) => new BaselineAlignedVisualNode(new StringVisualNode("-"), expression);

@@ -19,7 +19,7 @@
         protected override string CreateDivide(string dividend, string divisor) => dividend + "/" + divisor;
 
         /// <inheritdoc />
-        protected override string CreateMultiply(string multiplier, string multiplicand) => multiplier + "·" + multiplicand;
+        protected override string CreateMultiply(string multiplicand, string multiplier) => multiplicand + "·" + multiplier;
 
         /// <inheritdoc />
         protected override string CreateNegate(string expression) => "-" + expression;
