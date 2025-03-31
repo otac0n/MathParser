@@ -69,7 +69,7 @@
                             return this.Visit(Subtract(simpleRight, leftNegate.Operand));
                         }
 
-                        break;
+                        return node.Update(ConvertIfLower(simpleLeft, to: simpleRight), null, ConvertIfLower(simpleRight, to: simpleLeft));
                     }
 
                 case ExpressionType.Subtract:
@@ -102,7 +102,7 @@
                             return this.Visit(Add(simpleLeft, negate.Operand));
                         }
 
-                        break;
+                        return node.Update(ConvertIfLower(simpleLeft, to: simpleRight), null, ConvertIfLower(simpleRight, to: simpleLeft));
                     }
 
                 case ExpressionType.Multiply:
@@ -141,23 +141,19 @@
                         {
                             return simpleLeft;
                         }
-                    }
 
-                    {
                         // Convert "(a / b) * c" into "a * c / b"
-                        if (simpleLeft.NodeType == ExpressionType.Divide && simpleLeft is BinaryExpression left)
+                        if (simpleLeft.NodeType == ExpressionType.Divide && simpleLeft is BinaryExpression leftDivide)
                         {
-                            return this.Visit(Divide(Multiply(left.Left, simpleRight), left.Right));
+                            return this.Visit(Divide(Multiply(leftDivide.Left, simpleRight), leftDivide.Right));
                         }
 
                         // Convert "a * (b / c)" into "a * b / c"
-                        if (simpleRight.NodeType == ExpressionType.Divide && simpleRight is BinaryExpression right)
+                        if (simpleRight.NodeType == ExpressionType.Divide && simpleRight is BinaryExpression rightDivide)
                         {
-                            return this.Visit(Divide(Multiply(simpleLeft, right.Left), right.Right));
+                            return this.Visit(Divide(Multiply(simpleLeft, rightDivide.Left), rightDivide.Right));
                         }
-                    }
 
-                    {
                         // Convert "-a * b" into "-(a * b)"
                         if (simpleLeft.NodeType == ExpressionType.Negate && simpleLeft is UnaryExpression leftNegate)
                         {
@@ -169,9 +165,9 @@
                         {
                             return this.Visit(Negate(Multiply(simpleLeft, rightNegate.Operand)));
                         }
-                    }
 
-                    break;
+                        return node.Update(ConvertIfLower(simpleLeft, to: simpleRight), null, ConvertIfLower(simpleRight, to: simpleLeft));
+                    }
 
                 case ExpressionType.Divide:
                     {
@@ -189,7 +185,7 @@
                             return simpleLeft;
                         }
 
-                        break;
+                        return node.Update(ConvertIfLower(simpleLeft, to: simpleRight), null, ConvertIfLower(simpleRight, to: simpleLeft));
                     }
             }
 
