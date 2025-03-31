@@ -5,7 +5,6 @@ namespace MathParser.Demo
     using System;
     using System.Drawing;
     using System.Linq.Expressions;
-    using System.Numerics;
     using MathParser.Drawing;
 
     internal class Display

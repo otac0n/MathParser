@@ -96,7 +96,7 @@ namespace MathParser
 
         public static Expression Abs(Expression expression)
         {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Abs), new[] { expression.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Abs), new[] { expression.Type }), expression);
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Abs), [expression.Type]) ?? typeof(Complex).GetMethod(nameof(Complex.Abs), [expression.Type]), expression);
         }
 
         public static Expression Conditional(Expression condition, Expression consequent, Expression alternative)
@@ -106,12 +106,12 @@ namespace MathParser
 
         public static Expression Ceiling(Expression expression)
         {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Ceiling), new[] { expression.Type }), expression);
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Ceiling), [expression.Type]), expression);
         }
 
         public static Expression Floor(Expression expression)
         {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Floor), new[] { expression.Type }), expression);
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Floor), [expression.Type]), expression);
         }
 
         public static Expression Negate(Expression operand)
@@ -152,12 +152,12 @@ namespace MathParser
             }
 
             @base = ConvertIfLower(@base, to: typeof(Complex));
-            return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), new[] { @base.Type, exponent.Type }), @base, exponent);
+            return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), [@base.Type, exponent.Type]), @base, exponent);
         }
 
         public static Expression Exp(Expression exponent)
         {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Exp), new[] { exponent.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Exp), new[] { exponent.Type }), exponent);
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Exp), [exponent.Type]) ?? typeof(Complex).GetMethod(nameof(Complex.Exp), [exponent.Type]), exponent);
         }
 
         public static Expression Sqrt(Expression @base)
@@ -168,12 +168,12 @@ namespace MathParser
             }
 
             @base = ConvertIfLower(@base, to: typeof(Complex));
-            return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Sqrt), new[] { @base.Type }), @base);
+            return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Sqrt), [@base.Type]), @base);
         }
 
         public static Expression Log(Expression expression)
         {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Log), new[] { expression.Type }) ?? typeof(Complex).GetMethod(nameof(Complex.Log), new[] { expression.Type }), expression);
+            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Log), [expression.Type]) ?? typeof(Complex).GetMethod(nameof(Complex.Log), [expression.Type]), expression);
         }
 
         public static Expression Compare(Expression left, ExpressionType op, Expression right)

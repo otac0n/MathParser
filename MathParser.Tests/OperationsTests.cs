@@ -2,7 +2,6 @@
 
 namespace MathParser.Tests
 {
-    using System;
     using System.Linq.Expressions;
     using System.Text;
     using MathParser.Testing;

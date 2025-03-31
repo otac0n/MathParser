@@ -68,19 +68,19 @@ namespace MathParser.Drawing.Tests
 
         public class Highlighter
         {
-            private static readonly HatchBrush[] HighlightBrushes = new[]
-            {
+            private static readonly HatchBrush[] HighlightBrushes =
+            [
                 new HatchBrush(HatchStyle.ForwardDiagonal, Color.FromArgb(127, Color.Salmon), Color.FromArgb(64, Color.White)),
                 new HatchBrush(HatchStyle.BackwardDiagonal, Color.FromArgb(127, Color.DodgerBlue), Color.FromArgb(64, Color.White)),
                 new HatchBrush(HatchStyle.LargeGrid, Color.FromArgb(127, Color.ForestGreen), Color.FromArgb(64, Color.White)),
-            };
+            ];
 
-            private static readonly Pen[] HighlightPens = new[]
-            {
+            private static readonly Pen[] HighlightPens =
+            [
                 new Pen(Color.FromArgb(127, Color.Salmon)),
                 new Pen(Color.FromArgb(127, Color.DodgerBlue)),
                 new Pen(Color.FromArgb(127, Color.ForestGreen)),
-            };
+            ];
 
             private int highlightIndex = -1;
 
