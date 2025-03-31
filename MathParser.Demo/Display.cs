@@ -70,17 +70,12 @@ namespace MathParser.Demo
 
             try
             {
-                var converted = Expression.Call(
-                    typeof(MathParser.ExpressionExtensions).GetMethod(nameof(MathParser.ExpressionExtensions.TransformToString), new[] { typeof(Complex) }),
-                    this.expression.Type == typeof(Complex)
-                        ? this.expression
-                        : Expression.Convert(this.expression, typeof(Complex)));
-
-                this.ResultText = ((Expression<Func<string>>)Expression.Lambda(converted)).Compile()();
+                var simplified = Operations.Simplify(expression);
+                this.ResultText = simplified.TransformToString();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                this.ResultText = "?";
+                this.ResultText = ex.Message;
             }
         }
 
