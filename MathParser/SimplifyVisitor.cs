@@ -255,6 +255,7 @@
                     // TODO: Support all types.
                     if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
                     {
+                        // TODO: Add a configuration option to detect and prevent loss of precision.
                         return Expression.Constant(leftValue + rightValue);
                     }
                 }
@@ -300,6 +301,20 @@
                 return this.Visit(Add(minuend, negate.Operand));
             }
 
+            if (IsConstantValue(minuend, out var leftConstant))
+            {
+                if (IsConstantValue(subtrahend, out var rightConstant))
+                {
+                    // Convert "1 - 1" into "0"
+                    // TODO: Support all types.
+                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
+                    {
+                        // TODO: Add a configuration option to detect and prevent loss of precision.
+                        return Expression.Constant(leftValue - rightValue);
+                    }
+                }
+            }
+
             return Subtract(minuend, subtrahend);
         }
 
@@ -330,7 +345,7 @@
             }
 
             // Convert "a * (b * c)" into "a * b * c"
-            if (multiplier.NodeType == ExpressionType.Add && multiplier is BinaryExpression rightMultiply)
+            if (multiplier.NodeType == ExpressionType.Multiply && multiplier is BinaryExpression rightMultiply)
             {
                 return this.Visit(Multiply(Multiply(multiplicand, rightMultiply.Left), rightMultiply.Right));
             }
@@ -359,6 +374,30 @@
                 return this.Visit(Negate(Multiply(multiplicand, rightNegate.Operand)));
             }
 
+            // Convert "a * (b + c)" into "a * b + a * c"
+            if (multiplier.NodeType == ExpressionType.Add && multiplier is BinaryExpression rightAdd)
+            {
+                return this.Visit(Add(Multiply(multiplicand, rightAdd.Left), Multiply(multiplicand, rightAdd.Right)));
+            }
+
+            // Convert "(a + b) * c" into "a * c + b * c"
+            if (multiplicand.NodeType == ExpressionType.Add && multiplicand is BinaryExpression leftAdd)
+            {
+                return this.Visit(Add(Multiply(leftAdd.Left, multiplier), Multiply(leftAdd.Right, multiplier)));
+            }
+
+            // Convert "a * (b - c)" into "a * b - a * c"
+            if (multiplier.NodeType == ExpressionType.Subtract && multiplier is BinaryExpression rightSubtract)
+            {
+                return this.Visit(Subtract(Multiply(multiplicand, rightSubtract.Left), Multiply(multiplicand, rightSubtract.Right)));
+            }
+
+            // Convert "(a - b) * c" into "a * c - b * c"
+            if (multiplicand.NodeType == ExpressionType.Subtract && multiplicand is BinaryExpression leftSubtract)
+            {
+                return this.Visit(Subtract(Multiply(leftSubtract.Left, multiplier), Multiply(leftSubtract.Right, multiplier)));
+            }
+
             if (IsConstantValue(multiplier, out var rightConstant))
             {
                 if (IsConstantValue(multiplicand, out var leftConstant))
@@ -366,6 +405,7 @@
                     // Convert "2 * 2" into "4"
                     if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue) // TODO: Support all types.
                     {
+                        // TODO: Add a configuration option to detect and prevent loss of precision.
                         return Expression.Constant(leftValue * rightValue);
                     }
                 }
@@ -419,7 +459,7 @@
             // Convert "a ^ 0" to "1"
             if (IsZero(exponent))
             {
-                return Expression.Constant(1);
+                return One();
             }
 
             if (IsZero(@base))
@@ -431,9 +471,28 @@
                 }
             }
 
+            // Convert "(a ^ b) ^ c" into "a ^ (b * c)"
+            if (IsPower(@base, out var leftBase, out var leftExponent))
+            {
+                return this.Visit(Pow(leftBase, Multiply(leftExponent, exponent)));
+            }
+
             if (IsConstantEqual(@base, Math.E))
             {
                 return this.Visit(Exp(exponent));
+            }
+
+            if (IsConstantValue(exponent, out var rightConstant))
+            {
+                if (IsConstantValue(@base, out var leftConstant))
+                {
+                    // Convert "2 ^ 2" into "4"
+                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue && rightValue >= 0) // TODO: Support all types.
+                    {
+                        // TODO: Add a configuration option to detect and prevent loss of precision.
+                        return Expression.Constant(Math.Pow(leftValue, rightValue));
+                    }
+                }
             }
 
             return Pow(@base, exponent);

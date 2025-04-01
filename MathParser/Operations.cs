@@ -274,6 +274,29 @@ namespace MathParser
             return @default;
         }
 
+        public static bool IsPower(Expression expression, [NotNullWhen(true)] out Expression? @base, [NotNullWhen(true)] out Expression? exponent)
+        {
+            if (expression.NodeType == ExpressionType.Power && expression is BinaryExpression binary)
+            {
+                @base = binary.Left;
+                exponent = binary.Left;
+                return true;
+            }
+
+            if (expression.NodeType == ExpressionType.Call && expression is MethodCallExpression methodCall &&
+                methodCall.Object is null && methodCall.Method.Name == nameof(Math.Pow) && methodCall.Arguments.Count == 2 &&
+                (methodCall.Method.DeclaringType == typeof(Math) || methodCall.Method.DeclaringType == typeof(Complex)))
+            {
+                @base = methodCall.Arguments[0];
+                exponent = methodCall.Arguments[1];
+                return true;
+            }
+
+            @base = null;
+            exponent = null;
+            return false;
+        }
+
         public static bool IsConstantEqual(Expression expression, double value) =>
             TryConvert(expression, false, (int x) => x == value) ||
             TryConvert(expression, false, (float x) => x == value) ||
