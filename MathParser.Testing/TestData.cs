@@ -216,6 +216,11 @@ namespace MathParser.Testing
             "iif(x!=0,1/x,0)",
             "1/(x*iif(a>b,a,b))/2",
             "f(x)=iif(x<=-3,-3-x,iif(x<=0,x+3,iif(x<=3,3-2x,0.5x-4.5)))",
+            "f(x)=1; x!=0",
+            "f(x)=(x; x!=0)*x",
+            "f(x)=iif(x!=0, x, 0)*x",
+            "f(x)=2*(x; x!=0)*x",
+            "f(x)=2*iif(x!=0, x, 0)*x",
         ];
 
         public static string[] SimplifyStrings =>
@@ -288,6 +293,7 @@ namespace MathParser.Testing
             "(x+3)2",
             "2(x-2)",
             "(x-4)2",
+            "(x; x != 0) + (y; x != 0)",
         ];
     }
 }

@@ -47,6 +47,11 @@ namespace MathParser.Drawing
         /// <inheritdoc />
         protected override VisualNode CreateConditional((VisualNode condition, VisualNode consequent)[] conditions, VisualNode alternative)
         {
+            if (conditions.Length == 1 && alternative == null)
+            {
+                return new BaselineAlignedVisualNode(conditions[0].consequent, new StringVisualNode("if "), conditions[0].condition);
+            }
+
             var options = new VisualNode[conditions.Length + (alternative == null ? 0 : 1), 2];
 
             for (var i = 0; i < conditions.Length; i++)
@@ -102,6 +107,21 @@ namespace MathParser.Drawing
         /// <inheritdoc />
         protected override ExpressionType GetEffectiveTypeComplex(double real, double imaginary) => NumberFormatter.GetEffectiveTypeComplex(real, imaginary);
 
+        /// <inheritdoc/>
+        protected override ExpressionType GetRightExposedType(ExpressionType effectiveType, Expression node)
+        {
+            if (node is BinaryExpression binary)
+            {
+                if ((binary.Right is ConditionalExpression conditional && !Operations.IsNaN(conditional.IfFalse)) ||
+                    this.GetRightExposedType(binary.Right) == ExpressionType.Conditional)
+                {
+                    return ExpressionType.Conditional;
+                }
+            }
+
+            return base.GetRightExposedType(effectiveType, node);
+        }
+
         /// <inheritdoc />
         protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
@@ -138,6 +158,14 @@ namespace MathParser.Drawing
                 innerEffectiveType == ExpressionType.Divide)
             {
                 // Negating a fraction does not requre parentheses around the fraction.
+                return false;
+            }
+
+            if (innerEffectiveType == ExpressionType.Conditional &&
+                inner is ConditionalExpression conditional &&
+                !Operations.IsNaN(conditional.IfFalse))
+            {
+                // A conditional with an alternative renders its own left bracket.
                 return false;
             }
 

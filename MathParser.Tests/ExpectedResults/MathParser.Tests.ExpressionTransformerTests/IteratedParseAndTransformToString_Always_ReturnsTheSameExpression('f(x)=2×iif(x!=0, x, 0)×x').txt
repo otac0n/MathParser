@@ -1,0 +1,8 @@
+f(x)=2*iif(x!=0, x, 0)*x
+(parsed)
+x => ((Convert(2, Complex) * IIF((x != Convert(0, Complex)), x, Convert(0, Complex))) * x)
+(transformed)
+f(x)=2·iif(x!=0, x, 0)·x
+(parsed)
+x => ((Convert(2, Complex) * IIF((x != Convert(0, Complex)), x, Convert(0, Complex))) * x)
+(stable)

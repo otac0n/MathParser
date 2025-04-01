@@ -9,6 +9,22 @@
     public class SimplifyVisitor : ExpressionVisitor
     {
         /// <inheritdoc/>
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            var simpleBody = this.Visit(node.Body);
+            return node.Update(ConvertIfLower(simpleBody, to: node.ReturnType), node.Parameters);
+        }
+
+        protected override Expression VisitConditional(ConditionalExpression node)
+        {
+            var simpleTest = this.Visit(node.Test);
+            var simpleTrue = this.Visit(node.IfTrue);
+            var simpleFalse = this.Visit(node.IfFalse);
+
+            return Conditional(simpleTest, simpleTrue, simpleFalse);
+        }
+
+        /// <inheritdoc/>
         protected override Expression VisitBinary(BinaryExpression node)
         {
             var simpleLeft = this.Visit(node.Left);
@@ -437,6 +453,11 @@
             if (IsZero(dividend))
             {
                 return dividend;
+            }
+
+            if (dividend == divisor)
+            {
+                return this.Visit(Conditional(NotEqual(divisor, Zero()), One(), NaN()));
             }
 
             return Divide(dividend, divisor);

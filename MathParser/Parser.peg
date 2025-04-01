@@ -21,11 +21,11 @@ math <Expression>
 statement <Expression>
   = lambda
   / disjunction
-  / additive
+  / conditional
 
 lambda <LambdaExpression>
   = "D(" _ lambda:lambda _ ")" { Operations.Derivative(lambda) }
-  / name:identifier _ names:nameTuple _ ("==" / "=" / ":=") _ body:additive #{ foreach(var p in names) CreateVariable(state, p); } { Expression.Lambda(body, name, names.Select(p => (ParameterExpression)state[p])) }
+  / name:identifier _ names:nameTuple _ ("==" / "=" / ":=") _ body:conditional #{ foreach(var p in names) CreateVariable(state, p); } { Expression.Lambda(body, name, names.Select(p => (ParameterExpression)state[p])) }
 
 nameTuple <IList<string>>
   = "(" _ names:identifier<1,,_ "," _> _ ")" { names }
@@ -62,6 +62,10 @@ equalityOperator <ExpressionType>
   / ("<=" / "≤")               { ExpressionType.LessThanOrEqual }
   / "<"                        { ExpressionType.LessThan }
 
+conditional <Expression>
+    = additive:additive _  (";" / "if") _ condition:disjunction { Operations.Conditional(condition, additive, Operations.NaN()) }
+    / additive
+
 additive <Expression> -memoize
     = left:additive _ "+" _ right:multiplicative { Operations.Add(left, right) }
     / left:additive _ "-" _ right:multiplicative { Operations.Subtract(left, right) }
@@ -89,14 +93,14 @@ power <Expression> -memoize
 primary <Expression> -memoize
     = decimal
     / namedConstant
-    / "iif(" _ condition:disjunction _ "," _ consequent:additive _ "," _ alternative:additive _ ")" { Operations.Conditional(condition, consequent, alternative) }
-    / name:identifier "(" _ arguments:additive<0,,_ "," _> _ ")" { Operations.Function(name, arguments) }
+    / "iif(" _ condition:disjunction _ "," _ consequent:conditional _ "," _ alternative:conditional _ ")" { Operations.Conditional(condition, consequent, alternative) }
+    / name:identifier "(" _ arguments:conditional<0,,_ "," _> _ ")" { Operations.Function(name, arguments) }
     / variable
     / "√" _ negation:negationPrimary { Operations.Sqrt(negation) }
-    / "(" _ additive:additive _ ")" { additive }
-    / "|" _ additive:additive _ "|" { Operations.Abs(additive) }
-    / "⌈" _ additive:additive _ "⌉" { Operations.Ceiling(additive) }
-    / "⌊" _ additive:additive _ "⌋" { Operations.Floor(additive) }
+    / "(" _ conditional:conditional _ ")" { conditional }
+    / "|" _ conditional:conditional _ "|" { Operations.Abs(conditional) }
+    / "⌈" _ conditional:conditional _ "⌉" { Operations.Ceiling(conditional) }
+    / "⌊" _ conditional:conditional _ "⌋" { Operations.Floor(conditional) }
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
@@ -121,6 +125,7 @@ keyword
     / "and"
     / "or"
     / "not"
+    / "if"
 
 _ = [ \t\r\n]*
 

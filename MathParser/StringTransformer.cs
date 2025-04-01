@@ -40,7 +40,10 @@
         protected override string CreateSubtract(string minuend, string subtrahend) => minuend + "-" + subtrahend;
 
         /// <inheritdoc />
-        protected override string CreateConditional((string condition, string consequent)[] conditions, string alternative) => conditions.Reverse().Aggregate(alternative, (e, c) => "iif(" + c.condition + ", " + c.consequent + ", " + alternative + ")");
+        protected override string CreateConditional((string condition, string consequent)[] conditions, string alternative) =>
+            conditions.Length == 1 && alternative == null
+            ? conditions[0].consequent + "; " + conditions[0].condition
+            : conditions.Reverse().Aggregate(alternative, (e, c) => "iif(" + c.condition + ", " + c.consequent + ", " + alternative + ")");
 
         /// <inheritdoc />
         protected override string CreateFunction(string name, params string[] arguments) => name + "(" + string.Join(", ", arguments) + ")";
@@ -81,7 +84,26 @@
                 return GetPrecedence(this.GetEffectiveNodeType(inner)) <= GetPrecedence(outerEffectiveType);
             }
 
+            if (innerEffectiveType == ExpressionType.Conditional &&
+                !(inner is ConditionalExpression conditional && Operations.IsNaN(conditional.IfFalse)))
+            {
+                // A conditional with an alternative is rendered as a function.
+                return false;
+            }
+
             return base.NeedsLeftBrackets(outerEffectiveType, outer, innerEffectiveType, inner);
+        }
+
+        protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
+        {
+            if (innerEffectiveType == ExpressionType.Conditional &&
+                !(inner is ConditionalExpression conditional && Operations.IsNaN(conditional.IfFalse)))
+            {
+                // A conditional with an alternative is rendered as a function.
+                return false;
+            }
+
+            return base.NeedsRightBrackets(outerEffectiveType, outer, innerEffectiveType, inner);
         }
 
         /// <summary>

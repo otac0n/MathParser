@@ -67,6 +67,8 @@ namespace MathParser
 
         public static ConstantExpression One() => Expression.Constant(1.0);
 
+        public static ConstantExpression NaN() => Expression.Constant(double.NaN);
+
         public static Expression ConvertIfLower(Expression expression, Expression to)
         {
             return ConvertIfLower(expression, to: to.Type);
@@ -88,6 +90,10 @@ namespace MathParser
         public static Expression Or(Expression left, Expression right) => Expression.OrElse(left, right);
 
         public static Expression Not(Expression expression) => Expression.Not(expression);
+
+        public static Expression Equal(Expression left, Expression right) => Expression.Equal(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left));
+
+        public static Expression NotEqual(Expression left, Expression right) => Expression.NotEqual(ConvertIfLower(left, to: right), ConvertIfLower(right, to: left));
 
         public static Expression LowerToReal(Expression expression)
         {

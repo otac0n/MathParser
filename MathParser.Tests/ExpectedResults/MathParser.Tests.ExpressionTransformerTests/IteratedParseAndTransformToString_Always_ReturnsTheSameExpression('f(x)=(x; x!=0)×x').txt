@@ -1,0 +1,8 @@
+f(x)=(x; x!=0)*x
+(parsed)
+x => (IIF((x != Convert(0, Complex)), x, Convert(NaN, Complex)) * x)
+(transformed)
+f(x)=(x; x!=0)·x
+(parsed)
+x => (IIF((x != Convert(0, Complex)), x, Convert(NaN, Complex)) * x)
+(stable)

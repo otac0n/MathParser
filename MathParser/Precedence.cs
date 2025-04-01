@@ -13,6 +13,11 @@ namespace MathParser
         None = 0,
 
         /// <summary>
+        /// A conditional statement.
+        /// </summary>
+        Conditional,
+
+        /// <summary>
         /// OR operators.
         /// </summary>
         Disjunction,

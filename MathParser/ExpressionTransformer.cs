@@ -106,6 +106,9 @@ namespace MathParser
         {
             switch (effectiveType)
             {
+                case ExpressionType.Conditional:
+                    return Precedence.Conditional;
+
                 case ExpressionType.Or:
                     return Precedence.Disjunction;
 
@@ -155,6 +158,11 @@ namespace MathParser
             }
 
             if (left == ExpressionType.Or && right == ExpressionType.Or)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Not && right == ExpressionType.Not)
             {
                 return true;
             }
@@ -269,7 +277,7 @@ namespace MathParser
         /// <param name="conditions">The conditional expressions.</param>
         /// <param name="alternative">The alternative expression.</param>
         /// <returns>The conditional expression.</returns>
-        protected abstract T CreateConditional((T condition, T consequent)[] conditions, T alternative);
+        protected abstract T CreateConditional((T condition, T consequent)[] conditions, T? alternative);
 
         /// <summary>
         /// Constructs a function expression.
@@ -349,6 +357,38 @@ namespace MathParser
         protected abstract ExpressionType GetEffectiveTypeComplex(double real, double imaginary);
 
         /// <summary>
+        /// Called recursively through <see cref="GetLeftExposedType(ExpressionType, Expression)"/>.
+        /// </summary>
+        /// <param name="node">The node to inspect recursively.</param>
+        /// <returns>The left exposed type of the node.</returns>
+        protected ExpressionType GetLeftExposedType(Expression node) => this.GetLeftExposedType(this.GetEffectiveNodeType(node), node);
+
+        /// <summary>
+        /// Allows for the proper handling of operations that are exposed on the left.
+        /// </summary>
+        /// <param name="effectiveType">The effective type of the node.</param>
+        /// <param name="node">The node to inspect.</param>
+        /// <returns>The effective type of the leftmost exposed operator.</returns>
+        /// <remarks>For conditionals, they may be rendered with half-open syntax like ``.</remarks>
+        protected virtual ExpressionType GetLeftExposedType(ExpressionType effectiveType, Expression node) => effectiveType;
+
+        /// <summary>
+        /// Called recursively through <see cref="GetRightExposedType(ExpressionType, Expression)"/>.
+        /// </summary>
+        /// <param name="node">The node to inspect recursively.</param>
+        /// <returns>The right exposed type of the node.</returns>
+        protected ExpressionType GetRightExposedType(Expression node) => this.GetRightExposedType(this.GetEffectiveNodeType(node), node);
+
+        /// <summary>
+        /// Allows for the proper handling of operations that are exposed on the right.
+        /// </summary>
+        /// <param name="effectiveType">The effective type of the node.</param>
+        /// <param name="node">The node to inspect.</param>
+        /// <returns>The effective type of the rightmost exposed operator.</returns>
+        /// <remarks>Conditionals may be rendered with half-open syntax like `{x, x!=0`.</remarks>
+        protected virtual ExpressionType GetRightExposedType(ExpressionType effectiveType, Expression node) => effectiveType;
+
+        /// <summary>
         /// Determines whether or not the inner expression should be surrounded with brackets.
         /// </summary>
         /// <param name="outerEffectiveType">The effective node type of the outer expression.</param>
@@ -358,6 +398,9 @@ namespace MathParser
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
         protected virtual bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
+            var exposed = this.GetRightExposedType(innerEffectiveType, inner);
+            var exposedPrecedence = GetPrecedence(exposed); // Assumed to be a lower precedence than innerEffectiveType...
+
             var outerPrecedence = GetPrecedence(outerEffectiveType);
             var innerPrecedence = GetPrecedence(innerEffectiveType);
             var innerAssociativity = GetAssociativity(innerPrecedence);
@@ -389,6 +432,9 @@ namespace MathParser
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
         protected virtual bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
+            var exposed = this.GetLeftExposedType(innerEffectiveType, inner);
+            var exposedPrecedence = GetPrecedence(exposed); // Assumed to be a lower precedence than innerEffectiveType...
+
             var outerPrecedence = GetPrecedence(outerEffectiveType);
             var innerPrecedence = GetPrecedence(innerEffectiveType);
             var innerAssociativity = GetAssociativity(innerPrecedence);
@@ -494,8 +540,12 @@ namespace MathParser
                 next = inner.IfFalse;
             }
 
-            this.Visit(next);
-            var alternative = this.Result;
+            T? alternative = default;
+            if (!Operations.IsNaN(next))
+            {
+                this.Visit(next);
+                alternative = this.Result;
+            }
 
             this.Result = this.CreateConditional(conditions.ToArray(), alternative);
 

@@ -13,7 +13,6 @@ namespace MathParser.Demo
     {
         private readonly Parser parser = new Parser();
         private readonly Display display = new Display();
-        private int enterState;
         private Expression expression;
 
         public CalculatorForm()
@@ -28,12 +27,9 @@ namespace MathParser.Demo
             {
                 if (this.display.ExpressionText != null)
                 {
-                    var input = this.enterState == 0
-                        ? "(" + this.display.ExpressionText + ")"
-                        : this.display.ResultText;
+                    var input = this.display.ResultText;
                     this.inputBox.Text = input;
                     this.inputBox.Select(input.Length, 0);
-                    this.enterState = (this.enterState + 1) % 2;
                     e.Handled = true;
                 }
 
@@ -51,10 +47,6 @@ namespace MathParser.Demo
             if (e.KeyCode == Keys.Enter)
             {
                 e.IsInputKey = true;
-            }
-            else
-            {
-                this.enterState = 0;
             }
         }
 
@@ -127,8 +119,6 @@ namespace MathParser.Demo
 
         private void KeyPad_KeyPress(object sender, KeyPressEventArgs e)
         {
-            this.enterState = 0;
-
             if (e.KeyChar == (char)Keys.Back)
             {
                 if (this.inputBox.SelectionLength != 0)
