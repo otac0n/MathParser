@@ -553,6 +553,30 @@ namespace MathParser
                 this.Visit(next);
                 alternative = this.Result;
             }
+            else
+            {
+                if (conditions.Count == 1)
+                {
+                    var left = conditions[0].condition;
+                    var right = conditions[0].consequent;
+
+                    var effectiveType = this.GetEffectiveNodeType(node);
+                    var leftEffectiveType = this.GetEffectiveNodeType(node.Test);
+                    var rightEffectiveType = this.GetEffectiveNodeType(node.IfTrue);
+
+                    if (this.NeedsLeftBrackets(effectiveType, node, leftEffectiveType, node.Test))
+                    {
+                        left = this.AddBrackets(left);
+                    }
+
+                    if (this.NeedsLeftBrackets(effectiveType, node, rightEffectiveType, node.IfTrue))
+                    {
+                        right = this.AddBrackets(right);
+                    }
+
+                    conditions[0] = (left, right);
+                }
+            }
 
             this.Result = this.CreateConditional(conditions.ToArray(), alternative);
 
