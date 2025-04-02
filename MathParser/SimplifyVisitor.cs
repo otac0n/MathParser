@@ -165,6 +165,12 @@
                 return left;
             }
 
+            // Convert "a and a" into "a"
+            if (left == right)
+            {
+                return left;
+            }
+
             return And(left, right);
         }
 
@@ -192,6 +198,12 @@
             if (IsTrue(right))
             {
                 return right;
+            }
+
+            // Convert "a or a" into "a"
+            if (left == right)
+            {
+                return left;
             }
 
             return Or(left, right);
@@ -279,6 +291,12 @@
                 return this.Visit(Subtract(addend, leftNegate.Operand));
             }
 
+            // Convert "a + a" into "2 * a"
+            if (augend == addend)
+            {
+                return this.Visit(Multiply(Expression.Constant(2.0), augend));
+            }
+
             if (IsConstantValue(augend, out var leftConstant))
             {
                 if (IsConstantValue(addend, out var rightConstant))
@@ -341,6 +359,12 @@
             if (subtrahend.NodeType == ExpressionType.Negate && subtrahend is UnaryExpression negate)
             {
                 return this.Visit(Add(minuend, negate.Operand));
+            }
+
+            // Convert "a - a" into "0"
+            if (subtrahend == minuend)
+            {
+                return Zero();
             }
 
             if (IsConstantValue(minuend, out var leftConstant))
@@ -450,6 +474,12 @@
                 return this.Visit(Subtract(Multiply(leftSubtract.Left, multiplier), Multiply(leftSubtract.Right, multiplier)));
             }
 
+            // Convert "a * a" into "a ^ 2"
+            if (multiplicand == multiplier)
+            {
+                return this.Visit(Pow(multiplicand, Expression.Constant(2.0)));
+            }
+
             if (IsConstantValue(multiplier, out var rightConstant))
             {
                 if (IsConstantValue(multiplicand, out var leftConstant))
@@ -507,6 +537,7 @@
                 return this.Visit(Divide(Multiply(dividend, divisor), @base));
             }
 
+            // Convert "a / a" into "a; a!=0"
             if (dividend == divisor)
             {
                 return this.Visit(Conditional(NotEqual(divisor, Zero()), One(), NaN()));

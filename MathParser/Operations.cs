@@ -291,7 +291,7 @@ namespace MathParser
             if (expression.NodeType == ExpressionType.Power && expression is BinaryExpression binary)
             {
                 @base = binary.Left;
-                exponent = binary.Left;
+                exponent = binary.Right;
                 return true;
             }
 
