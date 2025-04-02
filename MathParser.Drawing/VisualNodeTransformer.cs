@@ -110,6 +110,7 @@ namespace MathParser.Drawing
         /// <inheritdoc/>
         protected override ExpressionType GetRightExposedType(ExpressionType effectiveType, Expression node)
         {
+            // A conditional with an alternate doesn't render it's own right bracket.
             if (node is BinaryExpression binary && !(node.NodeType is ExpressionType.Power or ExpressionType.Divide))
             {
                 if (binary.Right is ConditionalExpression conditional)
