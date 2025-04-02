@@ -222,6 +222,7 @@ namespace MathParser.Testing
             "f(x)=iif(x!=0, x, 0)*x",
             "f(x)=2*(x; x!=0)*x",
             "f(x)=2*iif(x!=0, x, 0)*x",
+            "(x+y; x!=0); x!=0",
         ];
 
         public static string[] SimplifyStrings =>

@@ -323,6 +323,22 @@ namespace MathParser
             return false;
         }
 
+        public static bool IsConstraint(Expression expression, [NotNullWhen(true)] out Expression? condition, [NotNullWhen(true)] out Expression? consequent)
+        {
+            if (expression.NodeType == ExpressionType.Conditional &&
+                expression is ConditionalExpression conditional &&
+                IsNaN(conditional.IfFalse))
+            {
+                condition = conditional.Test;
+                consequent = conditional.IfTrue;
+                return true;
+            }
+
+            condition = null;
+            consequent = null;
+            return false;
+        }
+
         public static bool IsConstantEqual(Expression expression, double value) =>
             TryConvert(expression, false, (int x) => x == value) ||
             TryConvert(expression, false, (float x) => x == value) ||

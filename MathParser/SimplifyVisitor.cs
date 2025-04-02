@@ -1,6 +1,7 @@
 ﻿namespace MathParser
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Numerics;
@@ -21,7 +22,7 @@
             var simpleTrue = this.Visit(node.IfTrue);
             var simpleFalse = this.Visit(node.IfFalse);
 
-            return Conditional(simpleTest, simpleTrue, simpleFalse);
+            return this.SimplifyConditional(simpleTest, simpleTrue, simpleFalse);
         }
 
         /// <inheritdoc/>
@@ -198,6 +199,11 @@
 
         private Expression SimplifyNegate(Expression operand)
         {
+            if (IsConstraint(operand, out var condition, out var consequent))
+            {
+                return this.Visit(Conditional(condition, Negate(operand), NaN()));
+            }
+
             // Convert "--a" into "a"
             if (operand.NodeType == ExpressionType.Negate && operand is UnaryExpression inner)
             {
@@ -227,6 +233,16 @@
 
         private Expression SimplifyAdd(Expression augend, Expression addend)
         {
+            if (IsConstraint(augend, out var leftCondition, out var leftConsequent))
+            {
+                return this.Visit(Conditional(leftCondition, Add(leftConsequent, addend), NaN()));
+            }
+
+            if (IsConstraint(addend, out var rightCondition, out var rightConsequent))
+            {
+                return this.Visit(Conditional(rightCondition, Add(augend, rightConsequent), NaN()));
+            }
+
             // Convert "0 + a" into "a"
             if (IsZero(augend))
             {
@@ -287,6 +303,16 @@
 
         private Expression SimplifySubtract(Expression minuend, Expression subtrahend)
         {
+            if (IsConstraint(minuend, out var leftCondition, out var leftConsequent))
+            {
+                return this.Visit(Conditional(leftCondition, Subtract(leftConsequent, subtrahend), NaN()));
+            }
+
+            if (IsConstraint(subtrahend, out var rightCondition, out var rightConsequent))
+            {
+                return this.Visit(Conditional(rightCondition, Subtract(minuend, rightConsequent), NaN()));
+            }
+
             // Convert "0 - a" into "-a"
             if (IsZero(minuend))
             {
@@ -336,6 +362,16 @@
 
         private Expression SimplifyMultiply(Expression multiplicand, Expression multiplier)
         {
+            if (IsConstraint(multiplicand, out var leftCondition, out var leftConsequent))
+            {
+                return this.Visit(Conditional(leftCondition, Multiply(leftConsequent, multiplier), NaN()));
+            }
+
+            if (IsConstraint(multiplier, out var rightCondition, out var rightConsequent))
+            {
+                return this.Visit(Conditional(rightCondition, Multiply(multiplicand, rightConsequent), NaN()));
+            }
+
             // Convert "0 * a" into "0"
             if (IsZero(multiplicand))
             {
@@ -437,6 +473,16 @@
 
         private Expression SimplifyDivide(Expression dividend, Expression divisor)
         {
+            if (IsConstraint(dividend, out var leftCondition, out var leftConsequent))
+            {
+                return this.Visit(Conditional(leftCondition, Divide(leftConsequent, divisor), NaN()));
+            }
+
+            if (IsConstraint(divisor, out var rightCondition, out var rightConsequent))
+            {
+                return this.Visit(Conditional(rightCondition, Divide(dividend, rightConsequent), NaN()));
+            }
+
             // Maintain "a / 0"
             if (IsZero(divisor))
             {
@@ -471,6 +517,16 @@
 
         private Expression SimplifyPower(Expression @base, Expression exponent)
         {
+            if (IsConstraint(@base, out var leftCondition, out var leftConsequent))
+            {
+                return this.Visit(Conditional(leftCondition, Pow(leftConsequent, exponent), NaN()));
+            }
+
+            if (IsConstraint(exponent, out var rightCondition, out var rightConsequent))
+            {
+                return this.Visit(Conditional(rightCondition, Pow(@base, rightConsequent), NaN()));
+            }
+
             // Convert "1 ^ a" to "1"
             if (IsOne(@base))
             {
@@ -523,6 +579,21 @@
             }
 
             return Pow(@base, exponent);
+        }
+
+        private Expression SimplifyConditional(Expression condition, Expression consequent, Expression alternative)
+        {
+            if (IsNaN(alternative))
+            {
+                if (consequent.NodeType == ExpressionType.Conditional &&
+                    consequent is ConditionalExpression conditionalConsequent &&
+                    IsNaN(conditionalConsequent.IfFalse))
+                {
+                    return this.Visit(Conditional(And(condition, conditionalConsequent.Test), conditionalConsequent.IfTrue, conditionalConsequent.IfFalse));
+                }
+            }
+
+            return Conditional(condition, consequent, alternative);
         }
 
         private Expression SimplifyCompare(Expression left, ExpressionType op, Expression right)

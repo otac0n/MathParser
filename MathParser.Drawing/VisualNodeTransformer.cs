@@ -169,8 +169,7 @@ namespace MathParser.Drawing
             }
 
             if (innerEffectiveType == ExpressionType.Conditional &&
-                inner is ConditionalExpression conditional &&
-                !Operations.IsNaN(conditional.IfFalse))
+                !Operations.IsConstraint(inner, out _, out _))
             {
                 // A conditional with an alternative renders its own left bracket.
                 return false;
