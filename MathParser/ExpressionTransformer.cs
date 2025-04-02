@@ -369,7 +369,6 @@ namespace MathParser
         /// <param name="effectiveType">The effective type of the node.</param>
         /// <param name="node">The node to inspect.</param>
         /// <returns>The effective type of the leftmost exposed operator.</returns>
-        /// <remarks>For conditionals, they may be rendered with half-open syntax like ``.</remarks>
         protected virtual ExpressionType GetLeftExposedType(ExpressionType effectiveType, Expression node) => effectiveType;
 
         /// <summary>
@@ -398,13 +397,17 @@ namespace MathParser
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
         protected virtual bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
-            var exposed = this.GetRightExposedType(innerEffectiveType, inner);
-            var exposedPrecedence = GetPrecedence(exposed); // Assumed to be a lower precedence than innerEffectiveType...
-
             var outerPrecedence = GetPrecedence(outerEffectiveType);
             var innerPrecedence = GetPrecedence(innerEffectiveType);
             var innerAssociativity = GetAssociativity(innerPrecedence);
             var fullyAssociative = IsFullyAssociative(innerEffectiveType, outerEffectiveType);
+            var exposed = this.GetRightExposedType(innerEffectiveType, inner); // Assumed to be a lower precedence than innerEffectiveType if changed.
+            var exposedPrecedence = GetPrecedence(exposed);
+
+            if (exposedPrecedence != innerPrecedence)
+            {
+                return true;
+            }
 
             if (outerPrecedence < innerPrecedence || fullyAssociative)
             {
@@ -432,13 +435,17 @@ namespace MathParser
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
         protected virtual bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
-            var exposed = this.GetLeftExposedType(innerEffectiveType, inner);
-            var exposedPrecedence = GetPrecedence(exposed); // Assumed to be a lower precedence than innerEffectiveType...
-
             var outerPrecedence = GetPrecedence(outerEffectiveType);
             var innerPrecedence = GetPrecedence(innerEffectiveType);
             var innerAssociativity = GetAssociativity(innerPrecedence);
             var fullyAssociative = IsFullyAssociative(outerEffectiveType, innerEffectiveType);
+            var exposed = this.GetLeftExposedType(innerEffectiveType, inner); // Assumed to be a lower precedence than innerEffectiveType if changed.
+            var exposedPrecedence = GetPrecedence(exposed);
+
+            if (exposedPrecedence != innerPrecedence)
+            {
+                return true;
+            }
 
             if (outerPrecedence < innerPrecedence || fullyAssociative)
             {

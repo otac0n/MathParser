@@ -110,10 +110,16 @@ namespace MathParser.Drawing
         /// <inheritdoc/>
         protected override ExpressionType GetRightExposedType(ExpressionType effectiveType, Expression node)
         {
-            if (node is BinaryExpression binary)
+            if (node is BinaryExpression binary && !(node.NodeType is ExpressionType.Power or ExpressionType.Divide))
             {
-                if ((binary.Right is ConditionalExpression conditional && !Operations.IsNaN(conditional.IfFalse)) ||
-                    this.GetRightExposedType(binary.Right) == ExpressionType.Conditional)
+                if (binary.Right is ConditionalExpression conditional)
+                {
+                    if (!Operations.IsNaN(conditional.IfFalse))
+                    {
+                        return ExpressionType.Conditional;
+                    }
+                }
+                else if (this.GetRightExposedType(binary.Right) == ExpressionType.Conditional)
                 {
                     return ExpressionType.Conditional;
                 }
