@@ -1,4 +1,4 @@
-﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+﻿// Copyright © John & Layla Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
 
 namespace MathParser
 {
@@ -56,10 +56,16 @@ namespace MathParser
                     nameof(Math.Sqrt) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Multiply(Expression.Constant(0.5), Divide(expression, methodCall.Arguments[0]))),
                     nameof(Math.Exp) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), expression),
                     nameof(Math.Log) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), methodCall.Arguments[0]), // TODO: Domain of the function is Reals > 0.
-                    nameof(Math.Pow) when methodCall.Arguments.Count == 2 => Multiply(expression, Derivative(Multiply(Log(methodCall.Arguments[0]), methodCall.Arguments[1]), variable)),
+                    nameof(Math.Pow) when methodCall.Arguments.Count == 2 =>
+                        IsConstantValue(methodCall.Arguments[1], out var constant)
+                            ? Multiply(Derivative(methodCall.Arguments[0], variable), Multiply(constant, Pow(methodCall.Arguments[0], Subtract(constant, One()))))
+                            : Multiply(expression, Derivative(Multiply(Log(methodCall.Arguments[0]), methodCall.Arguments[1]), variable)),
                     _ => throw new NotImplementedException($"The method, {methodCall.Method}, is not implemented."),
                 },
-                ExpressionType.Power when expression is BinaryExpression binary => Multiply(expression, Derivative(Multiply(Log(binary.Left), binary.Right), variable)),
+                ExpressionType.Power when expression is BinaryExpression binary =>
+                        IsConstantValue(binary.Right, out var constant)
+                            ? Multiply(Derivative(binary.Left, variable), Multiply(constant, Pow(binary.Left, Subtract(constant, One()))))
+                            : Multiply(expression, Derivative(Multiply(Log(binary.Left), binary.Right), variable)),
                 _ => throw new NotImplementedException($"The {expression.NodeType}, {expression}, is not implemented."),
             };
 
@@ -300,6 +306,20 @@ namespace MathParser
 
             @base = null;
             exponent = null;
+            return false;
+        }
+
+        public static bool IsSqrt(Expression expression, [NotNullWhen(true)] out Expression? @base)
+        {
+            if (expression.NodeType == ExpressionType.Call && expression is MethodCallExpression methodCall &&
+                methodCall.Object is null && methodCall.Method.Name == nameof(Math.Sqrt) && methodCall.Arguments.Count == 1 &&
+                (methodCall.Method.DeclaringType == typeof(Math) || methodCall.Method.DeclaringType == typeof(Complex)))
+            {
+                @base = methodCall.Arguments[0];
+                return true;
+            }
+
+            @base = null;
             return false;
         }
 

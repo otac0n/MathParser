@@ -455,6 +455,12 @@
                 return dividend;
             }
 
+            // Convert "a / √2" into "a√2 / 2"
+            if (IsSqrt(divisor, out var @base) && IsConstantValue(@base, out var constant) && constant.Value is double value && value >= 0)
+            {
+                return this.Visit(Divide(Multiply(dividend, divisor), @base));
+            }
+
             if (dividend == divisor)
             {
                 return this.Visit(Conditional(NotEqual(divisor, Zero()), One(), NaN()));
