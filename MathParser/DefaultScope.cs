@@ -49,6 +49,18 @@ namespace MathParser
             { (double x) => Math.Sqrt(x), WKF.Exponential.Sqrt },
             { (Complex x) => Complex.Log(x), WKF.Exponential.Ln },
             { (double x) => Math.Log(x), WKF.Exponential.Ln },
+            { (double x) => Math.Sin(x), WKF.Trigonometric.Sine },
+            { (Complex x) => Complex.Sin(x), WKF.Trigonometric.Sine },
+            { (double x) => Math.Cos(x), WKF.Trigonometric.Cosine },
+            { (Complex x) => Complex.Cos(x), WKF.Trigonometric.Cosine },
+            { (double x) => Math.Tan(x), WKF.Trigonometric.Tangent },
+            { (Complex x) => Complex.Tan(x), WKF.Trigonometric.Tangent },
+            { (double x) => Math.Sinh(x), WKF.Hyperbolic.Sine },
+            { (Complex x) => Complex.Sinh(x), WKF.Hyperbolic.Sine },
+            { (double x) => Math.Cosh(x), WKF.Hyperbolic.Cosine },
+            { (Complex x) => Complex.Cosh(x), WKF.Hyperbolic.Cosine },
+            { (double x) => Math.Tanh(x), WKF.Hyperbolic.Tangent },
+            { (Complex x) => Complex.Tanh(x), WKF.Hyperbolic.Tangent },
         };
 
         private class WellKnownFunctionMapping : ExpressionPatternList<KnownFunction>

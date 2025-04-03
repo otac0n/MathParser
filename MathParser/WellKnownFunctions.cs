@@ -88,5 +88,53 @@ namespace MathParser
             /// <remarks>The logarithm base <see cref="Math.E"/> of the provided argument. Implemented by <see cref="Math.Log(double)"/>.</remarks>
             public static KnownFunction Ln { get; } = new("ln");
         }
+
+        /// <summary>
+        /// Trigonometric functions.
+        /// </summary>
+        public static class Trigonometric
+        {
+            /// <summary>
+            /// Gets an object that represents the sine function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Sin"/>.</remarks>
+            public static KnownFunction Sine { get; } = new("sin");
+
+            /// <summary>
+            /// Gets an object that represents the cosine function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Cos"/>.</remarks>
+            public static KnownFunction Cosine { get; } = new("cos");
+
+            /// <summary>
+            /// Gets an object that represents the tangent function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Tan"/>.</remarks>
+            public static KnownFunction Tangent { get; } = new("tan");
+        }
+
+        /// <summary>
+        /// Hyperbolic functions.
+        /// </summary>
+        public static class Hyperbolic
+        {
+            /// <summary>
+            /// Gets an object that represents the hyperbolic sine function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Sinh"/>.</remarks>
+            public static KnownFunction Sine { get; } = new("sinh");
+
+            /// <summary>
+            /// Gets an object that represents the hyperbolic cosine function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Cosh"/>.</remarks>
+            public static KnownFunction Cosine { get; } = new("cosh");
+
+            /// <summary>
+            /// Gets an object that represents the hyperbolic tangent function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Tanh"/>.</remarks>
+            public static KnownFunction Tangent { get; } = new("tanh");
+        }
     }
 }

@@ -42,15 +42,15 @@ namespace MathParser
                 ExpressionType.Call when expression is MethodCallExpression methodCall && methodCall.Object is null && (methodCall.Method.DeclaringType == typeof(Math) || methodCall.Method.DeclaringType == typeof(Complex)) => methodCall.Method.Name switch
                 {
                     nameof(Math.Abs) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Divide(expression, methodCall.Arguments[0])),
-                    nameof(Math.Sin) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), MathMethod(nameof(Math.Cos), methodCall.Arguments[0])),
-                    nameof(Math.Cos) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Negate(MathMethod(nameof(Math.Sin), methodCall.Arguments[0]))),
-                    nameof(Math.Tan) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Pow(MathMethod(nameof(Math.Cos), methodCall.Arguments[0]), Expression.Constant(2.0))),
+                    nameof(Math.Sin) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Cos(methodCall.Arguments[0])),
+                    nameof(Math.Cos) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Negate(Sin(methodCall.Arguments[0]))),
+                    nameof(Math.Tan) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Pow(Cos(methodCall.Arguments[0]), Expression.Constant(2.0))),
                     nameof(Math.Asin) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Sqrt(Subtract(Expression.Constant(1.0), Pow(methodCall.Arguments[0], Expression.Constant(2.0))))),
                     nameof(Math.Acos) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Negate(Sqrt(Subtract(Expression.Constant(1.0), Pow(methodCall.Arguments[0], Expression.Constant(2.0)))))),
                     nameof(Math.Atan) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Add(Pow(methodCall.Arguments[0], Expression.Constant(2.0)), Expression.Constant(1.0))),
-                    nameof(Math.Sinh) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), MathMethod(nameof(Math.Cosh), methodCall.Arguments[0])),
-                    nameof(Math.Cosh) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), MathMethod(nameof(Math.Sinh), methodCall.Arguments[0])),
-                    nameof(Math.Tanh) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Pow(MathMethod(nameof(Math.Cosh), methodCall.Arguments[0]), Expression.Constant(2.0))),
+                    nameof(Math.Sinh) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Cosh(methodCall.Arguments[0])),
+                    nameof(Math.Cosh) when methodCall.Arguments.Count == 1 => Multiply(Derivative(methodCall.Arguments[0], variable), Sinh(methodCall.Arguments[0])),
+                    nameof(Math.Tanh) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Pow(Cosh(methodCall.Arguments[0]), Expression.Constant(2.0))),
                     nameof(Math.Asinh) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Sqrt(Add(Pow(methodCall.Arguments[0], Expression.Constant(2.0)), Expression.Constant(1.0)))),
                     nameof(Math.Acosh) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Sqrt(Subtract(Pow(methodCall.Arguments[0], Expression.Constant(2.0)), Expression.Constant(1.0)))), // TODO: Domain of the function is Reals > 1
                     nameof(Math.Atanh) when methodCall.Arguments.Count == 1 => Divide(Derivative(methodCall.Arguments[0], variable), Subtract(Expression.Constant(1.0), Pow(methodCall.Arguments[0], Expression.Constant(2.0)))), // TODO: Domain of the function is |Reals| < 1
@@ -143,30 +143,29 @@ namespace MathParser
 
         public static Expression Divide(Expression dividend, Expression divisor) => Bind(WKF.Arithmetic.Divide, dividend, divisor);
 
-        public static Expression Pow(Expression @base, Expression exponent)
-        {
-            if (@base.Type == typeof(double) && exponent.Type == typeof(double))
-            {
-                return Expression.Power(@base, exponent);
-            }
-
-            return Bind(WKF.Exponential.Pow, @base, exponent);
-        }
+        public static Expression Pow(Expression @base, Expression exponent) => Bind(WKF.Exponential.Pow, @base, exponent);
 
         public static Expression Exp(Expression exponent) => Bind(WKF.Exponential.Exp, exponent);
 
-        public static Expression Sqrt(Expression @base)
-        {
-            if (TryConvert(@base, false, (double value) => value > 0))
-            {
-                return MathMethod(nameof(Math.Sqrt), @base);
-            }
-
-            @base = ConvertIfLower(@base, to: typeof(Complex));
-            return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Sqrt), [@base.Type]), @base);
-        }
+        public static Expression Sqrt(Expression @base) =>
+            Bind(WKF.Exponential.Sqrt,
+                TryConvert(@base, false, (double value) => value >= 0)
+                    ? @base
+                    : ConvertIfLower(@base, to: typeof(Complex)));
 
         public static Expression Log(Expression expression) => Bind(WKF.Exponential.Ln, expression);
+
+        public static Expression Sin(Expression expression) => Bind(WKF.Trigonometric.Sine, expression);
+
+        public static Expression Cos(Expression expression) => Bind(WKF.Trigonometric.Cosine, expression);
+
+        public static Expression Tan(Expression expression) => Bind(WKF.Trigonometric.Tangent, expression);
+
+        public static Expression Sinh(Expression expression) => Bind(WKF.Hyperbolic.Sine, expression);
+
+        public static Expression Cosh(Expression expression) => Bind(WKF.Hyperbolic.Cosine, expression);
+
+        public static Expression Tanh(Expression expression) => Bind(WKF.Hyperbolic.Tangent, expression);
 
         public static Expression Compare(Expression left, ExpressionType op, Expression right)
         {
@@ -369,12 +368,5 @@ namespace MathParser
         public static bool IsTrue(Expression expression) => TryConvert(expression, false, (bool b) => b);
 
         public static bool IsFalse(Expression expression) => TryConvert(expression, false, (bool b) => !b);
-
-        private static MethodCallExpression MathMethod(string name, params Expression[] arguments)
-        {
-            var types = Array.ConvertAll(arguments, a => a.Type);
-            var method = typeof(Math).GetMethod(name, BindingFlags.Public | BindingFlags.Static, types);
-            return Expression.Call(null, method, arguments);
-        }
     }
 }
