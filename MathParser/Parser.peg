@@ -16,51 +16,51 @@
 }
 
 math <Expression>
-  = _ value:statement _ EOF { value }
+    = _ value:statement _ EOF { value }
 
 statement <Expression>
-  = lambda
-  / disjunction
-  / conditional
+    = lambda
+    / disjunction
+    / conditional
 
 lambda <LambdaExpression>
-  = "D(" _ lambda:lambda _ ")" { Operations.Derivative(lambda) }
-  / name:identifier _ names:nameTuple _ ("==" / "=" / ":=") _ body:conditional #{ foreach(var p in names) CreateVariable(state, p); } { Expression.Lambda(body, name, names.Select(p => (ParameterExpression)state[p])) }
+    = "D(" _ lambda:lambda _ ")" { Operations.Derivative(lambda) }
+    / name:identifier _ names:nameTuple _ ("==" / "=" / ":=") _ body:conditional #{ foreach(var p in names) CreateVariable(state, p); } { Expression.Lambda(body, name, names.Select(p => (ParameterExpression)state[p])) }
 
 nameTuple <IList<string>>
-  = "(" _ names:identifier<1,,_ "," _> _ ")" { names }
+    = "(" _ names:identifier<1,,_ "," _> _ ")" { names }
 
 disjunction <Expression> -memoize
-  = left:disjunction _ ("||" / "|" / "∨" / "or") _ right:conjunction { Operations.Or(left, right) }
-  / conjunction
+    = left:disjunction _ ("||" / "|" / "∨" / "or") _ right:conjunction { Operations.Or(left, right) }
+    / conjunction
 
 conjunction <Expression> -memoize
-  = left:conjunction _ ("&&" / "&" / "∧" / "and") _ right:conjunctionRest { Operations.And(left, right) }
-  / conjunctionRest
+    = left:conjunction _ ("&&" / "&" / "∧" / "and") _ right:conjunctionRest { Operations.And(left, right) }
+    / conjunctionRest
 
 conjunctionRest
-  = complement
-  / equality
+    = complement
+    / equality
 
 complement <Expression>
-  =  ("not" / "!" / "¬") _ complement:complement { Operations.Not(complement) }
-  / atomic
+    =  ("not" / "!" / "¬") _ complement:complement { Operations.Not(complement) }
+    / atomic
 
 atomic <Expression>
-  = [Tt] "rue" { Expression.Constant(true) }
-  / [Ff] "alse" { Expression.Constant(false) }
-  / "(" _ disjunction:disjunction _ ")" { disjunction }
+    = [Tt] "rue" { Expression.Constant(true) }
+    / [Ff] "alse" { Expression.Constant(false) }
+    / "(" _ disjunction:disjunction _ ")" { disjunction }
 
 equality <Expression>
-  = left:additive _ op:equalityOperator _ right:additive { Operations.Compare(left, op, right) }
+    = left:additive _ op:equalityOperator _ right:additive { Operations.Compare(left, op, right) }
 
 equalityOperator <ExpressionType>
-  = ("==" / "=" / ":=")        { ExpressionType.Equal }
-  / ("!=" / "~=" / "<>" / "≠") { ExpressionType.NotEqual }
-  / (">=" / "≥")               { ExpressionType.GreaterThanOrEqual }
-  / ">"                        { ExpressionType.GreaterThan }
-  / ("<=" / "≤")               { ExpressionType.LessThanOrEqual }
-  / "<"                        { ExpressionType.LessThan }
+    = ("==" / "=" / ":=")        { ExpressionType.Equal }
+    / ("!=" / "~=" / "<>" / "≠") { ExpressionType.NotEqual }
+    / (">=" / "≥")               { ExpressionType.GreaterThanOrEqual }
+    / ">"                        { ExpressionType.GreaterThan }
+    / ("<=" / "≤")               { ExpressionType.LessThanOrEqual }
+    / "<"                        { ExpressionType.LessThan }
 
 conditional <Expression>
     = additive:additive _  (";" / "if") _ condition:disjunction { Operations.Conditional(condition, additive, Operations.NaN()) }
@@ -130,5 +130,5 @@ keyword
 _ = [ \t\r\n]*
 
 EOF
-  = !.
-  / unexpected:. #error{ "Unexpected character '" + unexpected + "'." }
+    = !.
+    / unexpected:. #error{ "Unexpected character '" + unexpected + "'." }
