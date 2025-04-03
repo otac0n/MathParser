@@ -1,11 +1,10 @@
 ﻿namespace MathParser
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Numerics;
     using static Operations;
+    using WKF = WellKnownFunctions;
 
     public class SimplifyVisitor : ExpressionVisitor
     {
@@ -74,24 +73,25 @@
             var simpleObject = node.Object == null ? null : this.Visit(node.Object);
             var simpleArguments = node.Arguments.Select(a => this.Visit(a)).ToList();
 
-            if (node.Object is null && (node.Method.DeclaringType == typeof(Math) || node.Method.DeclaringType == typeof(Complex)))
+            if (TryBind(node.Method, out var knownFunction))
             {
-                switch (node.Method.Name)
+                if (knownFunction == WKF.Exponential.Pow && simpleArguments.Count == 2)
                 {
-                    case nameof(Math.Pow) when simpleArguments.Count == 2:
-                        return this.SimplifyPower(simpleArguments[0], simpleArguments[1]);
-
-                    case nameof(Math.Log) when simpleArguments.Count == 1:
-                        if (IsConstantEqual(simpleArguments[0], Math.E))
-                        {
-                            return One();
-                        }
-
-                        break;
+                    return this.SimplifyPower(simpleArguments[0], simpleArguments[1]);
                 }
+                else if (knownFunction == WKF.Exponential.Ln && simpleArguments.Count == 1)
+                {
+                    if (IsConstantEqual(simpleArguments[0], Math.E))
+                    {
+                        return One();
+                    }
+                }
+
+                return Bind(knownFunction, simpleArguments);
             }
 
-            return node.Update(simpleObject, simpleArguments);
+            var parameters = node.Method.GetParameters();
+            return node.Update(simpleObject, [.. simpleArguments.Select((a, i) => ConvertIfLower(a, to: parameters[i].ParameterType))]);
         }
 
         /// <inheritdoc/>

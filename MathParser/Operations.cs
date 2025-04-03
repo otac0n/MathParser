@@ -222,14 +222,16 @@ namespace MathParser
                     select m).FirstOrDefault();
         }
 
-        public static Expression Bind(KnownFunction function, params Expression[] arguments)
+        public static Expression Bind(KnownFunction function, params Expression[] arguments) => Bind(function, (IList<Expression>)arguments);
+
+        public static Expression Bind(KnownFunction function, IList<Expression> arguments)
         {
             var match = (from known in DefaultScope.KnownMethods
                          where known.Value == function
                          let m = known.Key
                          let mp = m.Parameters
-                         where mp.Count == arguments.Length
-                         let parameterMatches = (from i in Enumerable.Range(0, arguments.Length)
+                         where mp.Count == arguments.Count
+                         let parameterMatches = (from i in Enumerable.Range(0, arguments.Count)
                                                  select new
                                                  {
                                                      ParameterType = mp[i].Type,
@@ -244,14 +246,43 @@ namespace MathParser
             var (lambda, parameters) = match;
 
             return new ReplaceVisitor(
-                Enumerable.Range(0, arguments.Length)
+                Enumerable.Range(0, arguments.Count)
                     .ToDictionary(
                         i => (Expression)lambda.Parameters[i],
                         i => parameters[i].Assignable ? arguments[i] : ConvertIfLower(arguments[i], to: parameters[i].ParameterType)))
                 .Visit(lambda.Body);
         }
 
-        public static bool Bind(MethodInfo method, [NotNullWhen(true)] out KnownFunction? knownMethod)
+        public static void Bind(MethodCallExpression methodCall, out KnownFunction knownMethod, out IList<Expression>? arguments)
+        {
+            if (!TryBind(methodCall, out knownMethod, out arguments))
+            {
+                throw new MissingMethodException($"Could not find a binding for '{methodCall.Method}'.");
+            }
+        }
+
+        public static bool TryBind(MethodCallExpression methodCall, [NotNullWhen(true)] out KnownFunction? knownMethod, [NotNullWhen(true)] out IList<Expression>? arguments)
+        {
+            var method = methodCall.Method;
+            if (TryBind(method, out knownMethod))
+            {
+                arguments = method.IsStatic ? methodCall.Arguments : [methodCall.Object!, .. methodCall.Arguments];
+                return true;
+            }
+
+            arguments = null;
+            return false;
+        }
+
+        public static void Bind(MethodInfo method, out KnownFunction knownMethod)
+        {
+            if (!TryBind(method, out knownMethod))
+            {
+                throw new MissingMethodException($"Could not find a binding for '{method}'.");
+            }
+        }
+
+        public static bool TryBind(MethodInfo method, [NotNullWhen(true)] out KnownFunction? knownMethod)
         {
             knownMethod = (from known in DefaultScope.KnownMethods
                            where known.Key.Body is MethodCallExpression methodCall && methodCall.Method == method
@@ -307,12 +338,14 @@ namespace MathParser
             }
 
             if (expression.NodeType == ExpressionType.Call && expression is MethodCallExpression methodCall &&
-                methodCall.Object is null && methodCall.Method.Name == nameof(Math.Pow) && methodCall.Arguments.Count == 2 &&
-                (methodCall.Method.DeclaringType == typeof(Math) || methodCall.Method.DeclaringType == typeof(Complex)))
+                TryBind(methodCall, out var knowFunction, out var arguments))
             {
-                @base = methodCall.Arguments[0];
-                exponent = methodCall.Arguments[1];
-                return true;
+                if (knowFunction == WKF.Exponential.Pow && arguments.Count == 2)
+                {
+                    @base = arguments[0];
+                    exponent = arguments[1];
+                    return true;
+                }
             }
 
             @base = null;
@@ -323,11 +356,13 @@ namespace MathParser
         public static bool IsSqrt(Expression expression, [NotNullWhen(true)] out Expression? @base)
         {
             if (expression.NodeType == ExpressionType.Call && expression is MethodCallExpression methodCall &&
-                methodCall.Object is null && methodCall.Method.Name == nameof(Math.Sqrt) && methodCall.Arguments.Count == 1 &&
-                (methodCall.Method.DeclaringType == typeof(Math) || methodCall.Method.DeclaringType == typeof(Complex)))
+                TryBind(methodCall, out var knowFunction, out var arguments))
             {
-                @base = methodCall.Arguments[0];
-                return true;
+                if (knowFunction == WKF.Exponential.Sqrt && arguments.Count == 1)
+                {
+                    @base = arguments[0];
+                    return true;
+                }
             }
 
             @base = null;

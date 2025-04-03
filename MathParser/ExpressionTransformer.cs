@@ -642,10 +642,71 @@ namespace MathParser
             throw new NotSupportedException($"The member '{node.Member.DeclaringType.FullName}.{node.Member.Name}' is not supported for expression transformation.");
         }
 
+        protected virtual Expression VisitKnownFunction(KnownFunction function, Expression node, IList<Expression> arguments)
+        {
+            var converted = new T[arguments.Count];
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                this.Visit(arguments[i]);
+                converted[i] = this.Result;
+            }
+
+            if (function == WKF.Exponential.Sqrt && arguments.Count == 1)
+            {
+                var inner = converted[0];
+                var @base = arguments[0];
+                var baseEffectiveType = this.GetEffectiveNodeType(@base);
+
+                if (this.NeedsLeftBrackets(ExpressionType.Power, node, baseEffectiveType, @base))
+                {
+                    inner = this.AddBrackets(inner);
+                }
+
+                this.Result = this.CreateRadical(inner);
+                return node;
+            }
+            else if (function == WKF.Exponential.Exp && arguments.Count == 1)
+            {
+                var @base = this.FormatReal(double.E);
+                var baseEffectiveType = this.GetEffectiveTypeReal(double.E);
+
+                if (this.NeedsLeftBrackets(ExpressionType.Power, node, baseEffectiveType, null))
+                {
+                    @base = this.AddBrackets(@base);
+                }
+
+                var inner = converted[0];
+                var power = arguments[0];
+                var powerEffectiveType = this.GetEffectiveNodeType(power);
+
+                if (this.NeedsRightBrackets(ExpressionType.Power, node, powerEffectiveType, power))
+                {
+                    inner = this.AddBrackets(inner);
+                }
+
+                this.Result = this.CreatePower(@base, inner);
+                return node;
+            }
+
+            // TODO: Scope lookup.
+            return null!; // throw new NotSupportedException($"The known function '{function.Name}' is not supported for expression transformation with {arguments.Count} arguments.");
+        }
+
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             ArgumentNullException.ThrowIfNull(node);
+
+            if (Operations.TryBind(node, out var knownFunction, out var functionArguments))
+            {
+                var success = this.VisitKnownFunction(knownFunction, node, functionArguments);
+
+                // TODO: Remove check after refactoring.
+                if (success != null)
+                {
+                    return success;
+                }
+            }
 
             var effectiveType = this.GetEffectiveNodeType(node);
             if (node.Arguments.Count == 2 && effectiveType != ExpressionType.Call)
@@ -713,41 +774,7 @@ namespace MathParser
                     arguments[i] = this.Result;
                 }
 
-                if (node.Method.Name == nameof(Math.Sqrt) && arguments.Length == 1)
-                {
-                    var inner = arguments[0];
-                    var power = node.Arguments[0];
-                    var powerEffectiveType = this.GetEffectiveNodeType(power);
-
-                    if (this.NeedsLeftBrackets(ExpressionType.Power, node, powerEffectiveType, power))
-                    {
-                        inner = this.AddBrackets(inner);
-                    }
-
-                    this.Result = this.CreateRadical(inner);
-                }
-                else if (node.Method.Name == nameof(Math.Exp) && arguments.Length == 1)
-                {
-                    var @base = this.FormatReal(double.E);
-                    var baseEffectiveType = this.GetEffectiveTypeReal(double.E);
-
-                    if (this.NeedsLeftBrackets(ExpressionType.Power, node, baseEffectiveType, null))
-                    {
-                        @base = this.AddBrackets(@base);
-                    }
-
-                    var inner = arguments[0];
-                    var power = node.Arguments[0];
-                    var powerEffectiveType = this.GetEffectiveNodeType(power);
-
-                    if (this.NeedsRightBrackets(ExpressionType.Power, node, powerEffectiveType, power))
-                    {
-                        inner = this.AddBrackets(inner);
-                    }
-
-                    this.Result = this.CreatePower(@base, inner);
-                }
-                else if (node.Method.Name == nameof(Math.Ceiling) && arguments.Length == 1)
+                if (node.Method.Name == nameof(Math.Ceiling) && arguments.Length == 1)
                 {
                     this.Result = this.AddBrackets("⌈", arguments[0], "⌉");
                 }
@@ -919,7 +946,7 @@ namespace MathParser
             {
                 var node = (MethodCallExpression)expression;
 
-                if (Operations.Bind(node.Method, out var knownMethod))
+                if (Operations.TryBind(node.Method, out var knownMethod))
                 {
                     if (MethodEquivalence.TryGetValue(knownMethod, out var knownType))
                     {
