@@ -67,7 +67,8 @@ namespace MathParser
                 ["op_Multiply"] = ExpressionType.Multiply,
                 ["op_Division"] = ExpressionType.Divide,
                 ["op_Modulus"] = ExpressionType.Modulo,
-                ["op_Exponent"] = ExpressionType.Power,
+                ["op_Exponent"] = ExpressionType.Power, // VB
+                ["op_Exponentiation"] = ExpressionType.Power, // F#
                 ["op_CheckedAddition"] = ExpressionType.AddChecked,
                 ["op_CheckedSubtraction"] = ExpressionType.SubtractChecked,
                 ["op_CheckedMultiply"] = ExpressionType.MultiplyChecked,
