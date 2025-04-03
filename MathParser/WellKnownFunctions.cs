@@ -128,6 +128,44 @@ namespace MathParser
         }
 
         /// <summary>
+        /// Complex maniplation functions.
+        /// </summary>
+        public static class Complex
+        {
+            /// <summary>
+            /// Gets an object that represents the real-part function.
+            /// </summary>
+            /// <remarks>
+            /// Implemented by <see cref="System.Numerics.Complex.Real"/>.
+            /// </remarks>
+            public static KnownFunction RealPart { get; } = new("Re");
+
+            /// <summary>
+            /// Gets an object that represents the imaginary-part function.
+            /// </summary>
+            /// <remarks>
+            /// Implemented by <see cref="System.Numerics.Complex.Imaginary"/>.
+            /// </remarks>
+            public static KnownFunction ImaginaryPart { get; } = new("Im");
+
+            /// <summary>
+            /// Gets an object that represents the argument function.
+            /// </summary>
+            /// <remarks>
+            /// Implemented by <see cref="System.Numerics.Complex.Phase"/>.
+            /// </remarks>
+            public static KnownFunction Argument { get; } = new("arg");
+
+            /// <summary>
+            /// Gets an object that represents the conjugate function.
+            /// </summary>
+            /// <remarks>
+            /// Implemented by <see cref="System.Numerics.Complex.Conjugate"/>.
+            /// </remarks>
+            public static KnownFunction Conjugate { get; } = new("conj");
+        }
+
+        /// <summary>
         /// Trigonometric functions.
         /// </summary>
         public static class Trigonometric

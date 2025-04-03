@@ -66,6 +66,10 @@ namespace MathParser
             { (double x) => Math.Ceiling(x), WKF.Piecewise.Ceiling },
             { (double x) => Math.Floor(x), WKF.Piecewise.Floor },
             { (double x) => Math.Sign(x), WKF.Piecewise.Sign },
+            { (Complex x) => x.Real, WKF.Complex.RealPart },
+            { (Complex x) => x.Imaginary, WKF.Complex.ImaginaryPart },
+            { (Complex x) => x.Phase, WKF.Complex.Argument },
+            { (Complex x) => Complex.Conjugate(x), WKF.Complex.Conjugate },
         };
 
         private class WellKnownFunctionMapping : ExpressionPatternList<KnownFunction>
