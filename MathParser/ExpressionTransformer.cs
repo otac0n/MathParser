@@ -4,9 +4,11 @@ namespace MathParser
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq.Expressions;
     using System.Numerics;
+    using System.Reflection;
 
     /// <summary>
     /// Indicates the associativity of an operator.
@@ -38,28 +40,16 @@ namespace MathParser
     /// </remarks>
     public abstract class ExpressionTransformer<T> : ExpressionVisitor
     {
-        private static readonly MethodList<ExpressionType> KnownMethods = new()
+        private static readonly Dictionary<KnownFunction, ExpressionType> MethodEquivalence = new()
         {
-            { (Complex l, double r) => Complex.Add(l, r), ExpressionType.Add },
-            { (double l, Complex r) => Complex.Add(l, r), ExpressionType.Add },
-            { (Complex l, Complex r) => Complex.Add(l, r), ExpressionType.Add },
-            { (Complex l, double r) => Complex.Subtract(l, r), ExpressionType.Subtract },
-            { (double l, Complex r) => Complex.Subtract(l, r), ExpressionType.Subtract },
-            { (Complex l, Complex r) => Complex.Subtract(l, r), ExpressionType.Subtract },
-            { (Complex l, double r) => Complex.Multiply(l, r), ExpressionType.Multiply },
-            { (double l, Complex r) => Complex.Multiply(l, r), ExpressionType.Multiply },
-            { (Complex l, Complex r) => Complex.Multiply(l, r), ExpressionType.Multiply },
-            { (Complex l, double r) => Complex.Divide(l, r), ExpressionType.Divide },
-            { (double l, Complex r) => Complex.Divide(l, r), ExpressionType.Divide },
-            { (Complex l, Complex r) => Complex.Divide(l, r), ExpressionType.Divide },
-            { (Complex l, Complex r) => Complex.Pow(l, r), ExpressionType.Power },
-            { (Complex l, double r) => Complex.Pow(l, r), ExpressionType.Power },
-            { Math.Pow, ExpressionType.Power },
-            { Complex.Exp, ExpressionType.Power },
-            { Math.Exp, ExpressionType.Power },
-            { Complex.Sqrt, ExpressionType.Power },
-            { Math.Sqrt, ExpressionType.Power },
-            { Complex.Negate, ExpressionType.Negate },
+            [WellKnownFunctions.Negate] = ExpressionType.Negate,
+            [WellKnownFunctions.Add] = ExpressionType.Add,
+            [WellKnownFunctions.Subtract] = ExpressionType.Subtract,
+            [WellKnownFunctions.Multiply] = ExpressionType.Multiply,
+            [WellKnownFunctions.Divide] = ExpressionType.Divide,
+            [WellKnownFunctions.Pow] = ExpressionType.Power,
+            [WellKnownFunctions.Exp] = ExpressionType.Power,
+            [WellKnownFunctions.Sqrt] = ExpressionType.Power,
         };
 
         /// <summary>
@@ -930,9 +920,12 @@ namespace MathParser
             {
                 var node = (MethodCallExpression)expression;
 
-                if (KnownMethods.TryGetValue(node.Method, out var knownType))
+                if (Operations.Bind(node.Method, out var knownMethod))
                 {
-                    return knownType;
+                    if (MethodEquivalence.TryGetValue(knownMethod, out var knownType))
+                    {
+                        return knownType;
+                    }
                 }
             }
             else if (

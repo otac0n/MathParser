@@ -132,35 +132,15 @@ namespace MathParser
             return Expression.Call(typeof(Math).GetMethod(nameof(Math.Floor), [expression.Type]), expression);
         }
 
-        public static Expression Negate(Expression operand)
-        {
-            if (IsZero(operand))
-            {
-                return operand;
-            }
+        public static Expression Negate(Expression operand) => Bind(WellKnownFunctions.Negate, operand);
 
-            return Expression.Negate(operand);
-        }
+        public static Expression Add(Expression augend, Expression addend) => Bind(WellKnownFunctions.Add, augend, addend);
 
-        public static Expression Add(Expression augend, Expression addend)
-        {
-            return Expression.Add(ConvertIfLower(augend, to: addend), ConvertIfLower(addend, to: augend));
-        }
+        public static Expression Subtract(Expression minuend, Expression subtrahend) => Bind(WellKnownFunctions.Subtract, minuend, subtrahend);
 
-        public static Expression Subtract(Expression minuend, Expression subtrahend)
-        {
-            return Expression.Subtract(ConvertIfLower(minuend, to: subtrahend), ConvertIfLower(subtrahend, to: minuend));
-        }
+        public static Expression Multiply(Expression multiplicand, Expression multiplier) => Bind(WellKnownFunctions.Multiply, multiplicand, multiplier);
 
-        public static Expression Multiply(Expression multiplicand, Expression multiplier)
-        {
-            return Expression.Multiply(ConvertIfLower(multiplicand, to: multiplier), ConvertIfLower(multiplier, to: multiplicand));
-        }
-
-        public static Expression Divide(Expression dividend, Expression divisor)
-        {
-            return Expression.Divide(ConvertIfLower(dividend, to: divisor), ConvertIfLower(divisor, to: dividend));
-        }
+        public static Expression Divide(Expression dividend, Expression divisor) => Bind(WellKnownFunctions.Divide, dividend, divisor);
 
         public static Expression Pow(Expression @base, Expression exponent)
         {
@@ -169,14 +149,10 @@ namespace MathParser
                 return Expression.Power(@base, exponent);
             }
 
-            @base = ConvertIfLower(@base, to: typeof(Complex));
-            return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Pow), [@base.Type, exponent.Type]), @base, exponent);
+            return Bind(WellKnownFunctions.Pow, @base, exponent);
         }
 
-        public static Expression Exp(Expression exponent)
-        {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Exp), [exponent.Type]) ?? typeof(Complex).GetMethod(nameof(Complex.Exp), [exponent.Type]), exponent);
-        }
+        public static Expression Exp(Expression exponent) => Bind(WellKnownFunctions.Exp, exponent);
 
         public static Expression Sqrt(Expression @base)
         {
@@ -189,10 +165,7 @@ namespace MathParser
             return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Sqrt), [@base.Type]), @base);
         }
 
-        public static Expression Log(Expression expression)
-        {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Log), [expression.Type]) ?? typeof(Complex).GetMethod(nameof(Complex.Log), [expression.Type]), expression);
-        }
+        public static Expression Log(Expression expression) => Bind(WellKnownFunctions.Ln, expression);
 
         public static Expression Compare(Expression left, ExpressionType op, Expression right)
         {
@@ -238,7 +211,7 @@ namespace MathParser
             return Expression.Call(found, mappedArguments);
         }
 
-        public static MethodInfo FindFunction(Type type, string name, Type[] argTypes)
+        public static MethodInfo? FindFunction(Type type, string name, Type[] argTypes)
         {
             return (from m in type.GetMethods(BindingFlags.Public | BindingFlags.Static)
                     where m.DeclaringType == type
@@ -247,6 +220,44 @@ namespace MathParser
                     where parameters.Length == argTypes.Length
                     where Enumerable.Range(0, argTypes.Length).All(i => parameters[i].ParameterType.IsAssignableFrom(argTypes[i]))
                     select m).FirstOrDefault();
+        }
+
+        public static Expression Bind(KnownFunction function, params Expression[] arguments)
+        {
+            var match = (from known in DefaultScope.KnownMethods
+                         where known.Value == function
+                         let m = known.Key
+                         let mp = m.Parameters
+                         where mp.Count == arguments.Length
+                         let parameterMatches = (from i in Enumerable.Range(0, arguments.Length)
+                                                 select new
+                                                 {
+                                                     ParameterType = mp[i].Type,
+                                                     Assignable = mp[i].Type.IsAssignableFrom(arguments[i].Type),
+                                                     Convertible = mp[i].Type == typeof(Complex), // TODO: This should probably look for registered converters.
+                                                 }).ToList()
+                         where parameterMatches.All(p => p.Assignable || p.Convertible)
+                         orderby parameterMatches.Count(p => !p.Assignable) ascending,
+                                 m.Body is MethodCallExpression ascending
+                         select (m, parameterMatches)).First();
+
+            var (lambda, parameters) = match;
+
+            return new ReplaceVisitor(
+                Enumerable.Range(0, arguments.Length)
+                    .ToDictionary(
+                        i => (Expression)lambda.Parameters[i],
+                        i => parameters[i].Assignable ? arguments[i] : ConvertIfLower(arguments[i], to: parameters[i].ParameterType)))
+                .Visit(lambda.Body);
+        }
+
+        public static bool Bind(MethodInfo method, [NotNullWhen(true)] out KnownFunction? knownMethod)
+        {
+            knownMethod = (from known in DefaultScope.KnownMethods
+                           where known.Key.Body is MethodCallExpression methodCall && methodCall.Method == method
+                           select known.Value).Distinct().SingleOrDefault();
+
+            return knownMethod != null;
         }
 
         public static bool IsConstantValue(Expression expression, [NotNullWhen(true)] out ConstantExpression? constantExpression)

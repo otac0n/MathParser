@@ -1,8 +1,8 @@
 f(x)=2*(x; x!=0)*x
 (parsed)
-x => ((Convert(2, Complex) * IIF((x != Convert(0, Complex)), x, Convert(NaN, Complex))) * x)
+x => ((2 * IIF((x != Convert(0, Complex)), x, Convert(NaN, Complex))) * x)
 (transformed)
 f(x)=2·(x; x!=0)·x
 (parsed)
-x => ((Convert(2, Complex) * IIF((x != Convert(0, Complex)), x, Convert(NaN, Complex))) * x)
+x => ((2 * IIF((x != Convert(0, Complex)), x, Convert(NaN, Complex))) * x)
 (stable)

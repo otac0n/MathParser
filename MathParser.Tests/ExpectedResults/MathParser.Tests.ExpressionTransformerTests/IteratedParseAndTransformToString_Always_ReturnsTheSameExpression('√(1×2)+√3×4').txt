@@ -1,8 +1,8 @@
 √(1*2)+√3*4
 (parsed)
-(Sqrt(Convert((1 * 2), Complex)) + Convert((Sqrt(3) * 4), Complex))
+(Sqrt(Convert((1 * 2), Complex)) + (Sqrt(3) * 4))
 (transformed)
 √(1·2)+√3·4
 (parsed)
-(Sqrt(Convert((1 * 2), Complex)) + Convert((Sqrt(3) * 4), Complex))
+(Sqrt(Convert((1 * 2), Complex)) + (Sqrt(3) * 4))
 (stable)
