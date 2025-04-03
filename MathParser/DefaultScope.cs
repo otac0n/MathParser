@@ -61,6 +61,11 @@ namespace MathParser
             { (Complex x) => Complex.Cosh(x), WKF.Hyperbolic.Cosine },
             { (double x) => Math.Tanh(x), WKF.Hyperbolic.Tangent },
             { (Complex x) => Complex.Tanh(x), WKF.Hyperbolic.Tangent },
+            { (double x) => Math.Abs(x), WKF.Piecewise.Abs },
+            { (Complex x) => Complex.Abs(x), WKF.Piecewise.Abs },
+            { (double x) => Math.Ceiling(x), WKF.Piecewise.Ceiling },
+            { (double x) => Math.Floor(x), WKF.Piecewise.Floor },
+            { (double x) => Math.Sign(x), WKF.Piecewise.Sign },
         };
 
         private class WellKnownFunctionMapping : ExpressionPatternList<KnownFunction>

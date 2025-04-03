@@ -651,7 +651,22 @@ namespace MathParser
                 converted[i] = this.Result;
             }
 
-            if (function == WKF.Exponential.Sqrt && arguments.Count == 1)
+            if (function == WKF.Piecewise.Abs && arguments.Count == 1)
+            {
+                this.Result = this.AddBrackets("|", converted[0], "|");
+                return node;
+            }
+            else if (function == WKF.Piecewise.Ceiling && arguments.Count == 1)
+            {
+                this.Result = this.AddBrackets("⌈", converted[0], "⌉");
+                return node;
+            }
+            else if (function == WKF.Piecewise.Floor && arguments.Count == 1)
+            {
+                this.Result = this.AddBrackets("⌊", converted[0], "⌋");
+                return node;
+            }
+            else if (function == WKF.Exponential.Sqrt && arguments.Count == 1)
             {
                 var inner = converted[0];
                 var @base = arguments[0];
@@ -774,22 +789,7 @@ namespace MathParser
                     arguments[i] = this.Result;
                 }
 
-                if (node.Method.Name == nameof(Math.Ceiling) && arguments.Length == 1)
-                {
-                    this.Result = this.AddBrackets("⌈", arguments[0], "⌉");
-                }
-                else if (node.Method.Name == nameof(Math.Floor) && arguments.Length == 1)
-                {
-                    this.Result = this.AddBrackets("⌊", arguments[0], "⌋");
-                }
-                else if (node.Method.Name == nameof(Math.Abs) && arguments.Length == 1)
-                {
-                    this.Result = this.AddBrackets("|", arguments[0], "|");
-                }
-                else
-                {
-                    this.Result = this.CreateFunction(node.Method.Name, arguments);
-                }
+                this.Result = this.CreateFunction(node.Method.Name, arguments);
 
                 return node;
             }

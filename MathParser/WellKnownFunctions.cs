@@ -90,6 +90,44 @@ namespace MathParser
         }
 
         /// <summary>
+        /// Primitive piecewise functions.
+        /// </summary>
+        public static class Piecewise
+        {
+            /// <summary>
+            /// Gets an object that represents the absolute value function.
+            /// </summary>
+            /// <remarks>
+            /// Implemented by <see cref="Math.Abs(double)"/>.
+            /// </remarks>
+            public static KnownFunction Abs { get; } = new("abs");
+
+            /// <summary>
+            /// Gets an object that represents the sign function.
+            /// </summary>
+            /// <remarks>
+            /// Implemented by <see cref="Math.Sign(double)"/>.
+            /// </remarks>
+            public static KnownFunction Sign { get; } = new("sgn");
+
+            /// <summary>
+            /// Gets an object that represents the ceiling function.
+            /// </summary>
+            /// <remarks>
+            /// Implemented by <see cref="Math.Ceiling(double)"/>.
+            /// </remarks>
+            public static KnownFunction Ceiling { get; } = new("ceil");
+
+            /// <summary>
+            /// Gets an object that represents the floor function.
+            /// </summary>
+            /// <remarks>
+            /// Implemented by <see cref="Math.Floor(double)"/>.
+            /// </remarks>
+            public static KnownFunction Floor { get; } = new("floor");
+        }
+
+        /// <summary>
         /// Trigonometric functions.
         /// </summary>
         public static class Trigonometric

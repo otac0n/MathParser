@@ -113,25 +113,16 @@ namespace MathParser
             return expression;
         }
 
-        public static Expression Abs(Expression expression)
-        {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Abs), [expression.Type]) ?? typeof(Complex).GetMethod(nameof(Complex.Abs), [expression.Type]), expression);
-        }
+        public static Expression Abs(Expression expression) => Bind(WKF.Piecewise.Abs, expression);
 
         public static Expression Conditional(Expression condition, Expression consequent, Expression alternative)
         {
             return Expression.Condition(condition, ConvertIfLower(consequent, to: alternative), ConvertIfLower(alternative, to: consequent));
         }
 
-        public static Expression Ceiling(Expression expression)
-        {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Ceiling), [expression.Type]), expression);
-        }
+        public static Expression Ceiling(Expression expression) => Bind(WKF.Piecewise.Ceiling, expression);
 
-        public static Expression Floor(Expression expression)
-        {
-            return Expression.Call(typeof(Math).GetMethod(nameof(Math.Floor), [expression.Type]), expression);
-        }
+        public static Expression Floor(Expression expression) => Bind(WKF.Piecewise.Floor, expression);
 
         public static Expression Negate(Expression operand) => Bind(WKF.Arithmetic.Negate, operand);
 
