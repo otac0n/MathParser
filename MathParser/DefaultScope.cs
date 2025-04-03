@@ -87,25 +87,25 @@ namespace MathParser
                     if (definition == typeof(IPowerFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0], typeArgs[0] };
-                        var pow = type.GetMethod(nameof(WellKnownFunctions.Pow), argTypes);
+                        var pow = type.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes);
                         this.Add(MakeLambda(argTypes, p => Expression.Call(pow, p[0], p[1])), WellKnownFunctions.Pow);
                     }
                     else if (definition == typeof(IRootFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var sqrt = type.GetMethod(nameof(WellKnownFunctions.Sqrt), argTypes);
+                        var sqrt = type.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes);
                         this.Add(MakeLambda(argTypes, p => Expression.Call(sqrt, p[0])), WellKnownFunctions.Sqrt);
                     }
                     else if (definition == typeof(ILogarithmicFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var log = type.GetMethod(nameof(Math.Log), argTypes);
+                        var log = type.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes);
                         this.Add(MakeLambda(argTypes, p => Expression.Call(log, p[0])), WellKnownFunctions.Ln);
                     }
                     else if (definition == typeof(IExponentialFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var exp = type.GetMethod(nameof(WellKnownFunctions.Exp), argTypes);
+                        var exp = type.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes);
                         this.Add(MakeLambda(argTypes, p => Expression.Call(exp, p[0])), WellKnownFunctions.Exp);
                     }
                 }
