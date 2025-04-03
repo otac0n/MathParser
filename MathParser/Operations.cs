@@ -9,6 +9,7 @@ namespace MathParser
     using System.Linq.Expressions;
     using System.Numerics;
     using System.Reflection;
+    using WKF = WellKnownFunctions;
 
     public static class Operations
     {
@@ -132,15 +133,15 @@ namespace MathParser
             return Expression.Call(typeof(Math).GetMethod(nameof(Math.Floor), [expression.Type]), expression);
         }
 
-        public static Expression Negate(Expression operand) => Bind(WellKnownFunctions.Negate, operand);
+        public static Expression Negate(Expression operand) => Bind(WKF.Arithmetic.Negate, operand);
 
-        public static Expression Add(Expression augend, Expression addend) => Bind(WellKnownFunctions.Add, augend, addend);
+        public static Expression Add(Expression augend, Expression addend) => Bind(WKF.Arithmetic.Add, augend, addend);
 
-        public static Expression Subtract(Expression minuend, Expression subtrahend) => Bind(WellKnownFunctions.Subtract, minuend, subtrahend);
+        public static Expression Subtract(Expression minuend, Expression subtrahend) => Bind(WKF.Arithmetic.Subtract, minuend, subtrahend);
 
-        public static Expression Multiply(Expression multiplicand, Expression multiplier) => Bind(WellKnownFunctions.Multiply, multiplicand, multiplier);
+        public static Expression Multiply(Expression multiplicand, Expression multiplier) => Bind(WKF.Arithmetic.Multiply, multiplicand, multiplier);
 
-        public static Expression Divide(Expression dividend, Expression divisor) => Bind(WellKnownFunctions.Divide, dividend, divisor);
+        public static Expression Divide(Expression dividend, Expression divisor) => Bind(WKF.Arithmetic.Divide, dividend, divisor);
 
         public static Expression Pow(Expression @base, Expression exponent)
         {
@@ -149,10 +150,10 @@ namespace MathParser
                 return Expression.Power(@base, exponent);
             }
 
-            return Bind(WellKnownFunctions.Pow, @base, exponent);
+            return Bind(WKF.Exponential.Pow, @base, exponent);
         }
 
-        public static Expression Exp(Expression exponent) => Bind(WellKnownFunctions.Exp, exponent);
+        public static Expression Exp(Expression exponent) => Bind(WKF.Exponential.Exp, exponent);
 
         public static Expression Sqrt(Expression @base)
         {
@@ -165,7 +166,7 @@ namespace MathParser
             return Expression.Call(typeof(Complex).GetMethod(nameof(Complex.Sqrt), [@base.Type]), @base);
         }
 
-        public static Expression Log(Expression expression) => Bind(WellKnownFunctions.Ln, expression);
+        public static Expression Log(Expression expression) => Bind(WKF.Exponential.Ln, expression);
 
         public static Expression Compare(Expression left, ExpressionType op, Expression right)
         {

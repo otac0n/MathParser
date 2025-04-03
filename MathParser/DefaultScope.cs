@@ -8,6 +8,7 @@ namespace MathParser
     using System.Linq.Expressions;
     using System.Numerics;
     using System.Reflection;
+    using WKF = WellKnownFunctions;
 
     /// <summary>
     /// A temporary class for refactoring.
@@ -25,29 +26,29 @@ namespace MathParser
             { typeof(float) },
             { typeof(double) },
             { typeof(Complex) },
-            { (Complex x) => Complex.Negate(x), WellKnownFunctions.Negate },
-            { (Complex l, double r) => Complex.Add(l, r), WellKnownFunctions.Add },
-            { (double l, Complex r) => Complex.Add(l, r), WellKnownFunctions.Add },
-            { (Complex l, Complex r) => Complex.Add(l, r), WellKnownFunctions.Add },
-            { (Complex l, double r) => Complex.Subtract(l, r), WellKnownFunctions.Subtract },
-            { (double l, Complex r) => Complex.Subtract(l, r), WellKnownFunctions.Subtract },
-            { (Complex l, Complex r) => Complex.Subtract(l, r), WellKnownFunctions.Subtract },
-            { (Complex l, double r) => Complex.Multiply(l, r), WellKnownFunctions.Multiply },
-            { (double l, Complex r) => Complex.Multiply(l, r), WellKnownFunctions.Multiply },
-            { (Complex l, Complex r) => Complex.Multiply(l, r), WellKnownFunctions.Multiply },
-            { (Complex l, double r) => Complex.Divide(l, r), WellKnownFunctions.Divide },
-            { (double l, Complex r) => Complex.Divide(l, r), WellKnownFunctions.Divide },
-            { (Complex l, Complex r) => Complex.Divide(l, r), WellKnownFunctions.Divide },
-            { MakeLambda([typeof(double), typeof(double)], p => Expression.Power(p[0], p[1])), WellKnownFunctions.Pow },
-            { (Complex l, Complex r) => Complex.Pow(l, r), WellKnownFunctions.Pow },
-            { (Complex l, double r) => Complex.Pow(l, r), WellKnownFunctions.Pow },
-            { (double l, double r) => Math.Pow(l, r), WellKnownFunctions.Pow },
-            { (Complex x) => Complex.Exp(x), WellKnownFunctions.Exp },
-            { (double x) => Math.Exp(x), WellKnownFunctions.Exp },
-            { (Complex x) => Complex.Sqrt(x), WellKnownFunctions.Sqrt },
-            { (double x) => Math.Sqrt(x), WellKnownFunctions.Sqrt },
-            { (Complex x) => Complex.Log(x), WellKnownFunctions.Ln },
-            { (double x) => Math.Log(x), WellKnownFunctions.Ln },
+            { (Complex x) => Complex.Negate(x), WKF.Arithmetic.Negate },
+            { (Complex l, double r) => Complex.Add(l, r), WKF.Arithmetic.Add },
+            { (double l, Complex r) => Complex.Add(l, r), WKF.Arithmetic.Add },
+            { (Complex l, Complex r) => Complex.Add(l, r), WKF.Arithmetic.Add },
+            { (Complex l, double r) => Complex.Subtract(l, r), WKF.Arithmetic.Subtract },
+            { (double l, Complex r) => Complex.Subtract(l, r), WKF.Arithmetic.Subtract },
+            { (Complex l, Complex r) => Complex.Subtract(l, r), WKF.Arithmetic.Subtract },
+            { (Complex l, double r) => Complex.Multiply(l, r), WKF.Arithmetic.Multiply },
+            { (double l, Complex r) => Complex.Multiply(l, r), WKF.Arithmetic.Multiply },
+            { (Complex l, Complex r) => Complex.Multiply(l, r), WKF.Arithmetic.Multiply },
+            { (Complex l, double r) => Complex.Divide(l, r), WKF.Arithmetic.Divide },
+            { (double l, Complex r) => Complex.Divide(l, r), WKF.Arithmetic.Divide },
+            { (Complex l, Complex r) => Complex.Divide(l, r), WKF.Arithmetic.Divide },
+            { MakeLambda([typeof(double), typeof(double)], p => Expression.Power(p[0], p[1])), WKF.Exponential.Pow },
+            { (Complex l, Complex r) => Complex.Pow(l, r), WKF.Exponential.Pow },
+            { (Complex l, double r) => Complex.Pow(l, r), WKF.Exponential.Pow },
+            { (double l, double r) => Math.Pow(l, r), WKF.Exponential.Pow },
+            { (Complex x) => Complex.Exp(x), WKF.Exponential.Exp },
+            { (double x) => Math.Exp(x), WKF.Exponential.Exp },
+            { (Complex x) => Complex.Sqrt(x), WKF.Exponential.Sqrt },
+            { (double x) => Math.Sqrt(x), WKF.Exponential.Sqrt },
+            { (Complex x) => Complex.Log(x), WKF.Exponential.Ln },
+            { (double x) => Math.Log(x), WKF.Exponential.Ln },
         };
 
         private class WellKnownFunctionMapping : ExpressionPatternList<KnownFunction>
@@ -90,15 +91,15 @@ namespace MathParser
 
             private static readonly Dictionary<ExpressionType, KnownFunction> Operators = new()
             {
-                [ExpressionType.Negate] = WellKnownFunctions.Negate,
-                [ExpressionType.Add] = WellKnownFunctions.Add,
-                [ExpressionType.AddChecked] = WellKnownFunctions.Add,
-                [ExpressionType.Subtract] = WellKnownFunctions.Subtract,
-                [ExpressionType.SubtractChecked] = WellKnownFunctions.Subtract,
-                [ExpressionType.Multiply] = WellKnownFunctions.Multiply,
-                [ExpressionType.MultiplyChecked] = WellKnownFunctions.Multiply,
-                [ExpressionType.Divide] = WellKnownFunctions.Divide, // DivideChecked not available.
-                [ExpressionType.Power] = WellKnownFunctions.Pow,
+                [ExpressionType.Negate] = WKF.Arithmetic.Negate,
+                [ExpressionType.Add] = WKF.Arithmetic.Add,
+                [ExpressionType.AddChecked] = WKF.Arithmetic.Add,
+                [ExpressionType.Subtract] = WKF.Arithmetic.Subtract,
+                [ExpressionType.SubtractChecked] = WKF.Arithmetic.Subtract,
+                [ExpressionType.Multiply] = WKF.Arithmetic.Multiply,
+                [ExpressionType.MultiplyChecked] = WKF.Arithmetic.Multiply,
+                [ExpressionType.Divide] = WKF.Arithmetic.Divide, // DivideChecked not available.
+                [ExpressionType.Power] = WKF.Exponential.Pow,
             };
 
             public void Add(Type numberType)
@@ -134,57 +135,57 @@ namespace MathParser
                     if (definition == typeof(IUnaryNegationOperators<,>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        this.Add(MakeLambda(argTypes, p => Expression.Negate(p[0])), WellKnownFunctions.Negate);
-                        this.Add(MakeLambda(argTypes, p => Expression.NegateChecked(p[0])), WellKnownFunctions.Negate);
+                        this.Add(MakeLambda(argTypes, p => Expression.Negate(p[0])), WKF.Arithmetic.Negate);
+                        this.Add(MakeLambda(argTypes, p => Expression.NegateChecked(p[0])), WKF.Arithmetic.Negate);
                     }
                     else if (definition == typeof(IAdditionOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        this.Add(MakeLambda(argTypes, p => Expression.Add(p[0], p[1])), WellKnownFunctions.Add);
-                        this.Add(MakeLambda(argTypes, p => Expression.AddChecked(p[0], p[1])), WellKnownFunctions.Add);
+                        this.Add(MakeLambda(argTypes, p => Expression.Add(p[0], p[1])), WKF.Arithmetic.Add);
+                        this.Add(MakeLambda(argTypes, p => Expression.AddChecked(p[0], p[1])), WKF.Arithmetic.Add);
                     }
                     else if (definition == typeof(ISubtractionOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        this.Add(MakeLambda(argTypes, p => Expression.Subtract(p[0], p[1])), WellKnownFunctions.Subtract);
-                        this.Add(MakeLambda(argTypes, p => Expression.SubtractChecked(p[0], p[1])), WellKnownFunctions.Subtract);
+                        this.Add(MakeLambda(argTypes, p => Expression.Subtract(p[0], p[1])), WKF.Arithmetic.Subtract);
+                        this.Add(MakeLambda(argTypes, p => Expression.SubtractChecked(p[0], p[1])), WKF.Arithmetic.Subtract);
                     }
                     else if (definition == typeof(IMultiplyOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        this.Add(MakeLambda(argTypes, p => Expression.Multiply(p[0], p[1])), WellKnownFunctions.Multiply);
-                        this.Add(MakeLambda(argTypes, p => Expression.MultiplyChecked(p[0], p[1])), WellKnownFunctions.Multiply);
+                        this.Add(MakeLambda(argTypes, p => Expression.Multiply(p[0], p[1])), WKF.Arithmetic.Multiply);
+                        this.Add(MakeLambda(argTypes, p => Expression.MultiplyChecked(p[0], p[1])), WKF.Arithmetic.Multiply);
                     }
                     else if (definition == typeof(IDivisionOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        this.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1])), WellKnownFunctions.Divide);
+                        this.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1])), WKF.Arithmetic.Divide);
                         var opDivideChecked = type.GetMethod("op_CheckedDivision", argTypes);
-                        this.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked)), WellKnownFunctions.Divide);
+                        this.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked)), WKF.Arithmetic.Divide);
                     }
                     else if (definition == typeof(IPowerFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0], typeArgs[0] };
                         var pow = type.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes);
-                        this.Add(MakeLambda(argTypes, p => Expression.Call(pow, p[0], p[1])), WellKnownFunctions.Pow);
+                        this.Add(MakeLambda(argTypes, p => Expression.Call(pow, p[0], p[1])), WKF.Exponential.Pow);
                     }
                     else if (definition == typeof(IRootFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
                         var sqrt = type.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes);
-                        this.Add(MakeLambda(argTypes, p => Expression.Call(sqrt, p[0])), WellKnownFunctions.Sqrt);
+                        this.Add(MakeLambda(argTypes, p => Expression.Call(sqrt, p[0])), WKF.Exponential.Sqrt);
                     }
                     else if (definition == typeof(ILogarithmicFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
                         var log = type.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes);
-                        this.Add(MakeLambda(argTypes, p => Expression.Call(log, p[0])), WellKnownFunctions.Ln);
+                        this.Add(MakeLambda(argTypes, p => Expression.Call(log, p[0])), WKF.Exponential.Ln);
                     }
                     else if (definition == typeof(IExponentialFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
                         var exp = type.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes);
-                        this.Add(MakeLambda(argTypes, p => Expression.Call(exp, p[0])), WellKnownFunctions.Exp);
+                        this.Add(MakeLambda(argTypes, p => Expression.Call(exp, p[0])), WKF.Exponential.Exp);
                     }
                 }
             }

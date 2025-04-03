@@ -4,11 +4,10 @@ namespace MathParser
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq.Expressions;
     using System.Numerics;
-    using System.Reflection;
+    using WKF = WellKnownFunctions;
 
     /// <summary>
     /// Indicates the associativity of an operator.
@@ -42,14 +41,14 @@ namespace MathParser
     {
         private static readonly Dictionary<KnownFunction, ExpressionType> MethodEquivalence = new()
         {
-            [WellKnownFunctions.Negate] = ExpressionType.Negate,
-            [WellKnownFunctions.Add] = ExpressionType.Add,
-            [WellKnownFunctions.Subtract] = ExpressionType.Subtract,
-            [WellKnownFunctions.Multiply] = ExpressionType.Multiply,
-            [WellKnownFunctions.Divide] = ExpressionType.Divide,
-            [WellKnownFunctions.Pow] = ExpressionType.Power,
-            [WellKnownFunctions.Exp] = ExpressionType.Power,
-            [WellKnownFunctions.Sqrt] = ExpressionType.Power,
+            [WKF.Arithmetic.Negate] = ExpressionType.Negate,
+            [WKF.Arithmetic.Add] = ExpressionType.Add,
+            [WKF.Arithmetic.Subtract] = ExpressionType.Subtract,
+            [WKF.Arithmetic.Multiply] = ExpressionType.Multiply,
+            [WKF.Arithmetic.Divide] = ExpressionType.Divide,
+            [WKF.Exponential.Pow] = ExpressionType.Power,
+            [WKF.Exponential.Exp] = ExpressionType.Power,
+            [WKF.Exponential.Sqrt] = ExpressionType.Power,
         };
 
         /// <summary>
