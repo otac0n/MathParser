@@ -187,6 +187,24 @@ namespace MathParser
             /// </summary>
             /// <remarks>Implemented by <see cref="Math.Tan"/>.</remarks>
             public static KnownFunction Tangent { get; } = new("tan");
+
+            /// <summary>
+            /// Gets an object that represents the arcsine function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Asin"/>.</remarks>
+            public static KnownFunction Arcsine { get; } = new("asin");
+
+            /// <summary>
+            /// Gets an object that represents the arccosine function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Acos"/>.</remarks>
+            public static KnownFunction Arcosine { get; } = new("acos");
+
+            /// <summary>
+            /// Gets an object that represents the arctangent function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Atan"/>.</remarks>
+            public static KnownFunction Arctangent { get; } = new("atan");
         }
 
         /// <summary>
@@ -211,6 +229,24 @@ namespace MathParser
             /// </summary>
             /// <remarks>Implemented by <see cref="Math.Tanh"/>.</remarks>
             public static KnownFunction Tangent { get; } = new("tanh");
+
+            /// <summary>
+            /// Gets an object that represents the hyperbolic arcsine function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Asinh"/>.</remarks>
+            public static KnownFunction Arcsine { get; } = new("asinh");
+
+            /// <summary>
+            /// Gets an object that represents the hyperbolic arccosine function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Acosh"/>.</remarks>
+            public static KnownFunction Arcosine { get; } = new("acosh");
+
+            /// <summary>
+            /// Gets an object that represents the hyperbolic arctangent function.
+            /// </summary>
+            /// <remarks>Implemented by <see cref="Math.Atanh"/>.</remarks>
+            public static KnownFunction Arctangent { get; } = new("atanh");
         }
     }
 }
