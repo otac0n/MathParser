@@ -3,12 +3,37 @@
 namespace MathParser
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
 
     /// <summary>
     /// The collection of built-in functions.
     /// </summary>
     public static class WellKnownFunctions
     {
+        /// <summary>
+        /// Gets the mapping from <see cref="WellKnownFunctions"/> to <see cref="ExpressionType"/>.
+        /// </summary>
+        public static readonly IDictionary<KnownFunction, ExpressionType> ExpressionTypeLookup = new Dictionary<KnownFunction, ExpressionType>()
+        {
+            [Arithmetic.Negate] = ExpressionType.Negate,
+            [Arithmetic.Add] = ExpressionType.Add,
+            [Arithmetic.Subtract] = ExpressionType.Subtract,
+            [Arithmetic.Multiply] = ExpressionType.Multiply,
+            [Arithmetic.Divide] = ExpressionType.Divide,
+            [Exponential.Pow] = ExpressionType.Power,
+            [Comparison.Equal] = ExpressionType.Equal,
+            [Comparison.NotEqual] = ExpressionType.NotEqual,
+            [Comparison.GreaterThan] = ExpressionType.GreaterThan,
+            [Comparison.GreaterThanOrEqual] = ExpressionType.GreaterThanOrEqual,
+            [Comparison.LessThan] = ExpressionType.LessThan,
+            [Comparison.LessThanOrEqual] = ExpressionType.LessThanOrEqual,
+            [Boolean.Not] = ExpressionType.Not,
+            [Boolean.And] = ExpressionType.And,
+            [Boolean.Or] = ExpressionType.Or,
+            [Boolean.ExclusiveOr] = ExpressionType.ExclusiveOr,
+        }.AsReadOnly();
+
         /// <summary>
         /// Basic Arithmetic functions.
         /// </summary>

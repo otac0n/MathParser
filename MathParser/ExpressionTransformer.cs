@@ -41,28 +41,6 @@ namespace MathParser
     /// <param name="scope">The scope in which the transformations are performed.</param>
     public abstract class ExpressionTransformer<T>(Scope? scope) : ExpressionVisitor
     {
-        private static readonly Dictionary<KnownFunction, ExpressionType> MethodEquivalence = new()
-        {
-            [WKF.Arithmetic.Negate] = ExpressionType.Negate,
-            [WKF.Arithmetic.Add] = ExpressionType.Add,
-            [WKF.Arithmetic.Subtract] = ExpressionType.Subtract,
-            [WKF.Arithmetic.Multiply] = ExpressionType.Multiply,
-            [WKF.Arithmetic.Divide] = ExpressionType.Divide,
-            [WKF.Exponential.Pow] = ExpressionType.Power,
-            [WKF.Exponential.Exp] = ExpressionType.Power,
-            [WKF.Exponential.Sqrt] = ExpressionType.Power,
-            [WKF.Comparison.Equal] = ExpressionType.Equal,
-            [WKF.Comparison.NotEqual] = ExpressionType.NotEqual,
-            [WKF.Comparison.GreaterThan] = ExpressionType.GreaterThan,
-            [WKF.Comparison.GreaterThanOrEqual] = ExpressionType.GreaterThanOrEqual,
-            [WKF.Comparison.LessThan] = ExpressionType.LessThan,
-            [WKF.Comparison.LessThanOrEqual] = ExpressionType.LessThanOrEqual,
-            [WKF.Boolean.Not] = ExpressionType.Not,
-            [WKF.Boolean.And] = ExpressionType.And,
-            [WKF.Boolean.Or] = ExpressionType.Or,
-            [WKF.Boolean.ExclusiveOr] = ExpressionType.ExclusiveOr,
-        };
-
         /// <summary>
         /// Gets the result of the most recent visit operation.
         /// </summary>
@@ -612,7 +590,7 @@ namespace MathParser
                 converted[i] = this.Result;
             }
 
-            if (MethodEquivalence.TryGetValue(function, out var effectiveType))
+            if (WKF.ExpressionTypeLookup.TryGetValue(function, out var effectiveType))
             {
                 if (arguments.Count == 1)
                 {
@@ -820,9 +798,13 @@ namespace MathParser
 
             if (this.Scope.TryBind(expression, out var knownMethod, out _))
             {
-                if (MethodEquivalence.TryGetValue(knownMethod, out var knownType))
+                if (WKF.ExpressionTypeLookup.TryGetValue(knownMethod, out var knownType))
                 {
                     return knownType;
+                }
+                else if (knownMethod == WKF.Exponential.Exp || knownMethod == WKF.Exponential.Sqrt)
+                {
+                    return ExpressionType.Power;
                 }
             }
 

@@ -1,18 +1,99 @@
 ﻿namespace MathParser
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
     using WKF = WellKnownFunctions;
 
-    public class SimplifyVisitor : ExpressionVisitor
+    public sealed class SimplifyVisitor(Scope scope) : ExpressionVisitor
     {
-        public SimplifyVisitor(Scope scope)
+        /// <summary>
+        /// Gets the scope in which the transformations are performed.
+        /// </summary>
+        public Scope Scope { get; } = scope;
+
+        /// <inheritdoc/>
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
         {
-            this.Scope = scope;
+            if (this.Scope.TryBind(node, out var knownFunction, out var functionArguments))
+            {
+                return this.VisitKnownFunction(knownFunction, node, functionArguments);
+            }
+
+            return base.Visit(node);
         }
 
-        public Scope Scope { get; }
+        protected Expression VisitKnownFunction(KnownFunction function, Expression node, IList<Expression> arguments)
+        {
+            var converted = new Expression[arguments.Count];
+            for (var i = 0; i < arguments.Count; i++)
+            {
+                converted[i] = this.Visit(arguments[i]);
+            }
+
+            if (WKF.ExpressionTypeLookup.TryGetValue(function, out var effectiveType))
+            {
+                if (arguments.Count == 1)
+                {
+                    var operand = converted[0];
+                    switch (effectiveType)
+                    {
+                        case ExpressionType.Negate:
+                            return this.SimplifyNegate(operand);
+
+                        case ExpressionType.Not:
+                            return this.SimplifyNot(operand);
+                    }
+                }
+                else if (arguments.Count == 2)
+                {
+                    var left = converted[0];
+                    var right = converted[1];
+                    switch (effectiveType)
+                    {
+                        case ExpressionType.Add:
+                            return this.SimplifyAdd(left, right);
+
+                        case ExpressionType.Subtract:
+                            return this.SimplifySubtract(left, right);
+
+                        case ExpressionType.Multiply:
+                            return this.SimplifyMultiply(left, right);
+
+                        case ExpressionType.Divide:
+                            return this.SimplifyDivide(left, right);
+
+                        case ExpressionType.Power:
+                            return this.SimplifyPower(left, right);
+
+                        case ExpressionType.And:
+                            return this.SimplifyAnd(left, right);
+
+                        case ExpressionType.Or:
+                            return this.SimplifyOr(left, right);
+                    }
+                }
+            }
+
+            if (function == WKF.Exponential.Pow && arguments.Count == 2)
+            {
+                var @base = converted[0];
+                var exponent = converted[1];
+                return this.SimplifyPower(@base, exponent);
+            }
+            else if (function == WKF.Exponential.Ln && arguments.Count == 1)
+            {
+                if (this.Scope.IsConstantEqual(converted[0], Math.E))
+                {
+                    return this.Scope.One();
+                }
+            }
+
+            return this.Scope.Bind(function, converted);
+        }
 
         /// <inheritdoc/>
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -21,6 +102,7 @@
             return node.Update(this.Scope.ConvertIfLower(simpleBody, to: node.ReturnType), node.Parameters);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitConditional(ConditionalExpression node)
         {
             var simpleTest = this.Visit(node.Test);
@@ -36,40 +118,6 @@
             var simpleLeft = this.Visit(node.Left);
             var simpleRight = this.Visit(node.Right);
 
-            switch (node.NodeType)
-            {
-                case ExpressionType.Equal:
-                case ExpressionType.NotEqual:
-                case ExpressionType.GreaterThan:
-                case ExpressionType.GreaterThanOrEqual:
-                case ExpressionType.LessThan:
-                case ExpressionType.LessThanOrEqual:
-                    return this.SimplifyCompare(simpleLeft, node.NodeType, simpleRight);
-
-                case ExpressionType.And:
-                case ExpressionType.AndAlso:
-                    return this.SimplifyAnd(simpleLeft, simpleRight);
-
-                case ExpressionType.Or:
-                case ExpressionType.OrElse:
-                    return this.SimplifyOr(simpleLeft, simpleRight);
-
-                case ExpressionType.Add:
-                    return this.SimplifyAdd(simpleLeft, simpleRight);
-
-                case ExpressionType.Subtract:
-                    return this.SimplifySubtract(simpleLeft, simpleRight);
-
-                case ExpressionType.Multiply:
-                    return this.SimplifyMultiply(simpleLeft, simpleRight);
-
-                case ExpressionType.Divide:
-                    return this.SimplifyDivide(simpleLeft, simpleRight);
-
-                case ExpressionType.Power:
-                    return this.SimplifyPower(simpleLeft, simpleRight);
-            }
-
             return node.Update(simpleLeft, node.Conversion, simpleRight);
         }
 
@@ -78,23 +126,6 @@
         {
             var simpleObject = node.Object == null ? null : this.Visit(node.Object);
             var simpleArguments = node.Arguments.Select(a => this.Visit(a)).ToList();
-
-            if (this.Scope.TryBind(node, out var knownFunction, out _))
-            {
-                if (knownFunction == WKF.Exponential.Pow && simpleArguments.Count == 2)
-                {
-                    return this.SimplifyPower(simpleArguments[0], simpleArguments[1]);
-                }
-                else if (knownFunction == WKF.Exponential.Ln && simpleArguments.Count == 1)
-                {
-                    if (this.Scope.IsConstantEqual(simpleArguments[0], Math.E))
-                    {
-                        return this.Scope.One();
-                    }
-                }
-
-                return this.Scope.Bind(knownFunction, simpleArguments);
-            }
 
             var parameters = node.Method.GetParameters();
             return node.Update(simpleObject, [.. simpleArguments.Select((a, i) => this.Scope.ConvertIfLower(a, to: parameters[i].ParameterType))]);
@@ -114,12 +145,6 @@
                     }
 
                     return simpleOperand; // TODO: This could create a lot of churn, so it may be useful to communicate if the convert is still necessary before removing.
-
-                case ExpressionType.Not:
-                    return this.SimplifyNot(simpleOperand);
-
-                case ExpressionType.Negate:
-                    return this.SimplifyNegate(simpleOperand);
             }
 
             return node.Update(simpleOperand);
