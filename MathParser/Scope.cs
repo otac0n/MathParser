@@ -72,21 +72,24 @@
             }
         }
 
-        public static bool TryBind(Expression expression, [NotNullWhen(true)] out KnownFunction? knownMethod, [NotNullWhen(true)] out IList<Expression>? arguments)
+        public static bool TryBind([NotNullWhen(true)] Expression? expression, [NotNullWhen(true)] out KnownFunction? knownMethod, [NotNullWhen(true)] out IList<Expression>? arguments)
         {
-            var visitor = new MatchVisitor(expression);
-
-            var methods = (from known in DefaultScope.KnownMethods
-                           let match = visitor.PatternMatch(known.Key)
-                           where match.Success
-                           where match.Arguments.All(p => p != null)
-                           select (known.Value, match.Arguments)).Distinct();
-
-            using var enumerator = methods.GetEnumerator();
-            if (enumerator.MoveNext())
+            if (expression != null)
             {
-                (knownMethod, arguments) = enumerator.Current;
-                return true;
+                var visitor = new MatchVisitor(expression);
+
+                var methods = (from known in DefaultScope.KnownMethods
+                               let match = visitor.PatternMatch(known.Key)
+                               where match.Success
+                               where match.Arguments.All(p => p != null)
+                               select (known.Value, match.Arguments)).Distinct();
+
+                using var enumerator = methods.GetEnumerator();
+                if (enumerator.MoveNext())
+                {
+                    (knownMethod, arguments) = enumerator.Current;
+                    return true;
+                }
             }
 
             (knownMethod, arguments) = (null, null);

@@ -4,6 +4,7 @@ namespace MathParser
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq.Expressions;
     using System.Numerics;
@@ -452,6 +453,17 @@ namespace MathParser
             return true;
         }
 
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+        {
+            if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
+            {
+                return this.VisitKnownFunction(knownFunction, node, functionArguments);
+            }
+
+            return base.Visit(node);
+        }
+
         /// <inheritdoc />
         protected override Expression VisitBinary(BinaryExpression node)
         {
@@ -650,6 +662,60 @@ namespace MathParser
                 converted[i] = this.Result;
             }
 
+            if (arguments.Count == 2 && MethodEquivalence.TryGetValue(function, out var effectiveType))
+            {
+                var leftArg = arguments[0];
+                var rightArg = arguments[1];
+
+                var left = converted[0];
+                var right = converted[1];
+
+                var leftEffectiveType = this.GetEffectiveNodeType(leftArg);
+                var rightEffectiveType = this.GetEffectiveNodeType(rightArg);
+
+                if (this.NeedsLeftBrackets(effectiveType, node, leftEffectiveType, leftArg))
+                {
+                    left = this.AddBrackets(left);
+                }
+
+                if (this.NeedsRightBrackets(effectiveType, node, rightEffectiveType, rightArg))
+                {
+                    right = this.AddBrackets(right);
+                }
+
+                switch (effectiveType)
+                {
+                    case ExpressionType.Add:
+                        this.Result = this.CreateAdd(left, right);
+                        return node;
+
+                    case ExpressionType.Subtract:
+                        this.Result = this.CreateSubtract(left, right);
+                        return node;
+
+                    case ExpressionType.Multiply:
+                        this.Result = this.CreateMultiply(left, right);
+                        return node;
+
+                    case ExpressionType.Divide:
+                        this.Result = this.CreateDivide(left, right);
+                        return node;
+
+                    case ExpressionType.Power:
+                        this.Result = this.CreatePower(left, right);
+                        return node;
+
+                    case ExpressionType.Equal:
+                    case ExpressionType.NotEqual:
+                    case ExpressionType.GreaterThan:
+                    case ExpressionType.GreaterThanOrEqual:
+                    case ExpressionType.LessThan:
+                    case ExpressionType.LessThanOrEqual:
+                        this.Result = this.CreateEquality(left, effectiveType, right);
+                        return node;
+                }
+            }
+
             if (function == WKF.Piecewise.Abs && arguments.Count == 1)
             {
                 this.Result = this.AddBrackets("|", converted[0], "|");
@@ -725,67 +791,6 @@ namespace MathParser
         {
             ArgumentNullException.ThrowIfNull(node);
 
-            var effectiveType = this.GetEffectiveNodeType(node);
-            if (node.Arguments.Count == 2 && effectiveType != ExpressionType.Call)
-            {
-                var leftArg = node.Arguments[0];
-                var rightArg = node.Arguments[1];
-
-                this.Visit(leftArg);
-                var left = this.Result;
-                this.Visit(rightArg);
-                var right = this.Result;
-
-                var leftEffectiveType = this.GetEffectiveNodeType(leftArg);
-                var rightEffectiveType = this.GetEffectiveNodeType(rightArg);
-
-                if (this.NeedsLeftBrackets(effectiveType, node, leftEffectiveType, leftArg))
-                {
-                    left = this.AddBrackets(left);
-                }
-
-                if (this.NeedsRightBrackets(effectiveType, node, rightEffectiveType, rightArg))
-                {
-                    right = this.AddBrackets(right);
-                }
-
-                switch (effectiveType)
-                {
-                    case ExpressionType.Add:
-                        this.Result = this.CreateAdd(left, right);
-                        return node;
-
-                    case ExpressionType.Subtract:
-                        this.Result = this.CreateSubtract(left, right);
-                        return node;
-
-                    case ExpressionType.Multiply:
-                        this.Result = this.CreateMultiply(left, right);
-                        return node;
-
-                    case ExpressionType.Divide:
-                        this.Result = this.CreateDivide(left, right);
-                        return node;
-
-                    case ExpressionType.Power:
-                        this.Result = this.CreatePower(left, right);
-                        return node;
-
-                    case ExpressionType.Equal:
-                    case ExpressionType.NotEqual:
-                    case ExpressionType.GreaterThan:
-                    case ExpressionType.GreaterThanOrEqual:
-                    case ExpressionType.LessThan:
-                    case ExpressionType.LessThanOrEqual:
-                        this.Result = this.CreateEquality(left, effectiveType, right);
-                        return node;
-                }
-            }
-            else if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
-            {
-                return this.VisitKnownFunction(knownFunction, node, functionArguments);
-            }
-
             throw new NotSupportedException($"The method '{node.Method.DeclaringType.FullName}.{node.Method.Name}' is not supported for expression transformation.");
         }
 
@@ -833,10 +838,6 @@ namespace MathParser
 
                 this.Result = this.CreateNot(inner);
                 return node;
-            }
-            else if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
-            {
-                return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
             else if (node.NodeType == ExpressionType.Convert)
             {
