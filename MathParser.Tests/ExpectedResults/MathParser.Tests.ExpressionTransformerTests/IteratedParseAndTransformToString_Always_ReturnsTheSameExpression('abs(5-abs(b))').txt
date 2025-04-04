@@ -1,10 +1,8 @@
 abs(5-abs(b))
 (parsed)
-Abs(Convert((5 - Abs(b)), Complex))
+Abs((5 - Abs(b)))
 (transformed)
 |5-|b||
 (parsed)
 Abs((5 - Abs(b)))
-(transformed)
-|5-|b||
 (stable)
