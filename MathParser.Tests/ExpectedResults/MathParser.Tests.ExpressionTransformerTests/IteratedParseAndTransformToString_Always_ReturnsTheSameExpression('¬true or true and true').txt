@@ -1,8 +1,8 @@
 ¬true or true and true
 (parsed)
-(Not(True) OrElse (True AndAlso True))
+(Not(True) Or (True And True))
 (transformed)
 !true or true and true
 (parsed)
-(Not(True) OrElse (True AndAlso True))
+(Not(True) Or (True And True))
 (stable)

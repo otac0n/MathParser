@@ -170,7 +170,7 @@ namespace MathParser.Drawing
             }
 
             if (innerEffectiveType == ExpressionType.Conditional &&
-                !this.Scope.IsConstraint(inner, out _, out _))
+                !this.Scope.MatchConstraint(inner, out _, out _))
             {
                 // A conditional with an alternative renders its own left bracket.
                 return false;

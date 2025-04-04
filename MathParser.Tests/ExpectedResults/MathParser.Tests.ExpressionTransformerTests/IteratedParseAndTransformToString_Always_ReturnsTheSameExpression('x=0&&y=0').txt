@@ -1,8 +1,8 @@
 x=0&&y=0
 (parsed)
-((x == Convert(0, Complex)) AndAlso (y == Convert(0, Complex)))
+((x == Convert(0, Complex)) And (y == Convert(0, Complex)))
 (transformed)
 x=0 and y=0
 (parsed)
-((x == Convert(0, Complex)) AndAlso (y == Convert(0, Complex)))
+((x == Convert(0, Complex)) And (y == Convert(0, Complex)))
 (stable)

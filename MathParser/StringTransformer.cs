@@ -86,7 +86,7 @@
             }
 
             if (innerEffectiveType == ExpressionType.Conditional &&
-                !this.Scope.IsConstraint(inner, out _, out _))
+                !this.Scope.MatchConstraint(inner, out _, out _))
             {
                 // A conditional with an alternative is rendered as a function.
                 return false;
@@ -98,7 +98,7 @@
         protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
             if (innerEffectiveType == ExpressionType.Conditional &&
-                !this.Scope.IsConstraint(inner, out _, out _))
+                !this.Scope.MatchConstraint(inner, out _, out _))
             {
                 // A conditional with an alternative is rendered as a function.
                 return false;

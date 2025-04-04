@@ -159,9 +159,9 @@
         private Expression SimplifyNot(Expression expression)
         {
             // Convert "not not a" into "a"
-            if (expression.NodeType == ExpressionType.Not && expression is UnaryExpression inner)
+            if (this.Scope.MatchNot(expression, out var innerOperand))
             {
-                return inner.Operand;
+                return innerOperand;
             }
 
             if (this.Scope.IsConstantValue(expression, out var constant))
@@ -248,33 +248,33 @@
 
         private Expression SimplifyNegate(Expression operand)
         {
-            if (this.Scope.IsConstraint(operand, out var condition, out var consequent))
+            if (this.Scope.MatchConstraint(operand, out var condition, out var consequent))
             {
                 return this.Visit(this.Scope.Conditional(condition, this.Scope.Negate(consequent), this.Scope.NaN()));
             }
 
             // Convert "--a" into "a"
-            if (operand.NodeType == ExpressionType.Negate && operand is UnaryExpression inner)
+            if (this.Scope.MatchNegate(operand, out var innerOperand))
             {
-                return inner.Operand;
+                return innerOperand;
             }
 
             // Convert "-(a + b)" into "-a - b"
-            if (operand.NodeType == ExpressionType.Add && operand is BinaryExpression add)
+            if (this.Scope.MatchAdd(operand, out var addLeft, out var addRight))
             {
-                return this.Visit(this.Scope.Subtract(this.Scope.Negate(add.Left), add.Right));
+                return this.Visit(this.Scope.Subtract(this.Scope.Negate(addLeft), addRight));
             }
 
             // Convert "-(a - b)" into "b - a"
-            if (operand.NodeType == ExpressionType.Subtract && operand is BinaryExpression subtract)
+            if (this.Scope.MatchSubtract(operand, out var subtractLeft, out var subtractRight))
             {
-                return this.Visit(this.Scope.Subtract(subtract.Right, subtract.Left));
+                return this.Visit(this.Scope.Subtract(subtractRight, subtractLeft));
             }
 
             // Convert "-(a / b)" into "-a / b"
-            if (operand.NodeType == ExpressionType.Divide && operand is BinaryExpression divide)
+            if (this.Scope.MatchDivide(operand, out var divideLeft, out var divideRight))
             {
-                return this.Visit(this.Scope.Divide(this.Scope.Negate(divide.Left), divide.Right));
+                return this.Visit(this.Scope.Divide(this.Scope.Negate(divideLeft), divideRight));
             }
 
             return this.Scope.Negate(operand);
@@ -282,12 +282,12 @@
 
         private Expression SimplifyAdd(Expression augend, Expression addend)
         {
-            if (this.Scope.IsConstraint(augend, out var leftCondition, out var leftConsequent))
+            if (this.Scope.MatchConstraint(augend, out var leftCondition, out var leftConsequent))
             {
                 return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Add(leftConsequent, addend), this.Scope.NaN()));
             }
 
-            if (this.Scope.IsConstraint(addend, out var rightCondition, out var rightConsequent))
+            if (this.Scope.MatchConstraint(addend, out var rightCondition, out var rightConsequent))
             {
                 return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Add(augend, rightConsequent), this.Scope.NaN()));
             }
@@ -305,27 +305,27 @@
             }
 
             // Convert "a + (b + c)" into "a + b + c"
-            if (addend.NodeType == ExpressionType.Add && addend is BinaryExpression rightAdd)
+            if (this.Scope.MatchAdd(addend, out var addendLeft, out var addendRight))
             {
-                return this.Visit(this.Scope.Add(this.Scope.Add(augend, rightAdd.Left), rightAdd.Right));
+                return this.Visit(this.Scope.Add(this.Scope.Add(augend, addendLeft), addendRight));
             }
 
             // Convert "a + (b - c)" into "a + b - c"
-            if (addend.NodeType == ExpressionType.Subtract && addend is BinaryExpression rightSubtract)
+            if (this.Scope.MatchSubtract(addend, out var rightSubtractLeft, out var rightSubtractRight))
             {
-                return this.Visit(this.Scope.Subtract(this.Scope.Add(augend, rightSubtract.Left), rightSubtract.Right));
+                return this.Visit(this.Scope.Subtract(this.Scope.Add(augend, rightSubtractLeft), rightSubtractRight));
             }
 
             // Convert "a + -b" into "a - b"
-            if (addend.NodeType == ExpressionType.Negate && addend is UnaryExpression rightNegate)
+            if (this.Scope.MatchNegate(addend, out var rightNegateOperand))
             {
-                return this.Visit(this.Scope.Subtract(augend, rightNegate.Operand));
+                return this.Visit(this.Scope.Subtract(augend, rightNegateOperand));
             }
 
             // Convert "-a + b" into "b - a"
-            if (augend.NodeType == ExpressionType.Negate && augend is UnaryExpression leftNegate)
+            if (this.Scope.MatchNegate(augend, out var leftNegateOperand))
             {
-                return this.Visit(this.Scope.Subtract(addend, leftNegate.Operand));
+                return this.Visit(this.Scope.Subtract(addend, leftNegateOperand));
             }
 
             // Convert "a + a" into "2 * a"
@@ -358,12 +358,12 @@
 
         private Expression SimplifySubtract(Expression minuend, Expression subtrahend)
         {
-            if (this.Scope.IsConstraint(minuend, out var leftCondition, out var leftConsequent))
+            if (this.Scope.MatchConstraint(minuend, out var leftCondition, out var leftConsequent))
             {
                 return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Subtract(leftConsequent, subtrahend), this.Scope.NaN()));
             }
 
-            if (this.Scope.IsConstraint(subtrahend, out var rightCondition, out var rightConsequent))
+            if (this.Scope.MatchConstraint(subtrahend, out var rightCondition, out var rightConsequent))
             {
                 return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Subtract(minuend, rightConsequent), this.Scope.NaN()));
             }
@@ -381,21 +381,21 @@
             }
 
             // Convert "a - (b + c)" into "a - b - c"
-            if (subtrahend.NodeType == ExpressionType.Add && subtrahend is BinaryExpression rightAdd)
+            if (this.Scope.MatchAdd(subtrahend, out var rightAddLeft, out var rightAddRight))
             {
-                return this.Visit(this.Scope.Subtract(this.Scope.Subtract(minuend, rightAdd.Left), rightAdd.Right));
+                return this.Visit(this.Scope.Subtract(this.Scope.Subtract(minuend, rightAddLeft), rightAddRight));
             }
 
             // Convert "a - (b - c)" into "a - b + c"
-            if (subtrahend.NodeType == ExpressionType.Subtract && subtrahend is BinaryExpression rightSubtract)
+            if (this.Scope.MatchSubtract(subtrahend, out var rightSubtractLeft, out var rightSubtractRight))
             {
-                return this.Visit(this.Scope.Add(this.Scope.Subtract(minuend, rightSubtract.Left), rightSubtract.Right));
+                return this.Visit(this.Scope.Add(this.Scope.Subtract(minuend, rightSubtractLeft), rightSubtractRight));
             }
 
             // Convert "a - -b" into "a + b"
-            if (subtrahend.NodeType == ExpressionType.Negate && subtrahend is UnaryExpression negate)
+            if (this.Scope.MatchNegate(subtrahend, out var negateOperand))
             {
-                return this.Visit(this.Scope.Add(minuend, negate.Operand));
+                return this.Visit(this.Scope.Add(minuend, negateOperand));
             }
 
             // Convert "a - a" into "0"
@@ -423,12 +423,12 @@
 
         private Expression SimplifyMultiply(Expression multiplicand, Expression multiplier)
         {
-            if (this.Scope.IsConstraint(multiplicand, out var leftCondition, out var leftConsequent))
+            if (this.Scope.MatchConstraint(multiplicand, out var leftCondition, out var leftConsequent))
             {
                 return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Multiply(leftConsequent, multiplier), this.Scope.NaN()));
             }
 
-            if (this.Scope.IsConstraint(multiplier, out var rightCondition, out var rightConsequent))
+            if (this.Scope.MatchConstraint(multiplier, out var rightCondition, out var rightConsequent))
             {
                 return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Multiply(multiplicand, rightConsequent), this.Scope.NaN()));
             }
@@ -458,57 +458,57 @@
             }
 
             // Convert "a * (b * c)" into "a * b * c"
-            if (multiplier.NodeType == ExpressionType.Multiply && multiplier is BinaryExpression rightMultiply)
+            if (this.Scope.MatchMultiply(multiplier, out var rightMultiplyLeft, out var rightMultiplyRight))
             {
-                return this.Visit(this.Scope.Multiply(this.Scope.Multiply(multiplicand, rightMultiply.Left), rightMultiply.Right));
+                return this.Visit(this.Scope.Multiply(this.Scope.Multiply(multiplicand, rightMultiplyLeft), rightMultiplyRight));
             }
 
             // Convert "(a / b) * c" into "a * c / b"
-            if (multiplicand.NodeType == ExpressionType.Divide && multiplicand is BinaryExpression leftDivide)
+            if (this.Scope.MatchDivide(multiplicand, out var leftDivideLeft, out var leftDivideRight))
             {
-                return this.Visit(this.Scope.Divide(this.Scope.Multiply(leftDivide.Left, multiplier), leftDivide.Right));
+                return this.Visit(this.Scope.Divide(this.Scope.Multiply(leftDivideLeft, multiplier), leftDivideRight));
             }
 
             // Convert "a * (b / c)" into "a * b / c"
-            if (multiplier.NodeType == ExpressionType.Divide && multiplier is BinaryExpression rightDivide)
+            if (this.Scope.MatchDivide(multiplier, out var rightDivideLeft, out var rightDivideRight))
             {
-                return this.Visit(this.Scope.Divide(this.Scope.Multiply(multiplicand, rightDivide.Left), rightDivide.Right));
+                return this.Visit(this.Scope.Divide(this.Scope.Multiply(multiplicand, rightDivideLeft), rightDivideRight));
             }
 
             // Convert "-a * b" into "-(a * b)"
-            if (multiplicand.NodeType == ExpressionType.Negate && multiplicand is UnaryExpression leftNegate)
+            if (this.Scope.MatchNegate(multiplicand, out var leftNegateOperand))
             {
-                return this.Visit(this.Scope.Negate(this.Scope.Multiply(leftNegate.Operand, multiplier)));
+                return this.Visit(this.Scope.Negate(this.Scope.Multiply(leftNegateOperand, multiplier)));
             }
 
             // Convert "a * -b" into "-(a * b)"
-            if (multiplier.NodeType == ExpressionType.Negate && multiplier is UnaryExpression rightNegate)
+            if (this.Scope.MatchNegate(multiplier, out var rightNegateOperand))
             {
-                return this.Visit(this.Scope.Negate(this.Scope.Multiply(multiplicand, rightNegate.Operand)));
+                return this.Visit(this.Scope.Negate(this.Scope.Multiply(multiplicand, rightNegateOperand)));
             }
 
             // Convert "a * (b + c)" into "a * b + a * c"
-            if (multiplier.NodeType == ExpressionType.Add && multiplier is BinaryExpression rightAdd)
+            if (this.Scope.MatchAdd(multiplier, out var rightAddLeft, out var rightAddRight))
             {
-                return this.Visit(this.Scope.Add(this.Scope.Multiply(multiplicand, rightAdd.Left), this.Scope.Multiply(multiplicand, rightAdd.Right)));
+                return this.Visit(this.Scope.Add(this.Scope.Multiply(multiplicand, rightAddLeft), this.Scope.Multiply(multiplicand, rightAddRight)));
             }
 
             // Convert "(a + b) * c" into "a * c + b * c"
-            if (multiplicand.NodeType == ExpressionType.Add && multiplicand is BinaryExpression leftAdd)
+            if (this.Scope.MatchAdd(multiplicand, out var leftAddLeft, out var leftAddRight))
             {
-                return this.Visit(this.Scope.Add(this.Scope.Multiply(leftAdd.Left, multiplier), this.Scope.Multiply(leftAdd.Right, multiplier)));
+                return this.Visit(this.Scope.Add(this.Scope.Multiply(leftAddLeft, multiplier), this.Scope.Multiply(leftAddRight, multiplier)));
             }
 
             // Convert "a * (b - c)" into "a * b - a * c"
-            if (multiplier.NodeType == ExpressionType.Subtract && multiplier is BinaryExpression rightSubtract)
+            if (this.Scope.MatchSubtract(multiplier, out var rightSubtractLeft, out var rightSubtractRight))
             {
-                return this.Visit(this.Scope.Subtract(this.Scope.Multiply(multiplicand, rightSubtract.Left), this.Scope.Multiply(multiplicand, rightSubtract.Right)));
+                return this.Visit(this.Scope.Subtract(this.Scope.Multiply(multiplicand, rightSubtractLeft), this.Scope.Multiply(multiplicand, rightSubtractRight)));
             }
 
             // Convert "(a - b) * c" into "a * c - b * c"
-            if (multiplicand.NodeType == ExpressionType.Subtract && multiplicand is BinaryExpression leftSubtract)
+            if (this.Scope.MatchSubtract(multiplicand, out var leftSubtractLeft, out var leftSubtractRight))
             {
-                return this.Visit(this.Scope.Subtract(this.Scope.Multiply(leftSubtract.Left, multiplier), this.Scope.Multiply(leftSubtract.Right, multiplier)));
+                return this.Visit(this.Scope.Subtract(this.Scope.Multiply(leftSubtractLeft, multiplier), this.Scope.Multiply(leftSubtractRight, multiplier)));
             }
 
             // Convert "a * a" into "a ^ 2"
@@ -540,12 +540,12 @@
 
         private Expression SimplifyDivide(Expression dividend, Expression divisor)
         {
-            if (this.Scope.IsConstraint(dividend, out var leftCondition, out var leftConsequent))
+            if (this.Scope.MatchConstraint(dividend, out var leftCondition, out var leftConsequent))
             {
                 return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Divide(leftConsequent, divisor), this.Scope.NaN()));
             }
 
-            if (this.Scope.IsConstraint(divisor, out var rightCondition, out var rightConsequent))
+            if (this.Scope.MatchConstraint(divisor, out var rightCondition, out var rightConsequent))
             {
                 return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Divide(dividend, rightConsequent), this.Scope.NaN()));
             }
@@ -569,7 +569,7 @@
             }
 
             // Convert "a / √2" into "a√2 / 2"
-            if (this.Scope.IsSqrt(divisor, out var @base) && this.Scope.IsConstantValue(@base, out var constant) && constant.Value is double value && value >= 0)
+            if (this.Scope.MatchSqrt(divisor, out var @base) && this.Scope.IsConstantValue(@base, out var constant) && constant.Value is double value && value >= 0)
             {
                 return this.Visit(this.Scope.Divide(this.Scope.Multiply(dividend, divisor), @base));
             }
@@ -585,12 +585,12 @@
 
         private Expression SimplifyPower(Expression @base, Expression exponent)
         {
-            if (this.Scope.IsConstraint(@base, out var leftCondition, out var leftConsequent))
+            if (this.Scope.MatchConstraint(@base, out var leftCondition, out var leftConsequent))
             {
                 return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Pow(leftConsequent, exponent), this.Scope.NaN()));
             }
 
-            if (this.Scope.IsConstraint(exponent, out var rightCondition, out var rightConsequent))
+            if (this.Scope.MatchConstraint(exponent, out var rightCondition, out var rightConsequent))
             {
                 return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Pow(@base, rightConsequent), this.Scope.NaN()));
             }
@@ -623,7 +623,7 @@
             }
 
             // Convert "(a ^ b) ^ c" into "a ^ (b * c)"
-            if (this.Scope.IsPower(@base, out var leftBase, out var leftExponent))
+            if (this.Scope.MatchPower(@base, out var leftBase, out var leftExponent))
             {
                 return this.Visit(this.Scope.Pow(leftBase, this.Scope.Multiply(leftExponent, exponent)));
             }

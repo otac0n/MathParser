@@ -1,6 +1,6 @@
 x=0 or y=0
 (parsed)
-((x == Convert(0, Complex)) OrElse (y == Convert(0, Complex)))
+((x == Convert(0, Complex)) Or (y == Convert(0, Complex)))
 (transformed)
 x=0 or y=0
 (stable)
