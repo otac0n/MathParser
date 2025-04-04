@@ -73,7 +73,7 @@
             var simpleObject = node.Object == null ? null : this.Visit(node.Object);
             var simpleArguments = node.Arguments.Select(a => this.Visit(a)).ToList();
 
-            if (Scope.TryBind(node.Method, out var knownFunction))
+            if (Scope.TryBind(node, out var knownFunction, out _))
             {
                 if (knownFunction == WKF.Exponential.Pow && simpleArguments.Count == 2)
                 {

@@ -922,9 +922,7 @@ namespace MathParser
             }
             else if (actualType == ExpressionType.Call)
             {
-                var node = (MethodCallExpression)expression;
-
-                if (Scope.TryBind(node.Method, out var knownMethod))
+                if (Scope.TryBind(expression, out var knownMethod, out _))
                 {
                     if (MethodEquivalence.TryGetValue(knownMethod, out var knownType))
                     {

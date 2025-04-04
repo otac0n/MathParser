@@ -234,8 +234,24 @@
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            throw new NotImplementedException();
-            return base.VisitMethodCall(node);
+            var compareMethodCall = (MethodCallExpression)this.compare!;
+            if (compareMethodCall.Method != node.Method)
+            {
+                this.success = false;
+                return node;
+            }
+
+            this.compare = compareMethodCall.Object;
+            this.Visit(node.Object);
+
+            for (var i = 0; i < compareMethodCall.Arguments.Count && this.success; i++)
+            {
+                this.compare = compareMethodCall.Arguments[i];
+                this.Visit(node.Arguments[i]);
+            }
+
+            this.compare = compareMethodCall;
+            return node;
         }
 
         protected override Expression VisitNew(NewExpression node)

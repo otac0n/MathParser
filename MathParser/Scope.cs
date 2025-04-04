@@ -93,52 +93,6 @@
             return false;
         }
 
-        public static void Bind(MethodCallExpression methodCall, out KnownFunction knownMethod, out IList<Expression>? arguments)
-        {
-            if (!TryBind(methodCall, out knownMethod, out arguments))
-            {
-                throw new MissingMethodException($"Could not find a binding for '{methodCall.Method}'.");
-            }
-        }
-
-        public static bool TryBind(MethodCallExpression methodCall, [NotNullWhen(true)] out KnownFunction? knownMethod, [NotNullWhen(true)] out IList<Expression>? arguments)
-        {
-            var method = methodCall.Method;
-            if (TryBind(method, out knownMethod))
-            {
-                arguments = method.IsStatic ? methodCall.Arguments : [methodCall.Object!, .. methodCall.Arguments];
-                return true;
-            }
-
-            arguments = null;
-            return false;
-        }
-
-        public static void Bind(MethodInfo method, out KnownFunction knownMethod)
-        {
-            if (!TryBind(method, out knownMethod))
-            {
-                throw new MissingMethodException($"Could not find a binding for '{method}'.");
-            }
-        }
-
-        public static bool TryBind(MethodInfo method, [NotNullWhen(true)] out KnownFunction? knownMethod)
-        {
-            var methods = (from known in DefaultScope.KnownMethods
-                           where known.Key.Body is MethodCallExpression methodCall && methodCall.Method == method
-                           select known.Value).Distinct();
-
-            using var enumerator = methods.GetEnumerator();
-            if (enumerator.MoveNext())
-            {
-                knownMethod = enumerator.Current;
-                return true;
-            }
-
-            knownMethod = null;
-            return false;
-        }
-
         public static string BindName(KnownFunction function)
         {
             if (!TryBindName(function, out var name))
