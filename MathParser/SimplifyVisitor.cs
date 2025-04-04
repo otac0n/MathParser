@@ -511,10 +511,13 @@
                 return this.Visit(this.Scope.Subtract(this.Scope.Multiply(leftSubtractLeft, multiplier), this.Scope.Multiply(leftSubtractRight, multiplier)));
             }
 
-            // Convert "a * a" into "a ^ 2"
-            if (multiplicand == multiplier)
+            this.GetBaseAndPower(multiplicand, out var leftBase, out var leftExponent);
+            this.GetBaseAndPower(multiplier, out var rightBase, out var rightExponent);
+
+            // Convert "a^y * a^x" into "a ^ (y + x)"
+            if (leftBase == rightBase)
             {
-                return this.Visit(this.Scope.Pow(multiplicand, Expression.Constant(2.0)));
+                return this.Visit(this.Scope.Pow(leftBase, this.Scope.Add(leftExponent ?? this.Scope.One(), rightExponent ?? this.Scope.One())));
             }
 
             if (this.Scope.IsConstantValue(multiplier, out var rightConstant))
@@ -667,6 +670,18 @@
         private Expression SimplifyCompare(Expression left, ExpressionType op, Expression right)
         {
             return this.Scope.Compare(left, op, right);
+        }
+
+        private void GetBaseAndPower(Expression expr, out Expression @base, out Expression? exponent)
+        {
+            if (this.Scope.MatchPower(expr, out @base, out exponent))
+            {
+                return;
+            }
+
+            @base = expr;
+            exponent = null; // null -> one.
+            return;
         }
     }
 }
