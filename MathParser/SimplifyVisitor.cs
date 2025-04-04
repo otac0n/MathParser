@@ -250,7 +250,7 @@
         {
             if (this.Scope.MatchConstraint(operand, out var condition, out var consequent))
             {
-                return this.Visit(this.Scope.Conditional(condition, this.Scope.Negate(consequent), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(condition, this.Scope.Negate(consequent)));
             }
 
             // Convert "--a" into "a"
@@ -284,12 +284,12 @@
         {
             if (this.Scope.MatchConstraint(augend, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Add(leftConsequent, addend), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(leftCondition, this.Scope.Add(leftConsequent, addend)));
             }
 
             if (this.Scope.MatchConstraint(addend, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Add(augend, rightConsequent), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(rightCondition, this.Scope.Add(augend, rightConsequent)));
             }
 
             // Convert "0 + a" into "a"
@@ -360,12 +360,12 @@
         {
             if (this.Scope.MatchConstraint(minuend, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Subtract(leftConsequent, subtrahend), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(leftCondition, this.Scope.Subtract(leftConsequent, subtrahend)));
             }
 
             if (this.Scope.MatchConstraint(subtrahend, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Subtract(minuend, rightConsequent), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(rightCondition, this.Scope.Subtract(minuend, rightConsequent)));
             }
 
             // Convert "0 - a" into "-a"
@@ -425,12 +425,12 @@
         {
             if (this.Scope.MatchConstraint(multiplicand, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Multiply(leftConsequent, multiplier), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(leftCondition, this.Scope.Multiply(leftConsequent, multiplier)));
             }
 
             if (this.Scope.MatchConstraint(multiplier, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Multiply(multiplicand, rightConsequent), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(rightCondition, this.Scope.Multiply(multiplicand, rightConsequent)));
             }
 
             // Convert "0 * a" into "0"
@@ -542,12 +542,12 @@
         {
             if (this.Scope.MatchConstraint(dividend, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Divide(leftConsequent, divisor), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(leftCondition, this.Scope.Divide(leftConsequent, divisor)));
             }
 
             if (this.Scope.MatchConstraint(divisor, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Divide(dividend, rightConsequent), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(rightCondition, this.Scope.Divide(dividend, rightConsequent)));
             }
 
             // Maintain "a / 0"
@@ -577,7 +577,7 @@
             // Convert "a / a" into "a; a!=0"
             if (dividend == divisor)
             {
-                return this.Visit(this.Scope.Conditional(this.Scope.NotEqual(divisor, this.Scope.Zero()), this.Scope.One(), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(this.Scope.NotEqual(divisor, this.Scope.Zero()), this.Scope.One()));
             }
 
             return this.Scope.Divide(dividend, divisor);
@@ -587,12 +587,12 @@
         {
             if (this.Scope.MatchConstraint(@base, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(this.Scope.Conditional(leftCondition, this.Scope.Pow(leftConsequent, exponent), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(leftCondition, this.Scope.Pow(leftConsequent, exponent)));
             }
 
             if (this.Scope.MatchConstraint(exponent, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(this.Scope.Conditional(rightCondition, this.Scope.Pow(@base, rightConsequent), this.Scope.NaN()));
+                return this.Visit(this.Scope.Constraint(rightCondition, this.Scope.Pow(@base, rightConsequent)));
             }
 
             // Convert "1 ^ a" to "1"

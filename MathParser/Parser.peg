@@ -70,7 +70,7 @@ equalityOperator <ExpressionType>
     / "<"                        { ExpressionType.LessThan }
 
 conditional <Expression>
-    = additive:additive _  (";" / "if") _ condition:disjunction { Scope.Conditional(condition, additive, Scope.NaN()) }
+    = additive:additive _  (";" / "if") _ condition:disjunction { Scope.Constraint(condition, additive) }
     / additive
 
 additive <Expression> -memoize

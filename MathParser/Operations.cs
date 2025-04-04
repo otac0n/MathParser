@@ -89,6 +89,17 @@ namespace MathParser
             return expression;
         }
 
+        public static Expression LowerToReal(this Scope scope, Expression expression)
+        {
+            var from = expression.Type;
+            if (from == typeof(Complex))
+            {
+                return Expression.MakeMemberAccess(expression, typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
+            }
+
+            return expression;
+        }
+
         public static Expression And(this Scope scope, Expression left, Expression right) => scope.Bind(WKF.Boolean.And, left, right);
 
         public static bool MatchAnd(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? left, [NotNullWhen(true)] out Expression? right) =>
@@ -108,21 +119,29 @@ namespace MathParser
 
         public static Expression NotEqual(this Scope scope, Expression left, Expression right) => Expression.NotEqual(scope.ConvertIfLower(left, to: right), scope.ConvertIfLower(right, to: left));
 
-        public static Expression LowerToReal(this Scope scope, Expression expression)
+        public static Expression Conditional(this Scope scope, Expression condition, Expression consequent, Expression alternative) =>
+            Expression.Condition(condition, scope.ConvertIfLower(consequent, to: alternative), scope.ConvertIfLower(alternative, to: consequent));
+
+        public static Expression Constraint(this Scope scope, Expression condition, Expression consequent) =>
+            Expression.Condition(condition, consequent, scope.ConvertIfLower(scope.NaN(), to: consequent));
+
+        public static bool MatchConstraint(this Scope scope, Expression expression, [NotNullWhen(true)] out Expression? condition, [NotNullWhen(true)] out Expression? consequent)
         {
-            var from = expression.Type;
-            if (from == typeof(Complex))
+            if (expression.NodeType == ExpressionType.Conditional &&
+                expression is ConditionalExpression conditional &&
+                scope.IsNaN(conditional.IfFalse))
             {
-                return Expression.MakeMemberAccess(expression, typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
+                condition = conditional.Test;
+                consequent = conditional.IfTrue;
+                return true;
             }
 
-            return expression;
+            condition = null;
+            consequent = null;
+            return false;
         }
 
         public static Expression Abs(this Scope scope, Expression expression) => scope.Bind(WKF.Piecewise.Abs, expression);
-
-        public static Expression Conditional(this Scope scope, Expression condition, Expression consequent, Expression alternative) =>
-            Expression.Condition(condition, scope.ConvertIfLower(consequent, to: alternative), scope.ConvertIfLower(alternative, to: consequent));
 
         public static Expression Ceiling(this Scope scope, Expression expression) => scope.Bind(WKF.Piecewise.Ceiling, expression);
 
@@ -250,22 +269,6 @@ namespace MathParser
             }
 
             operand = null;
-            return false;
-        }
-
-        public static bool MatchConstraint(this Scope scope, Expression expression, [NotNullWhen(true)] out Expression? condition, [NotNullWhen(true)] out Expression? consequent)
-        {
-            if (expression.NodeType == ExpressionType.Conditional &&
-                expression is ConditionalExpression conditional &&
-                scope.IsNaN(conditional.IfFalse))
-            {
-                condition = conditional.Test;
-                consequent = conditional.IfTrue;
-                return true;
-            }
-
-            condition = null;
-            consequent = null;
             return false;
         }
 
