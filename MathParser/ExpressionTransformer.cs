@@ -50,6 +50,16 @@ namespace MathParser
             [WKF.Exponential.Pow] = ExpressionType.Power,
             [WKF.Exponential.Exp] = ExpressionType.Power,
             [WKF.Exponential.Sqrt] = ExpressionType.Power,
+            [WKF.Comparison.Equal] = ExpressionType.Equal,
+            [WKF.Comparison.NotEqual] = ExpressionType.NotEqual,
+            [WKF.Comparison.GreaterThan] = ExpressionType.GreaterThan,
+            [WKF.Comparison.GreaterThanOrEqual] = ExpressionType.GreaterThanOrEqual,
+            [WKF.Comparison.LessThan] = ExpressionType.LessThan,
+            [WKF.Comparison.LessThanOrEqual] = ExpressionType.LessThanOrEqual,
+            [WKF.Boolean.Not] = ExpressionType.Not,
+            [WKF.Boolean.And] = ExpressionType.And,
+            [WKF.Boolean.Or] = ExpressionType.Or,
+            [WKF.Boolean.ExclusiveOr] = ExpressionType.ExclusiveOr,
         };
 
         /// <summary>
@@ -469,46 +479,7 @@ namespace MathParser
         {
             ArgumentNullException.ThrowIfNull(node);
 
-            this.Visit(node.Left);
-            var left = this.Result;
-            this.Visit(node.Right);
-            var right = this.Result;
-
-            var effectiveType = this.GetEffectiveNodeType(node);
-            var leftEffectiveType = this.GetEffectiveNodeType(node.Left);
-            var rightEffectiveType = this.GetEffectiveNodeType(node.Right);
-
-            if (this.NeedsLeftBrackets(effectiveType, node, leftEffectiveType, node.Left))
-            {
-                left = this.AddBrackets(left);
-            }
-
-            if (this.NeedsRightBrackets(effectiveType, node, rightEffectiveType, node.Right))
-            {
-                right = this.AddBrackets(right);
-            }
-
-            switch (effectiveType)
-            {
-                case ExpressionType.And:
-                    this.Result = this.CreateAnd(left, right);
-                    break;
-
-                case ExpressionType.Or:
-                    this.Result = this.CreateOr(left, right);
-                    break;
-
-                case ExpressionType.Equal:
-                case ExpressionType.NotEqual:
-                case ExpressionType.GreaterThan:
-                case ExpressionType.GreaterThanOrEqual:
-                case ExpressionType.LessThan:
-                case ExpressionType.LessThanOrEqual:
-                    this.Result = this.CreateEquality(left, effectiveType, right);
-                    break;
-            }
-
-            return node;
+            throw new NotImplementedException($"The binary operator '{node.NodeType}' is not supported for expression transformation.");
         }
 
         /// <inheritdoc />
@@ -660,6 +631,15 @@ namespace MathParser
 
                             this.Result = this.CreateNegate(inner);
                             return node;
+
+                        case ExpressionType.Not:
+                            if (this.NeedsRightBrackets(ExpressionType.Not, node, operandEffectiveType, operand))
+                            {
+                                inner = this.AddBrackets(inner);
+                            }
+
+                            this.Result = this.CreateNot(inner);
+                            return node;
                     }
                 }
                 else if (arguments.Count == 2)
@@ -712,6 +692,14 @@ namespace MathParser
                         case ExpressionType.LessThan:
                         case ExpressionType.LessThanOrEqual:
                             this.Result = this.CreateEquality(left, effectiveType, right);
+                            return node;
+
+                        case ExpressionType.And:
+                            this.Result = this.CreateAnd(left, right);
+                            return node;
+
+                        case ExpressionType.Or:
+                            this.Result = this.CreateOr(left, right);
                             return node;
                     }
                 }
@@ -811,22 +799,7 @@ namespace MathParser
         {
             ArgumentNullException.ThrowIfNull(node);
 
-            if (node.NodeType == ExpressionType.Not)
-            {
-                this.Visit(node.Operand);
-                var inner = this.Result;
-
-                var operandEffectiveType = this.GetEffectiveNodeType(node.Operand);
-
-                if (this.NeedsRightBrackets(ExpressionType.Not, node, operandEffectiveType, node.Operand))
-                {
-                    inner = this.AddBrackets(inner);
-                }
-
-                this.Result = this.CreateNot(inner);
-                return node;
-            }
-            else if (node.NodeType == ExpressionType.Convert)
+            if (node.NodeType == ExpressionType.Convert)
             {
                 this.Visit(node.Operand);
                 return node;
@@ -854,15 +827,7 @@ namespace MathParser
                 }
             }
 
-            if (actualType == ExpressionType.AndAlso)
-            {
-                return ExpressionType.And;
-            }
-            else if (actualType == ExpressionType.OrElse)
-            {
-                return ExpressionType.Or;
-            }
-            else if (actualType == ExpressionType.New && expression.Type == typeof(Complex))
+            if (actualType == ExpressionType.New && expression.Type == typeof(Complex))
             {
                 var node = (NewExpression)expression;
                 if (node.Arguments.Count == 2 && node.Arguments[0].NodeType == ExpressionType.Constant && node.Arguments[1].NodeType == ExpressionType.Constant)

@@ -128,6 +128,98 @@ namespace MathParser
         }
 
         /// <summary>
+        /// Comparison functions.
+        /// </summary>
+        public static class Comparison
+        {
+            /// <summary>
+            /// Gets an object that represents the equality function.
+            /// </summary>
+            /// <remarks>
+            /// The `=` operator.
+            /// </remarks>
+            public static KnownFunction Equal { get; } = new("eq");
+
+            /// <summary>
+            /// Gets an object that represents the inequality function.
+            /// </summary>
+            /// <remarks>
+            /// The `!=` operator.
+            /// </remarks>
+            public static KnownFunction NotEqual { get; } = new("neq");
+
+            /// <summary>
+            /// Gets an object that represents the greater-than function.
+            /// </summary>
+            /// <remarks>
+            /// The `>` operator.
+            /// </remarks>
+            public static KnownFunction GreaterThan { get; } = new("gt");
+
+            /// <summary>
+            /// Gets an object that represents the greater-than-or-equal function.
+            /// </summary>
+            /// <remarks>
+            /// The `>=` operator.
+            /// </remarks>
+            public static KnownFunction GreaterThanOrEqual { get; } = new("gte");
+
+            /// <summary>
+            /// Gets an object that represents the less-than function.
+            /// </summary>
+            /// <remarks>
+            /// The `&lt;` operator.
+            /// </remarks>
+            public static KnownFunction LessThan { get; } = new("lt");
+
+            /// <summary>
+            /// Gets an object that represents the less-than-or-equal function.
+            /// </summary>
+            /// <remarks>
+            /// The `&lt;=` operator.
+            /// </remarks>
+            public static KnownFunction LessThanOrEqual { get; } = new("lte");
+        }
+
+        /// <summary>
+        /// Comparison functions.
+        /// </summary>
+        public static class Boolean
+        {
+            /// <summary>
+            /// Gets an object that represents the NOT function.
+            /// </summary>
+            /// <remarks>
+            /// The logical NOT operator.
+            /// </remarks>
+            public static KnownFunction Not { get; } = new("not");
+
+            /// <summary>
+            /// Gets an object that represents the AND function.
+            /// </summary>
+            /// <remarks>
+            /// The logical AND operator.
+            /// </remarks>
+            public static KnownFunction And { get; } = new("and");
+
+            /// <summary>
+            /// Gets an object that represents the OR function.
+            /// </summary>
+            /// <remarks>
+            /// The logical OR operator.
+            /// </remarks>
+            public static KnownFunction Or { get; } = new("or");
+
+            /// <summary>
+            /// Gets an object that represents the XOR function.
+            /// </summary>
+            /// <remarks>
+            /// The logical XOR operator.
+            /// </remarks>
+            public static KnownFunction ExclusiveOr { get; } = new("xor");
+        }
+
+        /// <summary>
         /// Complex maniplation functions.
         /// </summary>
         public static class Complex

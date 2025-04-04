@@ -51,6 +51,12 @@ namespace MathParser
 
         public static readonly ExpressionPatternList<KnownFunction> KnownMethods = new WellKnownFunctionMapping()
         {
+            { (bool x) => !x, WKF.Boolean.Not },
+            { (bool l, bool r) => l & r, WKF.Boolean.And },
+            { (bool l, bool r) => l && r, WKF.Boolean.And },
+            { (bool l, bool r) => l | r, WKF.Boolean.Or },
+            { (bool l, bool r) => l || r, WKF.Boolean.Or },
+            { (bool l, bool r) => l ^ r, WKF.Boolean.ExclusiveOr },
             { typeof(float) },
             { typeof(double) },
             { typeof(Complex) },
@@ -168,6 +174,12 @@ namespace MathParser
                 [ExpressionType.MultiplyChecked] = WKF.Arithmetic.Multiply,
                 [ExpressionType.Divide] = WKF.Arithmetic.Divide, // DivideChecked not available.
                 [ExpressionType.Power] = WKF.Exponential.Pow,
+                [ExpressionType.Equal] = WKF.Comparison.Equal,
+                [ExpressionType.NotEqual] = WKF.Comparison.NotEqual,
+                [ExpressionType.GreaterThan] = WKF.Comparison.GreaterThan,
+                [ExpressionType.GreaterThanOrEqual] = WKF.Comparison.GreaterThanOrEqual,
+                [ExpressionType.LessThan] = WKF.Comparison.LessThan,
+                [ExpressionType.LessThanOrEqual] = WKF.Comparison.LessThanOrEqual,
             };
 
             public void Add(Type numberType)
@@ -194,13 +206,26 @@ namespace MathParser
                     var definition = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
                     var typeArgs = type.IsGenericType ? type.GetGenericArguments() : [];
 
-                    ////if (definition == typeof(IUnaryPlusOperators<,>))
+                    if (definition == typeof(IEqualityOperators<,,>))
+                    {
+                        var argTypes = typeArgs[..^1];
+                        this.Add(MakeLambda(argTypes, p => Expression.Equal(p[0], p[1])), WKF.Comparison.Equal);
+                        this.Add(MakeLambda(argTypes, p => Expression.NotEqual(p[0], p[1])), WKF.Comparison.NotEqual);
+                    }
+                    else if (definition == typeof(IComparisonOperators<,,>))
+                    {
+                        var argTypes = typeArgs[..^1];
+                        this.Add(MakeLambda(argTypes, p => Expression.GreaterThan(p[0], p[1])), WKF.Comparison.GreaterThan);
+                        this.Add(MakeLambda(argTypes, p => Expression.GreaterThanOrEqual(p[0], p[1])), WKF.Comparison.GreaterThanOrEqual);
+                        this.Add(MakeLambda(argTypes, p => Expression.LessThan(p[0], p[1])), WKF.Comparison.LessThan);
+                        this.Add(MakeLambda(argTypes, p => Expression.LessThanOrEqual(p[0], p[1])), WKF.Comparison.LessThanOrEqual);
+                    }
+                    ////else if (definition == typeof(IUnaryPlusOperators<,>))
                     ////{
                     ////    var argTypes = new[] { typeArgs[0] };
                     ////    this.Add(MakeLambda(argTypes, p => Expression.UnaryPlus(p[0])), WellKnownFunctions.Identity);
                     ////}
-                    ////else
-                    if (definition == typeof(IUnaryNegationOperators<,>))
+                    else if (definition == typeof(IUnaryNegationOperators<,>))
                     {
                         var argTypes = new[] { typeArgs[0] };
                         this.Add(MakeLambda(argTypes, p => Expression.Negate(p[0])), WKF.Arithmetic.Negate);
