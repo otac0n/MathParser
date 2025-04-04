@@ -11,8 +11,9 @@ namespace MathParser.Drawing
     /// <summary>
     /// Converts expressions to their visual representation. Can be overridden.
     /// </summary>
+    /// <param name="scope">The scope in which the transformations are performed.</param>
     [SupportedOSPlatform("windows")]
-    public class VisualNodeTransformer : ExpressionTransformer<VisualNode>
+    public class VisualNodeTransformer(Scope? scope = null) : ExpressionTransformer<VisualNode>(scope)
     {
         /// <inheritdoc />
         protected override VisualNode AddBrackets(string left, VisualNode expression, string right) => new BracketedVisualNode(left, expression, right);
@@ -115,7 +116,7 @@ namespace MathParser.Drawing
             {
                 if (binary.Right is ConditionalExpression conditional)
                 {
-                    if (!Operations.IsNaN(conditional.IfFalse))
+                    if (!this.Scope.IsNaN(conditional.IfFalse))
                     {
                         return ExpressionType.Conditional;
                     }
@@ -169,7 +170,7 @@ namespace MathParser.Drawing
             }
 
             if (innerEffectiveType == ExpressionType.Conditional &&
-                !Operations.IsConstraint(inner, out _, out _))
+                !this.Scope.IsConstraint(inner, out _, out _))
             {
                 // A conditional with an alternative renders its own left bracket.
                 return false;

@@ -16,6 +16,8 @@ namespace MathParser.Tests
         [TestCaseSource(typeof(TestData), nameof(TestData.ExpressionStrings))]
         public void IteratedParseAndTransformToString_Always_ReturnsTheSameExpression(string input)
         {
+            var scope = DefaultScope.Instance;
+
             var allInput = new HashSet<string>();
             var allParsed = new HashSet<string>();
             string previousInput = null;
@@ -29,7 +31,7 @@ namespace MathParser.Tests
             }
 
             Write(input);
-            var parser = new Parser();
+            var parser = new Parser(scope);
             allInput.Add(previousInput = input);
 
             while (true)
@@ -54,7 +56,7 @@ namespace MathParser.Tests
                     previousParsed = parsed;
                 }
 
-                input = expression.TransformToString();
+                input = expression.TransformToString(scope);
                 Write("(transformed)");
                 Write(input);
 

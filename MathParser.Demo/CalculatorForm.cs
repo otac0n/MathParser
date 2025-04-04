@@ -11,8 +11,8 @@ namespace MathParser.Demo
 
     internal partial class CalculatorForm : Form
     {
-        private readonly Parser parser = new Parser();
-        private readonly Display display = new Display();
+        private readonly Parser parser = new Parser(DefaultScope.Instance);
+        private readonly Display display = new Display(DefaultScope.Instance);
         private Expression expression;
 
         public CalculatorForm()

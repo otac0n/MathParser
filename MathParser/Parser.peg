@@ -5,6 +5,13 @@
 @using System.Numerics
 @members
 {
+    public Parser(Scope? scope = null)
+    {
+        this.Scope = scope ?? DefaultScope.Instance;
+    }
+
+    public Scope Scope { get; }
+
     private static void CreateVariable(Cursor state, string variable)
     {
         var existing = state[variable] as Expression;
@@ -24,18 +31,18 @@ statement <Expression>
     / conditional
 
 lambda <LambdaExpression>
-    = "D(" _ lambda:lambda _ ")" { Operations.Derivative(lambda) }
+    = "D(" _ lambda:lambda _ ")" { Scope.Derivative(lambda) }
     / name:identifier _ names:nameTuple _ ("==" / "=" / ":=") _ body:conditional #{ foreach(var p in names) CreateVariable(state, p); } { Expression.Lambda(body, name, names.Select(p => (ParameterExpression)state[p])) }
 
 nameTuple <IList<string>>
     = "(" _ names:identifier<1,,_ "," _> _ ")" { names }
 
 disjunction <Expression> -memoize
-    = left:disjunction _ ("||" / "|" / "∨" / "or") _ right:conjunction { Operations.Or(left, right) }
+    = left:disjunction _ ("||" / "|" / "∨" / "or") _ right:conjunction { Scope.Or(left, right) }
     / conjunction
 
 conjunction <Expression> -memoize
-    = left:conjunction _ ("&&" / "&" / "∧" / "and") _ right:conjunctionRest { Operations.And(left, right) }
+    = left:conjunction _ ("&&" / "&" / "∧" / "and") _ right:conjunctionRest { Scope.And(left, right) }
     / conjunctionRest
 
 conjunctionRest
@@ -43,7 +50,7 @@ conjunctionRest
     / equality
 
 complement <Expression>
-    =  ("not" / "!" / "¬") _ complement:complement { Operations.Not(complement) }
+    =  ("not" / "!" / "¬") _ complement:complement { Scope.Not(complement) }
     / atomic
 
 atomic <Expression>
@@ -52,7 +59,7 @@ atomic <Expression>
     / "(" _ disjunction:disjunction _ ")" { disjunction }
 
 equality <Expression>
-    = left:additive _ op:equalityOperator _ right:additive { Operations.Compare(left, op, right) }
+    = left:additive _ op:equalityOperator _ right:additive { Scope.Compare(left, op, right) }
 
 equalityOperator <ExpressionType>
     = ("==" / "=" / ":=")        { ExpressionType.Equal }
@@ -63,44 +70,44 @@ equalityOperator <ExpressionType>
     / "<"                        { ExpressionType.LessThan }
 
 conditional <Expression>
-    = additive:additive _  (";" / "if") _ condition:disjunction { Operations.Conditional(condition, additive, Operations.NaN()) }
+    = additive:additive _  (";" / "if") _ condition:disjunction { Scope.Conditional(condition, additive, Scope.NaN()) }
     / additive
 
 additive <Expression> -memoize
-    = left:additive _ "+" _ right:multiplicative { Operations.Add(left, right) }
-    / left:additive _ "-" _ right:multiplicative { Operations.Subtract(left, right) }
+    = left:additive _ "+" _ right:multiplicative { Scope.Add(left, right) }
+    / left:additive _ "-" _ right:multiplicative { Scope.Subtract(left, right) }
     / multiplicative
 
 multiplicative <Expression> -memoize
-    = left:multiplicative _ ("*" / "×" / "·" / ![-+|]) _ right:negation { Operations.Multiply(left, right) }
-    / left:multiplicative _ ("/" / "∕" / "÷") _ right:negation { Operations.Divide(left, right) }
+    = left:multiplicative _ ("*" / "×" / "·" / ![-+|]) _ right:negation { Scope.Multiply(left, right) }
+    / left:multiplicative _ ("/" / "∕" / "÷") _ right:negation { Scope.Divide(left, right) }
     / negation
 
 negation <Expression>
-    = "-" _ negation:negation { Operations.Negate(negation) }
+    = "-" _ negation:negation { Scope.Negate(negation) }
     / "+" _ negation:negation { negation }
     / power
 
 negationPrimary <Expression>
-    = "-" _ negation:negationPrimary { Operations.Negate(negation) }
+    = "-" _ negation:negationPrimary { Scope.Negate(negation) }
     / "+" _ negation:negationPrimary { negation }
     / primary
 
 power <Expression> -memoize
-    = left:primary _ "^" _ right:negation { Operations.Pow(left, right) }
+    = left:primary _ "^" _ right:negation { Scope.Pow(left, right) }
     / primary
 
 primary <Expression> -memoize
     = decimal
     / namedConstant
-    / "iif(" _ condition:disjunction _ "," _ consequent:conditional _ "," _ alternative:conditional _ ")" { Operations.Conditional(condition, consequent, alternative) }
-    / name:identifier "(" _ arguments:conditional<0,,_ "," _> _ ")" { Operations.Function(name, arguments) }
+    / "iif(" _ condition:disjunction _ "," _ consequent:conditional _ "," _ alternative:conditional _ ")" { Scope.Conditional(condition, consequent, alternative) }
+    / name:identifier "(" _ arguments:conditional<0,,_ "," _> _ ")" { Scope.Function(name, arguments) }
     / variable
-    / "√" _ negation:negationPrimary { Operations.Sqrt(negation) }
+    / "√" _ negation:negationPrimary { Scope.Sqrt(negation) }
     / "(" _ conditional:conditional _ ")" { conditional }
-    / "|" _ conditional:conditional _ "|" { Operations.Abs(conditional) }
-    / "⌈" _ conditional:conditional _ "⌉" { Operations.Ceiling(conditional) }
-    / "⌊" _ conditional:conditional _ "⌋" { Operations.Floor(conditional) }
+    / "|" _ conditional:conditional _ "|" { Scope.Abs(conditional) }
+    / "⌈" _ conditional:conditional _ "⌉" { Scope.Ceiling(conditional) }
+    / "⌊" _ conditional:conditional _ "⌋" { Scope.Floor(conditional) }
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }

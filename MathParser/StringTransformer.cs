@@ -7,7 +7,8 @@
     /// <summary>
     /// Converts expressions to their string representation. Can be overridden.
     /// </summary>
-    public class StringTransformer : ExpressionTransformer<string>
+    /// <param name="scope">The scope in which the transformations are performed.</param>
+    public class StringTransformer(Scope? scope = null) : ExpressionTransformer<string>(scope)
     {
         /// <inheritdoc />
         protected override string AddBrackets(string left, string expression, string right) => left + expression + right;
@@ -85,7 +86,7 @@
             }
 
             if (innerEffectiveType == ExpressionType.Conditional &&
-                !Operations.IsConstraint(inner, out _, out _))
+                !this.Scope.IsConstraint(inner, out _, out _))
             {
                 // A conditional with an alternative is rendered as a function.
                 return false;
@@ -97,7 +98,7 @@
         protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
             if (innerEffectiveType == ExpressionType.Conditional &&
-                !Operations.IsConstraint(inner, out _, out _))
+                !this.Scope.IsConstraint(inner, out _, out _))
             {
                 // A conditional with an alternative is rendered as a function.
                 return false;

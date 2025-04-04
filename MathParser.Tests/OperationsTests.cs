@@ -13,14 +13,16 @@ namespace MathParser.Tests
         [TestCaseSource(typeof(TestData), nameof(TestData.LambdaExpressions))]
         public void Derivative_Always_ReturnsAnApprovedExpression(LambdaExpression input)
         {
+            var scope = DefaultScope.Instance;
+
             var result = new StringBuilder();
-            result.AppendLine(input.TransformToString());
+            result.AppendLine(input.TransformToString(scope));
 
             var current = input;
             for (var i = 0; i < 3; i++)
             {
-                var next = Operations.Derivative(current);
-                result.AppendLine(next.TransformToString());
+                var next = scope.Derivative(current);
+                result.AppendLine(next.TransformToString(scope));
                 current = next;
             }
 
@@ -30,11 +32,13 @@ namespace MathParser.Tests
         [TestCaseSource(typeof(TestData), nameof(TestData.SimplifyStrings))]
         public void Simplify_Always_ReturnsTheExpectedExpression(string input)
         {
-            var parser = new Parser();
+            var scope = DefaultScope.Instance;
+
+            var parser = new Parser(scope);
             var expression = parser.Parse(input);
 
-            var simplified = Operations.Simplify(expression);
-            var result = simplified.TransformToString();
+            var simplified = scope.Simplify(expression);
+            var result = simplified.TransformToString(scope);
 
             WriteAndAssertResult(result);
         }

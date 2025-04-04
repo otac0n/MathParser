@@ -7,16 +7,18 @@ namespace MathParser.Demo
     using System.Linq.Expressions;
     using MathParser.Drawing;
 
-    internal class Display
+    internal class Display(Scope scope)
     {
         private static readonly Bitmap EmptyDisplayImage = new Bitmap(1, 1);
 
-        private readonly ExpressionRenderer renderer = new ExpressionRenderer
+        private readonly ExpressionRenderer renderer = new ExpressionRenderer(scope)
         {
             Font = new Font("Calibri", 20, FontStyle.Regular),
         };
 
         private Expression expression;
+
+        public Scope Scope { get; } = scope;
 
         public Bitmap ExpressionImage { get; private set; }
 
@@ -60,7 +62,7 @@ namespace MathParser.Demo
 
             try
             {
-                this.ExpressionText = this.expression.TransformToString();
+                this.ExpressionText = this.expression.TransformToString(this.Scope);
             }
             catch (Exception)
             {
@@ -69,8 +71,8 @@ namespace MathParser.Demo
 
             try
             {
-                var simplified = Operations.Simplify(expression);
-                this.ResultText = simplified.TransformToString();
+                var simplified = this.Scope.Simplify(expression);
+                this.ResultText = simplified.TransformToString(this.Scope);
             }
             catch (Exception ex)
             {

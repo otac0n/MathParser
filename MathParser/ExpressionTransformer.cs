@@ -38,7 +38,8 @@ namespace MathParser
     /// <remarks>
     /// The <see cref="ExpressionExtensions"/> class contains default implementations.
     /// </remarks>
-    public abstract class ExpressionTransformer<T> : ExpressionVisitor
+    /// <param name="scope">The scope in which the transformations are performed.</param>
+    public abstract class ExpressionTransformer<T>(Scope? scope) : ExpressionVisitor
     {
         private static readonly Dictionary<KnownFunction, ExpressionType> MethodEquivalence = new()
         {
@@ -63,16 +64,14 @@ namespace MathParser
         };
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExpressionTransformer{T}"/> class.
-        /// </summary>
-        protected ExpressionTransformer()
-        {
-        }
-
-        /// <summary>
         /// Gets the result of the most recent visit operation.
         /// </summary>
         public T Result { get; private set; }
+
+        /// <summary>
+        /// Gets the scope in which the transformations are performed.
+        /// </summary>
+        public Scope Scope { get; } = scope ?? DefaultScope.Instance;
 
         /// <summary>
         /// Gets the associativity of the operator given its precedence.
@@ -466,7 +465,7 @@ namespace MathParser
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
         {
-            if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
+            if (this.Scope.TryBind(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
@@ -500,7 +499,7 @@ namespace MathParser
             }
 
             T? alternative = default;
-            if (!Operations.IsNaN(next))
+            if (!this.Scope.IsNaN(next))
             {
                 this.Visit(next);
                 alternative = this.Result;
@@ -596,7 +595,7 @@ namespace MathParser
                 }
             }
 
-            if (Scope.TryBind(node, out var function, out var arguments))
+            if (this.Scope.TryBind(node, out var function, out var arguments))
             {
                 return this.VisitKnownFunction(function, node, arguments);
             }
@@ -757,7 +756,7 @@ namespace MathParser
                 return node;
             }
 
-            this.Result = this.CreateFunction(Scope.BindName(function), converted);
+            this.Result = this.CreateFunction(this.Scope.BindName(function), converted);
             return node;
         }
 
@@ -819,7 +818,7 @@ namespace MathParser
 
             var actualType = expression.NodeType;
 
-            if (Scope.TryBind(expression, out var knownMethod, out _))
+            if (this.Scope.TryBind(expression, out var knownMethod, out _))
             {
                 if (MethodEquivalence.TryGetValue(knownMethod, out var knownType))
                 {

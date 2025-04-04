@@ -9,13 +9,16 @@ namespace MathParser.Drawing
     using System.Drawing.Text;
     using System.Linq.Expressions;
     using System.Runtime.Versioning;
+    using MathParser;
 
     /// <summary>
     /// Renders <see cref="Expression">Expressions</see> a an images.
     /// </summary>
+    /// <param name="scope">The scope in which the transformations are performed.</param>
     [SupportedOSPlatform("windows")]
-    public class ExpressionRenderer
+    public class ExpressionRenderer(Scope? scope = null)
     {
+
         /// <summary>
         /// Gets or sets the brush that will be used when rendering expressions.
         /// </summary>
@@ -30,6 +33,11 @@ namespace MathParser.Drawing
         /// Gets or sets the pen that will be used when rendering expressions.
         /// </summary>
         public Pen Pen { get; set; } = new Pen(SystemColors.Window, 2) { Alignment = PenAlignment.Center };
+
+        /// <summary>
+        /// Gets the scope in which expressions are interpreted.
+        /// </summary>
+        public Scope Scope { get; } = scope ?? DefaultScope.Instance;
 
         /// <summary>
         /// Creates a new <see cref="Graphics"/> object with the recommended settings for rendering text.
@@ -67,7 +75,7 @@ namespace MathParser.Drawing
         /// <param name="point">The <see cref="PointF"/> specifies the upper-left corner of the drawn expression.</param>
         public void DrawExpression(Graphics graphics, Expression expression, PointF point)
         {
-            var visualTree = expression.TransformToVisualTree();
+            var visualTree = expression.TransformToVisualTree(this.Scope);
             visualTree.Draw(graphics, this.Font, this.Brush, this.Pen, point);
         }
 
@@ -79,7 +87,7 @@ namespace MathParser.Drawing
         /// <returns>The size of the bounding region of the measured expression.</returns>
         public SizeF Measure(Graphics graphics, Expression expression)
         {
-            var visualTree = expression.TransformToVisualTree();
+            var visualTree = expression.TransformToVisualTree(this.Scope);
             return visualTree.Measure(graphics, this.Font, out _);
         }
 
@@ -106,7 +114,7 @@ namespace MathParser.Drawing
         [SuppressMessage("Microsoft.Design", "CA1021:AvoidOutParameters", MessageId = "2#", Justification = "This is an optional overload. It is left as an out parameter for performance.")]
         public SizeF Measure(Graphics graphics, Expression expression, out float baseline)
         {
-            var visualTree = expression.TransformToVisualTree();
+            var visualTree = expression.TransformToVisualTree(this.Scope);
             return visualTree.Measure(graphics, this.Font, out baseline);
         }
 

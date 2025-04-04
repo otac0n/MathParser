@@ -15,32 +15,32 @@ namespace MathParser.Drawing.Tests
         [TestCaseSource(typeof(TestData), nameof(TestData.ExpressionStrings))]
         public void MeasureAndDrawExpression_ApprovalTest(string input)
         {
-            ExpressionRendererTestHelper(input);
+            ExpressionRendererTestHelper(input, DefaultScope.Instance);
         }
 
         [TestCaseSource(typeof(TestData), nameof(TestData.ComplexExpressions))]
         public void MeasureAndDrawExpression_ApprovalTest(LambdaExpression lambda)
         {
-            ExpressionRendererTestHelper(lambda.Body);
+            ExpressionRendererTestHelper(lambda.Body, DefaultScope.Instance);
         }
 
         [TestCaseSource(typeof(TestData), nameof(TestData.LambdaExpressions))]
         public void MeasureAndDrawExpression_ApprovalTest(Expression lambda)
         {
-            ExpressionRendererTestHelper(lambda);
+            ExpressionRendererTestHelper(lambda, DefaultScope.Instance);
         }
 
-        private static void ExpressionRendererTestHelper(string math)
+        private static void ExpressionRendererTestHelper(string math, Scope scope)
         {
-            var parser = new Parser();
+            var parser = new Parser(scope);
             var expression = parser.Parse(math);
-            ExpressionRendererTestHelper(expression);
+            ExpressionRendererTestHelper(expression, scope);
         }
 
-        private static void ExpressionRendererTestHelper(Expression expression)
+        private static void ExpressionRendererTestHelper(Expression expression, Scope scope)
         {
             using var font = new Font("Calibri", 20, FontStyle.Regular);
-            var renderer = new ExpressionRenderer()
+            var renderer = new ExpressionRenderer(scope)
             {
                 Font = font,
                 Brush = Brushes.Black,

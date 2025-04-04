@@ -13,11 +13,12 @@
         /// Converts an expression to its visual representation.
         /// </summary>
         /// <param name="expression">The expression.</param>
+        /// <param name="scope">The scope in which the transformations are performed.</param>
         /// <returns>The visual representation of the expression.</returns>
         [SupportedOSPlatform("windows")]
-        public static VisualNode TransformToVisualTree(this Expression expression)
+        public static VisualNode TransformToVisualTree(this Expression expression, Scope? scope = null)
         {
-            var transformer = new VisualNodeTransformer();
+            var transformer = new VisualNodeTransformer(scope);
             transformer.Visit(expression);
             return transformer.Result;
         }

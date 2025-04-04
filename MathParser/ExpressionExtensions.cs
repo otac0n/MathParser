@@ -30,10 +30,11 @@ namespace MathParser
         /// Converts an expression to its string representation.
         /// </summary>
         /// <param name="expression">The expression.</param>
+        /// <param name="scope">The scope in which the transformations are performed.</param>
         /// <returns>The string representation of the expression.</returns>
-        public static string TransformToString(this Expression expression)
+        public static string TransformToString(this Expression expression, Scope? scope = null)
         {
-            var transformer = new StringTransformer();
+            var transformer = new StringTransformer(scope);
             transformer.Visit(expression);
             return transformer.Result;
         }
