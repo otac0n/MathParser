@@ -1,4 +1,4 @@
-(x)=Sin(x)
-(x)=Cos(x)
-(x)=-Sin(x)
-(x)=-Cos(x)
+(x)=sin(x)
+(x)=cos(x)
+(x)=-sin(x)
+(x)=-cos(x)

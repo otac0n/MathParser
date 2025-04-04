@@ -2,7 +2,7 @@ g(x):=sin(x)*x
 (parsed)
 x => (Sin(x) * x)
 (transformed)
-g(x)=Sin(x)·x
+g(x)=sin(x)·x
 (parsed)
 x => (Sin(x) * x)
 (stable)

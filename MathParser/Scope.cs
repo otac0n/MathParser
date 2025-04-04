@@ -101,5 +101,32 @@
 
             return knownMethod != null;
         }
+
+        public static string BindName(KnownFunction function)
+        {
+            if (!TryBindName(function, out var name))
+            {
+                throw new MissingMethodException($"Could not find a binding for '{function.Name}'.");
+            }
+
+            return name;
+        }
+
+        public static bool TryBindName(KnownFunction function, [NotNullWhen(true)] out string? name)
+        {
+            var names = from binding in DefaultScope.NamedFunctions
+                        where binding.Value == function
+                        orderby binding.Key.Length descending
+                        select binding.Key;
+            using var enumerator = names.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                name = enumerator.Current;
+                return true;
+            }
+
+            name = null;
+            return false;
+        }
     }
 }

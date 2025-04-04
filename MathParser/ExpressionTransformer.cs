@@ -703,25 +703,14 @@ namespace MathParser
                 return node;
             }
 
-            // TODO: Scope lookup.
-            return null!; // throw new NotSupportedException($"The known function '{function.Name}' is not supported for expression transformation with {arguments.Count} arguments.");
+            this.Result = this.CreateFunction(Scope.BindName(function), converted);
+            return node;
         }
 
         /// <inheritdoc />
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             ArgumentNullException.ThrowIfNull(node);
-
-            if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
-            {
-                var success = this.VisitKnownFunction(knownFunction, node, functionArguments);
-
-                // TODO: Remove check after refactoring.
-                if (success != null)
-                {
-                    return success;
-                }
-            }
 
             var effectiveType = this.GetEffectiveNodeType(node);
             if (node.Arguments.Count == 2 && effectiveType != ExpressionType.Call)
@@ -779,20 +768,6 @@ namespace MathParser
                         return node;
                 }
             }
-            else if (node.Method.IsStatic &&
-                (node.Method.DeclaringType == typeof(Math) || node.Method.DeclaringType == typeof(Complex)))
-            {
-                var arguments = new T[node.Arguments.Count];
-                for (var i = 0; i < node.Arguments.Count; i++)
-                {
-                    this.Visit(node.Arguments[i]);
-                    arguments[i] = this.Result;
-                }
-
-                this.Result = this.CreateFunction(node.Method.Name, arguments);
-
-                return node;
-            }
             else if (node.Arguments.Count == 1 && effectiveType == ExpressionType.Negate)
             {
                 var operand = node.Arguments[0];
@@ -809,6 +784,10 @@ namespace MathParser
 
                 this.Result = this.CreateNegate(inner);
                 return node;
+            }
+            else if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
+            {
+                return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
 
             throw new NotSupportedException($"The method '{node.Method.DeclaringType.FullName}.{node.Method.Name}' is not supported for expression transformation.");
