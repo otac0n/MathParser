@@ -74,6 +74,12 @@
 
                         case ExpressionType.Or:
                             return this.SimplifyOr(left, right);
+
+                        case ExpressionType.GreaterThan:
+                        case ExpressionType.GreaterThanOrEqual:
+                        case ExpressionType.LessThan:
+                        case ExpressionType.LessThanOrEqual:
+                            return this.SimplifyCompare(left, effectiveType, right);
                     }
                 }
             }
@@ -244,7 +250,7 @@
         {
             if (this.Scope.IsConstraint(operand, out var condition, out var consequent))
             {
-                return this.Visit(this.Scope.Conditional(condition, this.Scope.Negate(operand), this.Scope.NaN()));
+                return this.Visit(this.Scope.Conditional(condition, this.Scope.Negate(consequent), this.Scope.NaN()));
             }
 
             // Convert "--a" into "a"
