@@ -642,57 +642,78 @@ namespace MathParser
                 converted[i] = this.Result;
             }
 
-            if (arguments.Count == 2 && MethodEquivalence.TryGetValue(function, out var effectiveType))
+            if (MethodEquivalence.TryGetValue(function, out var effectiveType))
             {
-                var leftArg = arguments[0];
-                var rightArg = arguments[1];
-
-                var left = converted[0];
-                var right = converted[1];
-
-                var leftEffectiveType = this.GetEffectiveNodeType(leftArg);
-                var rightEffectiveType = this.GetEffectiveNodeType(rightArg);
-
-                if (this.NeedsLeftBrackets(effectiveType, node, leftEffectiveType, leftArg))
+                if (arguments.Count == 1)
                 {
-                    left = this.AddBrackets(left);
+                    var operand = arguments[0];
+                    var inner = converted[0];
+                    var operandEffectiveType = this.GetEffectiveNodeType(operand);
+
+                    switch (effectiveType)
+                    {
+                        case ExpressionType.Negate:
+                            if (this.NeedsRightBrackets(ExpressionType.Negate, node, operandEffectiveType, operand))
+                            {
+                                inner = this.AddBrackets(inner);
+                            }
+
+                            this.Result = this.CreateNegate(inner);
+                            return node;
+                    }
                 }
-
-                if (this.NeedsRightBrackets(effectiveType, node, rightEffectiveType, rightArg))
+                else if (arguments.Count == 2)
                 {
-                    right = this.AddBrackets(right);
-                }
+                    var leftArg = arguments[0];
+                    var rightArg = arguments[1];
 
-                switch (effectiveType)
-                {
-                    case ExpressionType.Add:
-                        this.Result = this.CreateAdd(left, right);
-                        return node;
+                    var left = converted[0];
+                    var right = converted[1];
 
-                    case ExpressionType.Subtract:
-                        this.Result = this.CreateSubtract(left, right);
-                        return node;
+                    var leftEffectiveType = this.GetEffectiveNodeType(leftArg);
+                    var rightEffectiveType = this.GetEffectiveNodeType(rightArg);
 
-                    case ExpressionType.Multiply:
-                        this.Result = this.CreateMultiply(left, right);
-                        return node;
+                    if (this.NeedsLeftBrackets(effectiveType, node, leftEffectiveType, leftArg))
+                    {
+                        left = this.AddBrackets(left);
+                    }
 
-                    case ExpressionType.Divide:
-                        this.Result = this.CreateDivide(left, right);
-                        return node;
+                    if (this.NeedsRightBrackets(effectiveType, node, rightEffectiveType, rightArg))
+                    {
+                        right = this.AddBrackets(right);
+                    }
 
-                    case ExpressionType.Power:
-                        this.Result = this.CreatePower(left, right);
-                        return node;
+                    switch (effectiveType)
+                    {
+                        case ExpressionType.Add:
+                            this.Result = this.CreateAdd(left, right);
+                            return node;
 
-                    case ExpressionType.Equal:
-                    case ExpressionType.NotEqual:
-                    case ExpressionType.GreaterThan:
-                    case ExpressionType.GreaterThanOrEqual:
-                    case ExpressionType.LessThan:
-                    case ExpressionType.LessThanOrEqual:
-                        this.Result = this.CreateEquality(left, effectiveType, right);
-                        return node;
+                        case ExpressionType.Subtract:
+                            this.Result = this.CreateSubtract(left, right);
+                            return node;
+
+                        case ExpressionType.Multiply:
+                            this.Result = this.CreateMultiply(left, right);
+                            return node;
+
+                        case ExpressionType.Divide:
+                            this.Result = this.CreateDivide(left, right);
+                            return node;
+
+                        case ExpressionType.Power:
+                            this.Result = this.CreatePower(left, right);
+                            return node;
+
+                        case ExpressionType.Equal:
+                        case ExpressionType.NotEqual:
+                        case ExpressionType.GreaterThan:
+                        case ExpressionType.GreaterThanOrEqual:
+                        case ExpressionType.LessThan:
+                        case ExpressionType.LessThanOrEqual:
+                            this.Result = this.CreateEquality(left, effectiveType, right);
+                            return node;
+                    }
                 }
             }
 
@@ -745,20 +766,6 @@ namespace MathParser
                 }
 
                 this.Result = this.CreatePower(@base, inner);
-                return node;
-            }
-            else if (function == WKF.Arithmetic.Negate && arguments.Count == 1)
-            {
-                var operand = arguments[0];
-                var inner = converted[0];
-                var operandEffectiveType = this.GetEffectiveNodeType(operand);
-
-                if (this.NeedsRightBrackets(ExpressionType.Negate, node, operandEffectiveType, operand))
-                {
-                    inner = this.AddBrackets(inner);
-                }
-
-                this.Result = this.CreateNegate(inner);
                 return node;
             }
 
