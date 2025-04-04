@@ -77,6 +77,7 @@
             return node;
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitBinary(BinaryExpression node)
         {
             var compareBinary = (BinaryExpression)this.compare!;
@@ -104,109 +105,111 @@
             return node;
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitBlock(BlockExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitBlock(node);
         }
 
+        /// <inheritdoc/>
         protected override CatchBlock VisitCatchBlock(CatchBlock node)
         {
             throw new NotImplementedException();
-            return base.VisitCatchBlock(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitConditional(ConditionalExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitConditional(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitConstant(ConstantExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitConstant(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitDebugInfo(DebugInfoExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitDebugInfo(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitDefault(DefaultExpression node)
         {
             this.success &= node.Type == ((DefaultExpression)this.compare!).Type;
             return node;
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitDynamic(DynamicExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitDynamic(node);
         }
 
+        /// <inheritdoc/>
         protected override ElementInit VisitElementInit(ElementInit node)
         {
             throw new NotImplementedException();
-            return base.VisitElementInit(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitExtension(Expression node)
         {
             throw new NotImplementedException();
-            return base.VisitExtension(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitGoto(GotoExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitGoto(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitIndex(IndexExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitIndex(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitInvocation(InvocationExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitInvocation(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitLabel(LabelExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitLabel(node);
         }
 
-        [return: NotNullIfNotNull("node")]
+        /// <inheritdoc/>
+        [return: NotNullIfNotNull(nameof(node))]
         protected override LabelTarget? VisitLabelTarget(LabelTarget? node)
         {
             throw new NotImplementedException();
-            return base.VisitLabelTarget(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitLambda<T>(Expression<T> node)
         {
             throw new NotImplementedException();
-            return base.VisitLambda(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitListInit(ListInitExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitListInit(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitLoop(LoopExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitLoop(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitMember(MemberExpression node)
         {
             var compareMember = (MemberExpression)this.compare!;
@@ -222,36 +225,37 @@
             return node;
         }
 
+        /// <inheritdoc/>
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
         {
             throw new NotImplementedException();
-            return base.VisitMemberAssignment(node);
         }
 
+        /// <inheritdoc/>
         protected override MemberBinding VisitMemberBinding(MemberBinding node)
         {
             throw new NotImplementedException();
-            return base.VisitMemberBinding(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitMemberInit(MemberInitExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitMemberInit(node);
         }
 
+        /// <inheritdoc/>
         protected override MemberListBinding VisitMemberListBinding(MemberListBinding node)
         {
             throw new NotImplementedException();
-            return base.VisitMemberListBinding(node);
         }
 
+        /// <inheritdoc/>
         protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
         {
             throw new NotImplementedException();
-            return base.VisitMemberMemberBinding(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var compareMethodCall = (MethodCallExpression)this.compare!;
@@ -273,42 +277,43 @@
             return node;
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitNew(NewExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitNew(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitNewArray(NewArrayExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitNewArray(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitRuntimeVariables(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitSwitch(SwitchExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitSwitch(node);
         }
 
+        /// <inheritdoc/>
         protected override SwitchCase VisitSwitchCase(SwitchCase node)
         {
             throw new NotImplementedException();
-            return base.VisitSwitchCase(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitTry(TryExpression node)
         {
             throw new NotImplementedException();
-            return base.VisitTry(node);
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitTypeBinary(TypeBinaryExpression node)
         {
             var compareTypeBinary = (TypeBinaryExpression)this.compare!;
@@ -324,6 +329,7 @@
             return node;
         }
 
+        /// <inheritdoc/>
         protected override Expression VisitUnary(UnaryExpression node)
         {
             var compareUnary = (UnaryExpression)this.compare!;
