@@ -205,15 +205,7 @@ namespace MathParser
 
         public static bool IsPower(Expression expression, [NotNullWhen(true)] out Expression? @base, [NotNullWhen(true)] out Expression? exponent)
         {
-            if (expression.NodeType == ExpressionType.Power && expression is BinaryExpression binary)
-            {
-                @base = binary.Left;
-                exponent = binary.Right;
-                return true;
-            }
-
-            if (expression.NodeType == ExpressionType.Call && expression is MethodCallExpression methodCall &&
-                Scope.TryBind(methodCall, out var knowFunction, out var arguments))
+            if (Scope.TryBind(expression, out var knowFunction, out var arguments))
             {
                 if (knowFunction == WKF.Exponential.Pow && arguments.Count == 2)
                 {
@@ -230,8 +222,7 @@ namespace MathParser
 
         public static bool IsSqrt(Expression expression, [NotNullWhen(true)] out Expression? @base)
         {
-            if (expression.NodeType == ExpressionType.Call && expression is MethodCallExpression methodCall &&
-                Scope.TryBind(methodCall, out var knowFunction, out var arguments))
+            if (Scope.TryBind(expression, out var knowFunction, out var arguments))
             {
                 if (knowFunction == WKF.Exponential.Sqrt && arguments.Count == 1)
                 {
