@@ -498,26 +498,6 @@ namespace MathParser
                     this.Result = this.CreateOr(left, right);
                     break;
 
-                case ExpressionType.Add:
-                    this.Result = this.CreateAdd(left, right);
-                    break;
-
-                case ExpressionType.Subtract:
-                    this.Result = this.CreateSubtract(left, right);
-                    break;
-
-                case ExpressionType.Multiply:
-                    this.Result = this.CreateMultiply(left, right);
-                    break;
-
-                case ExpressionType.Divide:
-                    this.Result = this.CreateDivide(left, right);
-                    break;
-
-                case ExpressionType.Power:
-                    this.Result = this.CreatePower(left, right);
-                    break;
-
                 case ExpressionType.Equal:
                 case ExpressionType.NotEqual:
                 case ExpressionType.GreaterThan:
