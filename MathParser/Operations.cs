@@ -138,11 +138,7 @@ namespace MathParser
 
         public static Expression Exp(Expression exponent) => Bind(WKF.Exponential.Exp, exponent);
 
-        public static Expression Sqrt(Expression @base) =>
-            Bind(WKF.Exponential.Sqrt,
-                TryConvert(@base, false, (double value) => value >= 0)
-                    ? @base
-                    : ConvertIfLower(@base, to: typeof(Complex)));
+        public static Expression Sqrt(Expression @base) => Bind(WKF.Exponential.Sqrt, @base);
 
         public static Expression Log(Expression expression) => Bind(WKF.Exponential.Ln, expression);
 
@@ -167,56 +163,34 @@ namespace MathParser
 
         public static Expression Function(string name, IList<Expression> arguments)
         {
-            if (arguments.Count == 1)
-            {
-                if (name.Equals("Re", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    return Expression.Property(ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Real), BindingFlags.Public | BindingFlags.Instance));
-                }
-
-                if (name.Equals("Im", StringComparison.CurrentCultureIgnoreCase))
-                {
-                    return Expression.Property(ConvertIfLower(arguments[0], to: typeof(Complex)), typeof(Complex).GetProperty(nameof(Complex.Imaginary), BindingFlags.Public | BindingFlags.Instance));
-                }
-            }
-
-            Expression[] mappedArguments;
-            var found = FindFunction(typeof(Complex), name, arguments.Select(a => a.Type).ToArray());
-            if (found == null)
-            {
-                found = FindFunction(typeof(Complex), name, arguments.Select(_ => typeof(Complex)).ToArray());
-                if (found == null)
-                {
-                    throw new MissingMethodException(typeof(Complex).FullName, name + "(" + string.Join(", ", arguments.Select(a => a.Type.FullName)) + ")");
-                }
-                else
-                {
-                    mappedArguments = arguments.Select(a => ConvertIfLower(a, to: typeof(Complex))).ToArray();
-                }
-            }
-            else
-            {
-                mappedArguments = arguments.ToArray();
-            }
-
-            return Expression.Call(found, mappedArguments);
+            return Bind(name, arguments);
         }
 
-        public static MethodInfo? FindFunction(Type type, string name, Type[] argTypes)
+        public static Expression Bind(string name, params Expression[] arguments) => Bind(name, (IList<Expression>)arguments);
+
+        public static Expression Bind(string name, IList<Expression> arguments)
         {
-            return (from m in type.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                    where m.DeclaringType == type
-                    where m.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
-                    let parameters = m.GetParameters()
-                    where parameters.Length == argTypes.Length
-                    where Enumerable.Range(0, argTypes.Length).All(i => parameters[i].ParameterType.IsAssignableFrom(argTypes[i]))
-                    select m).FirstOrDefault();
+            if (!DefaultScope.NamedFunctions.TryGetValue(name, out var function))
+            {
+                throw new MissingMethodException($"Could not find a binding for '{name}'.");
+            }
+
+            return Bind(function, arguments);
         }
 
         public static Expression Bind(KnownFunction function, params Expression[] arguments) => Bind(function, (IList<Expression>)arguments);
 
         public static Expression Bind(KnownFunction function, IList<Expression> arguments)
         {
+            if (function == WKF.Exponential.Sqrt && arguments.Count == 1)
+            {
+                var @base = arguments[0];
+                if (!TryConvert(@base, false, (double value) => value >= 0))
+                {
+                    arguments = [ConvertIfLower(@base, to: typeof(Complex))];
+                }
+            }
+
             var match = (from known in DefaultScope.KnownMethods
                          where known.Value == function
                          let m = known.Key

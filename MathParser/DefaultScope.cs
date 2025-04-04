@@ -21,6 +21,34 @@ namespace MathParser
             return Expression.Lambda(builder(parameterExpressions), parameterExpressions);
         }
 
+        public static readonly IDictionary<string, KnownFunction> NamedFunctions = new NamedFunctionMapping()
+        {
+            { WKF.Exponential.Pow },
+            { WKF.Exponential.Exp },
+            { WKF.Exponential.Sqrt },
+            { "log", WKF.Exponential.Ln },
+            { WKF.Trigonometric.Sine },
+            { WKF.Trigonometric.Cosine },
+            { WKF.Trigonometric.Tangent },
+            { WKF.Trigonometric.Arcsine },
+            { WKF.Trigonometric.Arcosine },
+            { WKF.Trigonometric.Arctangent },
+            { WKF.Hyperbolic.Sine },
+            { WKF.Hyperbolic.Cosine },
+            { WKF.Hyperbolic.Tangent },
+            { WKF.Hyperbolic.Arcsine },
+            { WKF.Hyperbolic.Arcosine },
+            { WKF.Hyperbolic.Arctangent },
+            { WKF.Piecewise.Abs },
+            { WKF.Piecewise.Ceiling },
+            { WKF.Piecewise.Floor },
+            { WKF.Piecewise.Sign },
+            { WKF.Complex.RealPart },
+            { WKF.Complex.ImaginaryPart },
+            { WKF.Complex.Argument },
+            { WKF.Complex.Conjugate },
+        };
+
         public static readonly ExpressionPatternList<KnownFunction> KnownMethods = new WellKnownFunctionMapping()
         {
             { typeof(float) },
@@ -80,6 +108,16 @@ namespace MathParser
             { (Complex x) => x.Phase, WKF.Complex.Argument },
             { (Complex x) => Complex.Conjugate(x), WKF.Complex.Conjugate },
         };
+
+        private class NamedFunctionMapping : Dictionary<string, KnownFunction>
+        {
+            public NamedFunctionMapping()
+                : base(StringComparer.InvariantCultureIgnoreCase)
+            {
+            }
+
+            public void Add(KnownFunction knownFunction) => this.Add(knownFunction.Name, knownFunction);
+        }
 
         private class WellKnownFunctionMapping : ExpressionPatternList<KnownFunction>
         {
