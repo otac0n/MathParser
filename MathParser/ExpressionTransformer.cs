@@ -712,7 +712,7 @@ namespace MathParser
         {
             ArgumentNullException.ThrowIfNull(node);
 
-            if (Operations.TryBind(node, out var knownFunction, out var functionArguments))
+            if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
             {
                 var success = this.VisitKnownFunction(knownFunction, node, functionArguments);
 
@@ -946,7 +946,7 @@ namespace MathParser
             {
                 var node = (MethodCallExpression)expression;
 
-                if (Operations.TryBind(node.Method, out var knownMethod))
+                if (Scope.TryBind(node.Method, out var knownMethod))
                 {
                     if (MethodEquivalence.TryGetValue(knownMethod, out var knownType))
                     {
