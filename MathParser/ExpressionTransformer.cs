@@ -873,23 +873,15 @@ namespace MathParser
 
             var actualType = expression.NodeType;
 
-            if (actualType == ExpressionType.AddChecked)
+            if (Scope.TryBind(expression, out var knownMethod, out _))
             {
-                return ExpressionType.Add;
+                if (MethodEquivalence.TryGetValue(knownMethod, out var knownType))
+                {
+                    return knownType;
+                }
             }
-            else if (actualType == ExpressionType.SubtractChecked)
-            {
-                return ExpressionType.Subtract;
-            }
-            else if (actualType == ExpressionType.MultiplyChecked)
-            {
-                return ExpressionType.Multiply;
-            }
-            else if (actualType == ExpressionType.NegateChecked)
-            {
-                return ExpressionType.Negate;
-            }
-            else if (actualType == ExpressionType.AndAlso)
+
+            if (actualType == ExpressionType.AndAlso)
             {
                 return ExpressionType.And;
             }
@@ -918,16 +910,6 @@ namespace MathParser
                 {
                     var value = (Complex)constantExpression.Value;
                     return this.GetEffectiveTypeComplex(value.Real, value.Imaginary);
-                }
-            }
-            else if (actualType == ExpressionType.Call)
-            {
-                if (Scope.TryBind(expression, out var knownMethod, out _))
-                {
-                    if (MethodEquivalence.TryGetValue(knownMethod, out var knownType))
-                    {
-                        return knownType;
-                    }
                 }
             }
             else if (

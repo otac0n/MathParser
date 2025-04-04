@@ -27,7 +27,7 @@
             this.arguments = new Expression[this.parameters.Count];
             this.success = true;
             this.Visit(lambda.Body);
-            return new Match(this.success, this.arguments);
+            return new Match(this.success, this.bound, this.arguments);
         }
 
         /// <inheritdoc/>
@@ -79,8 +79,29 @@
 
         protected override Expression VisitBinary(BinaryExpression node)
         {
-            throw new NotImplementedException();
-            return base.VisitBinary(node);
+            var compareBinary = (BinaryExpression)this.compare!;
+            this.success &= compareBinary.Method == node.Method;
+
+            if (this.success)
+            {
+                this.compare = compareBinary.Conversion;
+                this.Visit(node.Conversion);
+            }
+
+            if (this.success)
+            {
+                this.compare = compareBinary.Left;
+                this.Visit(node.Left);
+            }
+
+            if (this.success)
+            {
+                this.compare = compareBinary.Right;
+                this.Visit(node.Right);
+            }
+
+            this.compare = compareBinary;
+            return node;
         }
 
         protected override Expression VisitBlock(BlockExpression node)
@@ -115,8 +136,8 @@
 
         protected override Expression VisitDefault(DefaultExpression node)
         {
-            throw new NotImplementedException();
-            return base.VisitDefault(node);
+            this.success &= node.Type == ((DefaultExpression)this.compare!).Type;
+            return node;
         }
 
         protected override Expression VisitDynamic(DynamicExpression node)
@@ -189,14 +210,13 @@
         protected override Expression VisitMember(MemberExpression node)
         {
             var compareMember = (MemberExpression)this.compare!;
-            if (compareMember.Member != node.Member)
-            {
-                this.success = false;
-                return node;
-            }
+            this.success &= compareMember.Member == node.Member;
 
-            this.compare = compareMember.Expression;
-            this.Visit(node.Expression);
+            if (this.success)
+            {
+                this.compare = compareMember.Expression;
+                this.Visit(node.Expression);
+            }
 
             this.compare = compareMember;
             return node;
@@ -235,14 +255,13 @@
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             var compareMethodCall = (MethodCallExpression)this.compare!;
-            if (compareMethodCall.Method != node.Method)
-            {
-                this.success = false;
-                return node;
-            }
+            this.success &= compareMethodCall.Method == node.Method;
 
-            this.compare = compareMethodCall.Object;
-            this.Visit(node.Object);
+            if (this.success)
+            {
+                this.compare = compareMethodCall.Object;
+                this.Visit(node.Object);
+            }
 
             for (var i = 0; i < compareMethodCall.Arguments.Count && this.success; i++)
             {
@@ -292,25 +311,46 @@
 
         protected override Expression VisitTypeBinary(TypeBinaryExpression node)
         {
-            throw new NotImplementedException();
-            return base.VisitTypeBinary(node);
+            var compareTypeBinary = (TypeBinaryExpression)this.compare!;
+            this.success &= compareTypeBinary.TypeOperand == node.TypeOperand;
+
+            if (this.success)
+            {
+                this.compare = compareTypeBinary.Expression;
+                this.Visit(node.Expression);
+            }
+
+            this.compare = compareTypeBinary;
+            return node;
         }
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
-            throw new NotImplementedException();
-            return base.VisitUnary(node);
+            var compareUnary = (UnaryExpression)this.compare!;
+            this.success &= compareUnary.Method == node.Method;
+
+            if (this.success)
+            {
+                this.compare = compareUnary.Operand;
+                this.Visit(node.Operand);
+            }
+
+            this.compare = compareUnary;
+            return node;
         }
 
         public class Match
         {
-            public Match(bool success, IList<Expression?> arguments)
+            public Match(bool success, IList<bool> bound, IList<Expression?> arguments)
             {
                 this.Success = success;
+                this.Bound = bound;
                 this.Arguments = arguments;
             }
 
             public bool Success { get; }
+
+            public IList<bool> Bound { get; }
 
             public IList<Expression?> Arguments { get; }
         }
