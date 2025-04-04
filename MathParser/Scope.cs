@@ -95,11 +95,19 @@
 
         public static bool TryBind(MethodInfo method, [NotNullWhen(true)] out KnownFunction? knownMethod)
         {
-            knownMethod = (from known in DefaultScope.KnownMethods
+            var methods = (from known in DefaultScope.KnownMethods
                            where known.Key.Body is MethodCallExpression methodCall && methodCall.Method == method
-                           select known.Value).Distinct().SingleOrDefault();
+                           select known.Value).Distinct();
 
-            return knownMethod != null;
+            using var enumerator = methods.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                knownMethod = enumerator.Current;
+                return true;
+            }
+
+            knownMethod = null;
+            return false;
         }
 
         public static string BindName(KnownFunction function)
@@ -118,6 +126,7 @@
                         where binding.Value == function
                         orderby binding.Key.Length descending
                         select binding.Key;
+
             using var enumerator = names.GetEnumerator();
             if (enumerator.MoveNext())
             {
