@@ -701,6 +701,20 @@ namespace MathParser
                 this.Result = this.CreatePower(@base, inner);
                 return node;
             }
+            else if (function == WKF.Arithmetic.Negate && arguments.Count == 1)
+            {
+                var operand = arguments[0];
+                var inner = converted[0];
+                var operandEffectiveType = this.GetEffectiveNodeType(operand);
+
+                if (this.NeedsRightBrackets(ExpressionType.Negate, node, operandEffectiveType, operand))
+                {
+                    inner = this.AddBrackets(inner);
+                }
+
+                this.Result = this.CreateNegate(inner);
+                return node;
+            }
 
             this.Result = this.CreateFunction(Scope.BindName(function), converted);
             return node;
@@ -767,23 +781,6 @@ namespace MathParser
                         return node;
                 }
             }
-            else if (node.Arguments.Count == 1 && effectiveType == ExpressionType.Negate)
-            {
-                var operand = node.Arguments[0];
-
-                this.Visit(operand);
-                var inner = this.Result;
-
-                var operandEffectiveType = this.GetEffectiveNodeType(operand);
-
-                if (this.NeedsRightBrackets(ExpressionType.Negate, node, operandEffectiveType, operand))
-                {
-                    inner = this.AddBrackets(inner);
-                }
-
-                this.Result = this.CreateNegate(inner);
-                return node;
-            }
             else if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
@@ -822,23 +819,7 @@ namespace MathParser
         {
             ArgumentNullException.ThrowIfNull(node);
 
-            if (node.NodeType == ExpressionType.Negate ||
-                node.NodeType == ExpressionType.NegateChecked)
-            {
-                this.Visit(node.Operand);
-                var inner = this.Result;
-
-                var operandEffectiveType = this.GetEffectiveNodeType(node.Operand);
-
-                if (this.NeedsRightBrackets(ExpressionType.Negate, node, operandEffectiveType, node.Operand))
-                {
-                    inner = this.AddBrackets(inner);
-                }
-
-                this.Result = this.CreateNegate(inner);
-                return node;
-            }
-            else if (node.NodeType == ExpressionType.Not)
+            if (node.NodeType == ExpressionType.Not)
             {
                 this.Visit(node.Operand);
                 var inner = this.Result;
@@ -852,6 +833,10 @@ namespace MathParser
 
                 this.Result = this.CreateNot(inner);
                 return node;
+            }
+            else if (Scope.TryBind(node, out var knownFunction, out var functionArguments))
+            {
+                return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
             else if (node.NodeType == ExpressionType.Convert)
             {
