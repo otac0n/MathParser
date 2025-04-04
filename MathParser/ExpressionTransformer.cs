@@ -630,13 +630,12 @@ namespace MathParser
                     case nameof(Complex.One):
                         this.Result = this.FormatComplex(1, 0);
                         return node;
-
-                    case nameof(Complex.Real):
-                    case nameof(Complex.Imaginary):
-                        this.Visit(node.Expression);
-                        this.Result = this.CreateFunction(node.Member.Name.Substring(0, 2), this.Result);
-                        return node;
                 }
+            }
+
+            if (Scope.TryBind(node, out var function, out var arguments))
+            {
+                return this.VisitKnownFunction(function, node, arguments);
             }
 
             throw new NotSupportedException($"The member '{node.Member.DeclaringType.FullName}.{node.Member.Name}' is not supported for expression transformation.");

@@ -64,6 +64,35 @@
                 .Visit(lambda.Body);
         }
 
+        public static void Bind(Expression expression, out KnownFunction knownMethod, out IList<Expression>? arguments)
+        {
+            if (!TryBind(expression, out knownMethod, out arguments))
+            {
+                throw new MissingMethodException($"Could not find a binding for '{expression}'.");
+            }
+        }
+
+        public static bool TryBind(Expression expression, [NotNullWhen(true)] out KnownFunction? knownMethod, [NotNullWhen(true)] out IList<Expression>? arguments)
+        {
+            var visitor = new MatchVisitor(expression);
+
+            var methods = (from known in DefaultScope.KnownMethods
+                           let match = visitor.PatternMatch(known.Key)
+                           where match.Success
+                           where match.Arguments.All(p => p != null)
+                           select (known.Value, match.Arguments)).Distinct();
+
+            using var enumerator = methods.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                (knownMethod, arguments) = enumerator.Current;
+                return true;
+            }
+
+            (knownMethod, arguments) = (null, null);
+            return false;
+        }
+
         public static void Bind(MethodCallExpression methodCall, out KnownFunction knownMethod, out IList<Expression>? arguments)
         {
             if (!TryBind(methodCall, out knownMethod, out arguments))
