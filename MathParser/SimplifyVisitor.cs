@@ -99,10 +99,7 @@
             }
             else if (function == WKF.Exponential.Exp && arguments.Count == 1)
             {
-                if (this.Scope.IsZero(converted[0]))
-                {
-                    return this.Scope.One();
-                }
+                return this.Visit(this.Scope.Pow(Expression.Constant(Math.E), converted[0]));
             }
 
             return this.Scope.Bind(function, converted);
@@ -635,11 +632,6 @@
                 return this.Visit(this.Scope.Pow(leftBase, this.Scope.Multiply(leftExponent, exponent)));
             }
 
-            if (this.Scope.IsConstantEqual(@base, Math.E))
-            {
-                return this.Visit(this.Scope.Exp(exponent));
-            }
-
             if (this.Scope.IsConstantValue(exponent, out var rightConstant))
             {
                 if (this.Scope.IsConstantValue(@base, out var leftConstant))
@@ -704,7 +696,10 @@
             return;
         }
 
-        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder)
+        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder) =>
+            this.ExtractByBase(new MatchVisitor(@base), ref exponent, ref remainder);
+
+        private bool ExtractByBase(MatchVisitor @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder)
         {
             if (this.Scope.MatchMultiply(remainder, out var left, out var right))
             {
@@ -724,7 +719,7 @@
             if (remainder != null)
             {
                 this.GetBaseAndPower(remainder, out var rBase, out var rExponent);
-                if (@base == rBase)
+                if (@base.PatternMatch(rBase).Success)
                 {
                     exponent = this.Scope.Add(exponent ?? this.Scope.One(), rExponent ?? this.Scope.One());
                     remainder = null;
