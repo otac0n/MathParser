@@ -259,6 +259,8 @@ namespace MathParser.Testing
             "a-(b-c)",
             "a+-(b-c)",
             "a+-(b+c)",
+            "1+y+1+x+1",
+            "2 x 2 y 2",
             "0*x",
             "x*0",
             "1*x",
