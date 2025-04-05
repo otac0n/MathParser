@@ -1,0 +1,4 @@
+(x)=sin(x)·x
+(x)=cos(x)·x+sin(x)
+(x)=-sin(x)·x+2·cos(x)
+(x)=-cos(x)·x-3·sin(x)
