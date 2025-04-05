@@ -97,6 +97,13 @@
                     return this.Scope.One();
                 }
             }
+            else if (function == WKF.Exponential.Exp && arguments.Count == 1)
+            {
+                if (this.Scope.IsZero(converted[0]))
+                {
+                    return this.Scope.One();
+                }
+            }
 
             return this.Scope.Bind(function, converted);
         }
