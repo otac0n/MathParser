@@ -21,6 +21,7 @@
         private IDictionary<string, IKnownObject> namedObjects;
         private IDictionary<Expression, KnownConstant> knownConstants;
         private IDictionary<LambdaExpression, KnownFunction> knownMethods;
+        private IDictionary<(Type from, Type to), bool> typeConversions;
         private bool frozen;
 
         /// <summary>
@@ -31,9 +32,11 @@
             this.knownConstants = new Dictionary<Expression, KnownConstant>();
             this.knownMethods = new Dictionary<LambdaExpression, KnownFunction>();
             this.namedObjects = new Dictionary<string, IKnownObject>(nameComparer);
+            this.typeConversions = new Dictionary<(Type, Type), bool>();
             this.KnownConstants = this.knownConstants.AsReadOnly();
             this.KnownMethods = this.knownMethods.AsReadOnly();
             this.NamedObjects = this.namedObjects.AsReadOnly();
+            this.TypeConversions = this.typeConversions.AsReadOnly();
         }
 
         /// <summary>
@@ -50,6 +53,11 @@
         /// Gets or sets the collection of name bindings.
         /// </summary>
         public IDictionary<string, IKnownObject> NamedObjects { get; }
+
+        /// <summary>
+        /// Gets or sets the collection of supported conversions.
+        /// </summary>
+        public IDictionary<(Type from, Type to), bool> TypeConversions { get; }
 
         /// <inheritdoc/>
         public IEnumerator<Scope> GetEnumerator()
@@ -72,6 +80,7 @@
                     this.knownConstants = this.KnownConstants;
                     this.knownMethods = this.KnownMethods;
                     this.namedObjects = this.NamedObjects;
+                    this.typeConversions = this.TypeConversions;
                     this.frozen = true;
                 }
             }
@@ -84,7 +93,7 @@
         /// </summary>
         /// <param name="numberType">The type to search for <see cref="WellKnownFunctions"/>.</param>
         public void Add(Type numberType) =>
-            WellKnownFunctionMapping.Add(numberType, this.knownConstants, this.knownMethods);
+            WellKnownFunctionMapping.Add(numberType, this.knownConstants, this.knownMethods, this.typeConversions);
 
         /// <summary>
         /// Adds an expression as a representation of the specified <see cref="KnownConstant"/>.
@@ -336,6 +345,28 @@
             return false;
         }
 
+        public Type? FindLargest(Type a, Type b)
+        {
+            if (a == b)
+            {
+                return a;
+            }
+
+            var aToB = this.IsImplicitlyConvetibleTo(a, to: b);
+            var bToA = this.IsImplicitlyConvetibleTo(b, to: a);
+            return aToB ? bToA ? a : b : bToA ? a : null;
+        }
+
+        public bool IsImplicitlyConvetibleTo(Type from, Type to)
+        {
+            if (from.IsAssignableTo(to))
+            {
+                return true;
+            }
+
+            return this.TypeConversions.TryGetValue((from, to), out var @implicit) && @implicit;
+        }
+
         internal static LambdaExpression MakeLambda(Type[] parameters, Func<ParameterExpression[], Expression> builder)
         {
             var parameterExpressions = Array.ConvertAll(parameters, Expression.Parameter);
@@ -380,6 +411,76 @@
                 ["op_RightShift"] = ExpressionType.RightShift,
             };
 
+            public static readonly Dictionary<string, bool> Conversions = new()
+            {
+                ["op_Implicit"] = true,
+                ["op_Explicit"] = false,
+            };
+
+            /// <summary>
+            /// <see href="https://github.com/dotnet/csharpstandard/blob/draft-v8/standard/conversions.md#1023-implicit-numeric-conversions"/> §10.2.3 Implicit numeric conversions.
+            /// </summary>
+            public static readonly (Type from, Type to)[] ImplicitPrimitiveConversions =
+            [
+                (typeof(sbyte), typeof(short)),
+                (typeof(sbyte), typeof(int)),
+                (typeof(sbyte), typeof(long)),
+                (typeof(sbyte), typeof(float)),
+                (typeof(sbyte), typeof(double)),
+                (typeof(sbyte), typeof(decimal)),
+                (typeof(byte), typeof(short)),
+                (typeof(byte), typeof(ushort)),
+                (typeof(byte), typeof(int)),
+                (typeof(byte), typeof(uint)),
+                (typeof(byte), typeof(long)),
+                (typeof(byte), typeof(ulong)),
+                (typeof(byte), typeof(float)),
+                (typeof(byte), typeof(double)),
+                (typeof(byte), typeof(decimal)),
+                (typeof(short), typeof(int)),
+                (typeof(short), typeof(long)),
+                (typeof(short), typeof(float)),
+                (typeof(short), typeof(double)),
+                (typeof(short), typeof(decimal)),
+                (typeof(ushort), typeof(int)),
+                (typeof(ushort), typeof(uint)),
+                (typeof(ushort), typeof(long)),
+                (typeof(ushort), typeof(ulong)),
+                (typeof(ushort), typeof(float)),
+                (typeof(ushort), typeof(double)),
+                (typeof(ushort), typeof(decimal)),
+                (typeof(int), typeof(long)),
+                (typeof(int), typeof(float)),
+                (typeof(int), typeof(double)),
+                (typeof(int), typeof(decimal)),
+                (typeof(uint), typeof(long)),
+                (typeof(uint), typeof(ulong)),
+                (typeof(uint), typeof(float)),
+                (typeof(uint), typeof(double)),
+                (typeof(uint), typeof(decimal)),
+                (typeof(long), typeof(float)),
+                (typeof(long), typeof(double)),
+                (typeof(long), typeof(decimal)),
+                (typeof(ulong), typeof(float)),
+                (typeof(ulong), typeof(double)),
+                (typeof(ulong), typeof(decimal)),
+                (typeof(char), typeof(ushort)),
+                (typeof(char), typeof(int)),
+                (typeof(char), typeof(uint)),
+                (typeof(char), typeof(long)),
+                (typeof(char), typeof(ulong)),
+                (typeof(char), typeof(float)),
+                (typeof(char), typeof(double)),
+                (typeof(char), typeof(decimal)),
+                (typeof(float), typeof(double))
+            ];
+
+            private static readonly ILookup<Type, (Type from, Type to)> ImplicitPrimitiveLookup =
+                Enumerable.Union(
+                    ImplicitPrimitiveConversions.Select(c => (key: c.from, conversion: c)),
+                    ImplicitPrimitiveConversions.Select(c => (key: c.to, conversion: c)))
+                .ToLookup(p => p.key, p => p.conversion);
+
             private static readonly Dictionary<ExpressionType, KnownFunction> Operators = new()
             {
                 [ExpressionType.Negate] = WKF.Arithmetic.Negate,
@@ -399,7 +500,7 @@
                 [ExpressionType.LessThanOrEqual] = WKF.Comparison.LessThanOrEqual,
             };
 
-            public static void Add(Type numberType, IDictionary<Expression, KnownConstant> c, IDictionary<LambdaExpression, KnownFunction> f)
+            public static void Add(Type numberType, IDictionary<Expression, KnownConstant> c, IDictionary<LambdaExpression, KnownFunction> f, IDictionary<(Type from, Type to), bool> t)
             {
                 var methods = numberType.GetMethods(BindingFlags.Public | BindingFlags.Static).ToLookup(m => m.Name);
                 var matches = from methodGroup in methods
@@ -415,6 +516,23 @@
                 foreach (var (expression, function) in matches)
                 {
                     f.Add(expression, function);
+                }
+
+                var converts = from k in Conversions
+                               from m in methods[k.Key]
+                               let parameters = m.GetParameters()
+                               where parameters.Length == 1
+                               select ((parameters[0].ParameterType, m.ReturnType), k.Value);
+                var primitive = ImplicitPrimitiveLookup[numberType].Select(n => (n, true));
+                var @explicit = from groups in ImplicitPrimitiveLookup
+                                let other = groups.Key
+                                where other != numberType
+                                from p in new[] { (numberType, other), (other, numberType) }
+                                select (p, false);
+
+                foreach (var (conversion, @implicit) in converts.Concat(@explicit).Concat(primitive))
+                {
+                    t[conversion] = (t.TryGetValue(conversion, out var existing) && existing) || @implicit;
                 }
 
                 var interfaces = numberType.GetInterfaces();

@@ -369,9 +369,9 @@
                 return this.Visit(this.Scope.Multiply(Expression.Constant(2.0), augend));
             }
 
-            if (this.Scope.IsConstantValue(augend, out var leftConstant))
+            if (this.Scope.IsConstantValue(addend, out var rightConstant))
             {
-                if (this.Scope.IsConstantValue(addend, out var rightConstant))
+                if (this.Scope.IsConstantValue(augend, out var leftConstant))
                 {
                     // Convert "1 + 1" into "2"
                     // TODO: Support all types.
@@ -381,11 +381,12 @@
                         return Expression.Constant(leftValue + rightValue);
                     }
                 }
-                else
-                {
-                    // Convert "1 + a" into "a + 1"
-                    (augend, addend) = (addend, augend);
-                }
+            }
+
+            if (this.CompareNodes(augend, addend) < 0)
+            {
+                // Convert "1 + a" into "a + 1"
+                (augend, addend) = (addend, augend);
             }
 
             if (this.CombineLikeAddition(addend, augend, out var combined) ||
@@ -563,11 +564,12 @@
                         return Expression.Constant(leftValue * rightValue);
                     }
                 }
-                else
-                {
-                    // Convert "a * 2" into "2 * a"
-                    (multiplicand, multiplier) = (multiplier, multiplicand);
-                }
+            }
+
+            if (this.CompareNodes(multiplicand, multiplier, constantsFirst: true) < 0)
+            {
+                // Convert "a * 2" into "2 * a"
+                (multiplicand, multiplier) = (multiplier, multiplicand);
             }
 
             if (this.CombineLikeMultiplication(multiplicand, multiplier, out var combined) ||
@@ -703,6 +705,22 @@
         private Expression SimplifyCompare(Expression left, ExpressionType op, Expression right)
         {
             return this.Scope.Compare(left, op, right);
+        }
+
+        private int CompareNodes(Expression a, Expression b, bool constantsFirst = false)
+        {
+            var constantA = this.Scope.IsConstantValue(a, out _);
+            var constantB = this.Scope.IsConstantValue(b, out _);
+            if (constantA && constantB)
+            {
+                return 0;
+            }
+            else if (constantA ^ constantB)
+            {
+                return (constantA ? -1 : 1) * (constantsFirst ? -1 : 1);
+            }
+
+            return 0;
         }
 
         private bool CombineLikeAddition(Expression left, Expression right, out Expression combined)

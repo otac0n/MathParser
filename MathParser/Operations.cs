@@ -92,12 +92,14 @@ namespace MathParser
         public static Expression ConvertIfLower(this Scope scope, Expression expression, Type to)
         {
             var from = expression.Type;
-            if (to == typeof(Complex) && from != typeof(Complex))
+
+            var target = scope.FindLargest(from, to) ?? throw new NotSupportedException($"Could not find a conversion between '{from}' and '{to}'.");
+            if (from.IsAssignableTo(target))
             {
-                return Expression.Convert(expression, to);
+                return expression;
             }
 
-            return expression;
+            return Expression.Convert(expression, to);
         }
 
         public static Expression LowerToReal(this Scope scope, Expression expression)
@@ -134,7 +136,7 @@ namespace MathParser
             Expression.Condition(condition, scope.ConvertIfLower(consequent, to: alternative), scope.ConvertIfLower(alternative, to: consequent));
 
         public static Expression Constraint(this Scope scope, Expression condition, Expression consequent) =>
-            Expression.Condition(condition, consequent, scope.ConvertIfLower(scope.NaN(), to: consequent));
+            scope.Conditional(condition, consequent, scope.NaN());
 
         public static bool MatchConstraint(this Scope scope, Expression expression, [NotNullWhen(true)] out Expression? condition, [NotNullWhen(true)] out Expression? consequent)
         {
