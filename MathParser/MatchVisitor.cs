@@ -19,14 +19,23 @@
         private bool[] bound;
         private Expression?[] arguments;
 
-        public Match PatternMatch(LambdaExpression lambda)
+        public Match PatternMatch(Expression expression)
         {
             this.compare = this.Root;
-            this.parameters = lambda.Parameters;
-            this.bound = new bool[this.parameters.Count];
-            this.arguments = new Expression[this.parameters.Count];
             this.success = true;
-            this.Visit(lambda.Body);
+            if (expression is LambdaExpression lambda)
+            {
+                this.parameters = lambda.Parameters;
+                this.bound = new bool[this.parameters.Count];
+                this.arguments = new Expression[this.parameters.Count];
+                this.Visit(lambda.Body);
+            }
+            else
+            {
+                (this.parameters, this.bound, this.arguments) = ([], [], []);
+                this.Visit(expression);
+            }
+
             return new Match(this.success, this.bound, this.arguments);
         }
 
@@ -126,7 +135,9 @@
         /// <inheritdoc/>
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            throw new NotImplementedException();
+            var compareConstant = (ConstantExpression)this.compare!;
+            this.success &= compareConstant.Type == node.Type && object.Equals(node.Value, compareConstant.Value);
+            return node;
         }
 
         /// <inheritdoc/>
