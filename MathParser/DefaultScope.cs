@@ -3,9 +3,10 @@
 namespace MathParser
 {
     using System;
-    using System.Collections.Generic;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Numerics;
+    using WKC = WellKnownConstants;
     using WKF = WellKnownFunctions;
 
     /// <summary>
@@ -16,8 +17,14 @@ namespace MathParser
         /// <summary>
         /// Gets the default <see cref="Scope"/> instance.
         /// </summary>
-        public static Scope Instance { get; } = new Scope(namedFunctions: new Dictionary<string, KnownFunction>(StringComparer.InvariantCultureIgnoreCase))
+        public static Scope Instance { get; } = new Scope(StringComparer.InvariantCultureIgnoreCase)
         {
+            { WKC.I },
+            { WKC.GoldenRatio },
+            { WKC.EulersNumber },
+            { WKC.Pi },
+            { WKC.Tau },
+            { WKC.PositiveInfinity },
             { WKF.Exponential.Pow },
             { WKF.Exponential.Exp },
             { WKF.Exponential.Sqrt },
@@ -42,6 +49,10 @@ namespace MathParser
             { WKF.Complex.ImaginaryPart },
             { WKF.Complex.Argument },
             { WKF.Complex.Conjugate },
+            { Expression.MakeMemberAccess(null, typeof(Math).GetMember(nameof(Math.E)).Single()), WKC.EulersNumber },
+            { Expression.MakeMemberAccess(null, typeof(Math).GetMember(nameof(Math.PI)).Single()), WKC.Pi },
+            { Expression.MakeMemberAccess(null, typeof(Math).GetMember(nameof(Math.Tau)).Single()), WKC.Tau },
+            { Expression.MakeMemberAccess(null, typeof(Complex).GetMember(nameof(Complex.ImaginaryOne)).Single()), WKC.I },
             { (bool x) => !x, WKF.Boolean.Not },
             { (bool l, bool r) => l & r, WKF.Boolean.And },
             { (bool l, bool r) => l && r, WKF.Boolean.And },

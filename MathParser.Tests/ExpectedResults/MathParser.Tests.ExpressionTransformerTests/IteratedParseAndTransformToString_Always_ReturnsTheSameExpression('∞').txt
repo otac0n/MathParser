@@ -1,6 +1,6 @@
 ∞
 (parsed)
-∞
+IFloatingPointIeee754`1.PositiveInfinity
 (transformed)
 ∞
 (stable)

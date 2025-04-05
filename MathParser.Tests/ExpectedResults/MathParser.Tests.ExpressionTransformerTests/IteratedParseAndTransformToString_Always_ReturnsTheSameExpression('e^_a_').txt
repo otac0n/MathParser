@@ -1,6 +1,6 @@
 e^|a|
 (parsed)
-(2.718281828459045 ** Abs(a))
+(Math.E ** Abs(a))
 (transformed)
 e^|a|
 (stable)

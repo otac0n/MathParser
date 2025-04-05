@@ -113,26 +113,28 @@ decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
 
 namedConstant <Expression>
-    = "τ" { Expression.Constant(Math.Tau) }
-    / "π" { Expression.Constant(Math.PI) }
-    / "e" ![_a-z0-9]i { Expression.Constant(Math.E) }
+    = "τ" { Scope.Tau() }
+    / "π" { Scope.Pi() }
+    / "e" !idChar { Scope.E() }
     / "φ" { Expression.Constant((1 + Math.Sqrt(5)) / 2) }
-    / "∞" { Expression.Constant(double.PositiveInfinity) }
-    / "i" ![_a-z0-9]i { Expression.Constant(Complex.ImaginaryOne) }
+    / "∞" { Scope.Inf() }
+    / "i" !idChar { Scope.I() }
 
 variable <Expression>
     = name:identifier #{ CreateVariable(state, name); } { (Expression)state[name] }
 
 identifier
-    = !keyword [_a-z]i [_a-z0-9]i*
+    = !keyword [_a-z]i idChar*
+
+idChar = [_a-z0-9]i
 
 keyword
-    = [Tt] "rue"
+    = ([Tt] "rue"
     / [Ff] "alse"
     / "and"
     / "or"
     / "not"
-    / "if"
+    / "if") !idChar
 
 _ = [ \t\r\n]*
 

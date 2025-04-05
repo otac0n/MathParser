@@ -5,6 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
+    using WKC = WellKnownConstants;
     using WKF = WellKnownFunctions;
 
     public sealed class SimplifyVisitor(Scope scope) : ExpressionVisitor
@@ -22,8 +23,38 @@
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
+            else if (this.Scope.TryBind(node, out var knownConstant))
+            {
+                return this.VisitKnownConstant(knownConstant, node);
+            }
 
             return base.Visit(node);
+        }
+
+        protected Expression VisitKnownConstant(KnownConstant knownConstant, Expression node)
+        {
+            if (knownConstant == WKC.Zero)
+            {
+                return Expression.Constant(0.0);
+            }
+            else if (knownConstant == WKC.One)
+            {
+                return Expression.Constant(1.0);
+            }
+            else if (knownConstant == WKC.NegativeOne)
+            {
+                return Expression.Constant(-1.0);
+            }
+            else if (knownConstant == WKC.PositiveInfinity)
+            {
+                return Expression.Constant(double.PositiveInfinity);
+            }
+            else if (knownConstant == WKC.NegativeInfinity)
+            {
+                return Expression.Constant(double.NegativeInfinity);
+            }
+
+            return this.Scope.BindConstant(knownConstant);
         }
 
         protected Expression VisitKnownFunction(KnownFunction function, Expression node, IList<Expression> arguments)
@@ -92,14 +123,14 @@
             }
             else if (function == WKF.Exponential.Ln && arguments.Count == 1)
             {
-                if (this.Scope.IsConstantEqual(converted[0], Math.E))
+                if (this.Scope.IsE(converted[0]))
                 {
                     return this.Scope.One();
                 }
             }
             else if (function == WKF.Exponential.Exp && arguments.Count == 1)
             {
-                return this.Visit(this.Scope.Pow(Expression.Constant(Math.E), converted[0]));
+                return this.Visit(this.Scope.Pow(this.Scope.E(), converted[0]));
             }
 
             return this.Scope.Bind(function, converted);

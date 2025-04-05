@@ -1,6 +1,6 @@
 τ+π
 (parsed)
-(6.283185307179586 + 3.141592653589793)
+(Math.Tau + Math.PI)
 (transformed)
 τ+π
 (stable)

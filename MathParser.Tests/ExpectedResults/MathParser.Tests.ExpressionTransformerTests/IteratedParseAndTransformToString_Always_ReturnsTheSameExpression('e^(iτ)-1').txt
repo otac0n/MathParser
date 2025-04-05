@@ -1,8 +1,8 @@
 e^(iτ)-1
 (parsed)
-(Pow(Convert(2.718281828459045, Complex), (<0; 1> * 6.283185307179586)) - 1)
+(Pow(Convert(Math.E, Complex), (Complex.ImaginaryOne * Math.Tau)) - 1)
 (transformed)
 e^(i·τ)-1
 (parsed)
-(Pow(Convert(2.718281828459045, Complex), (<0; 1> * 6.283185307179586)) - 1)
+(Pow(Convert(Math.E, Complex), (Complex.ImaginaryOne * Math.Tau)) - 1)
 (stable)

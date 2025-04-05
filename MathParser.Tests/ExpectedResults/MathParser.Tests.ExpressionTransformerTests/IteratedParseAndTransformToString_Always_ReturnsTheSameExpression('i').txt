@@ -1,6 +1,6 @@
 i
 (parsed)
-<0; 1>
+Complex.ImaginaryOne
 (transformed)
 i
 (stable)

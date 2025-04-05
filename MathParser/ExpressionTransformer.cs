@@ -8,6 +8,7 @@ namespace MathParser
     using System.Globalization;
     using System.Linq.Expressions;
     using System.Numerics;
+    using WKC = WellKnownConstants;
     using WKF = WellKnownFunctions;
 
     /// <summary>
@@ -447,6 +448,10 @@ namespace MathParser
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
+            else if (this.Scope.TryBind(node, out var knownConstant))
+            {
+                return this.VisitKnownConstant(knownConstant, node);
+            }
 
             return base.Visit(node);
         }
@@ -555,30 +560,38 @@ namespace MathParser
         {
             ArgumentNullException.ThrowIfNull(node);
 
-            if (node.Member.DeclaringType == typeof(Complex))
-            {
-                switch (node.Member.Name)
-                {
-                    case nameof(Complex.ImaginaryOne):
-                        this.Result = this.FormatComplex(0, 1);
-                        return node;
-
-                    case nameof(Complex.Zero):
-                        this.Result = this.FormatComplex(0, 0);
-                        return node;
-
-                    case nameof(Complex.One):
-                        this.Result = this.FormatComplex(1, 0);
-                        return node;
-                }
-            }
-
             if (this.Scope.TryBind(node, out var function, out var arguments))
             {
                 return this.VisitKnownFunction(function, node, arguments);
             }
 
             throw new NotSupportedException($"The member '{node.Member.DeclaringType.FullName}.{node.Member.Name}' is not supported for expression transformation.");
+        }
+
+        protected virtual Expression VisitKnownConstant(KnownConstant constant, Expression node)
+        {
+            if (constant == WKC.Zero)
+            {
+                this.Result = this.FormatReal(0);
+            }
+            else if (constant == WKC.One)
+            {
+                this.Result = this.FormatReal(1);
+            }
+            else if (constant == WKC.NegativeOne)
+            {
+                this.Result = this.FormatReal(-1);
+            }
+            else if (constant == WKC.I)
+            {
+                this.Result = this.FormatComplex(0, 1);
+            }
+            else
+            {
+                this.Result = this.FormatVariable(this.Scope.BindName(constant));
+            }
+
+            return node;
         }
 
         protected virtual Expression VisitKnownFunction(KnownFunction function, Expression node, IList<Expression> arguments)

@@ -9,6 +9,7 @@ namespace MathParser
     using System.Linq.Expressions;
     using System.Numerics;
     using System.Reflection;
+    using WKC = WellKnownConstants;
     using WKF = WellKnownFunctions;
 
     public static class Operations
@@ -39,7 +40,7 @@ namespace MathParser
                 ExpressionType.Subtract when expression is BinaryExpression binary => scope.Subtract(scope.Derivative(binary.Left, variable), scope.Derivative(binary.Right, variable)),
                 ExpressionType.Multiply when expression is BinaryExpression binary => scope.Add(scope.Multiply(scope.Derivative(binary.Left, variable), binary.Right), scope.Multiply(binary.Left, scope.Derivative(binary.Right, variable))),
                 ExpressionType.Divide when expression is BinaryExpression binary => scope.Divide(scope.Subtract(scope.Multiply(scope.Derivative(binary.Left, variable), binary.Right), scope.Multiply(binary.Left, scope.Derivative(binary.Right, variable))), scope.Pow(binary.Right, Expression.Constant(2.0))),
-                ExpressionType.Call when expression is MethodCallExpression methodCall && methodCall.Object is null && (methodCall.Method.DeclaringType == typeof(Math) || methodCall.Method.DeclaringType == typeof(Complex)) => methodCall.Method.Name switch
+                ExpressionType.Call when expression is MethodCallExpression methodCall && methodCall.Object is null => methodCall.Method.Name switch
                 {
                     nameof(Math.Abs) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Divide(expression, methodCall.Arguments[0])),
                     nameof(Math.Sin) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Cos(methodCall.Arguments[0])),
@@ -70,11 +71,21 @@ namespace MathParser
                 _ => throw new NotImplementedException($"The {expression.NodeType}, {expression}, is not implemented."),
             };
 
-        public static ConstantExpression Zero(this Scope scope) => Expression.Constant(0.0);
+        public static Expression Zero(this Scope scope) => scope.BindConstant(WKC.Zero);
 
-        public static ConstantExpression One(this Scope scope) => Expression.Constant(1.0);
+        public static Expression One(this Scope scope) => scope.BindConstant(WKC.One);
 
         public static ConstantExpression NaN(this Scope scope) => Expression.Constant(double.NaN);
+
+        public static Expression Tau(this Scope scope) => scope.BindConstant(WKC.Tau);
+
+        public static Expression Pi(this Scope scope) => scope.BindConstant(WKC.Pi);
+
+        public static Expression E(this Scope scope) => scope.BindConstant(WKC.EulersNumber);
+
+        public static Expression I(this Scope scope) => scope.BindConstant(WKC.I);
+
+        public static Expression Inf(this Scope scope) => scope.BindConstant(WKC.PositiveInfinity);
 
         public static Expression ConvertIfLower(this Scope scope, Expression expression, Expression to) => scope.ConvertIfLower(expression, to: to.Type);
 
@@ -272,6 +283,16 @@ namespace MathParser
             return false;
         }
 
+        private static bool MatchKnownConstant(this Scope scope, KnownConstant knownConstant, [NotNullWhen(true)] Expression? result)
+        {
+            if (scope.TryBind(result, out var foundConstant) && foundConstant == knownConstant)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool IsConstantEqual(this Scope scope, Expression expression, double value) =>
             scope.TryConvert(expression, false, (int x) => x == value) ||
             scope.TryConvert(expression, false, (float x) => x == value) ||
@@ -279,13 +300,16 @@ namespace MathParser
             scope.TryConvert(expression, false, (Complex x) => x == value);
 
         public static bool IsNaN(this Scope scope, Expression expression) =>
+            scope.MatchKnownConstant(WKC.Indeterminate, expression) ||
             scope.TryConvert(expression, false, (float x) => float.IsNaN(x)) ||
             scope.TryConvert(expression, false, (double x) => double.IsNaN(x)) ||
             scope.TryConvert(expression, false, (Complex x) => Complex.IsNaN(x));
 
-        public static bool IsOne(this Scope scope, Expression expression) => scope.IsConstantEqual(expression, 1);
+        public static bool IsOne(this Scope scope, Expression expression) => scope.MatchKnownConstant(WKC.One, expression) || scope.IsConstantEqual(expression, 1);
 
-        public static bool IsZero(this Scope scope, Expression expression) => scope.IsConstantEqual(expression, 0);
+        public static bool IsZero(this Scope scope, Expression expression) => scope.MatchKnownConstant(WKC.Zero, expression) || scope.IsConstantEqual(expression, 0);
+
+        public static bool IsE(this Scope scope, Expression expression) => scope.MatchKnownConstant(WKC.EulersNumber, expression) || scope.IsConstantEqual(expression, Math.E);
 
         public static bool IsTrue(this Scope scope, Expression expression) => scope.TryConvert(expression, false, (bool b) => b);
 

@@ -9,6 +9,7 @@
     using System.Numerics;
     using System.Reflection;
     using System.Threading;
+    using WKC = WellKnownConstants;
     using WKF = WellKnownFunctions;
 
     /// <summary>
@@ -17,68 +18,38 @@
     public sealed class Scope : IEnumerable<Scope>
     {
         private readonly Lock syncRoot = new();
-        private IDictionary<string, KnownFunction> namedFunctions;
+        private IDictionary<string, IKnownObject> namedObjects;
+        private IDictionary<Expression, KnownConstant> knownConstants;
         private IDictionary<LambdaExpression, KnownFunction> knownMethods;
         private bool frozen;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Scope"/> class.
         /// </summary>
-        public Scope()
-            : this(null, null)
+        public Scope(StringComparer nameComparer)
         {
+            this.knownConstants = new Dictionary<Expression, KnownConstant>();
+            this.knownMethods = new Dictionary<LambdaExpression, KnownFunction>();
+            this.namedObjects = new Dictionary<string, IKnownObject>(nameComparer);
+            this.KnownConstants = this.knownConstants.AsReadOnly();
+            this.KnownMethods = this.knownMethods.AsReadOnly();
+            this.NamedObjects = this.namedObjects.AsReadOnly();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Scope"/> class.
+        /// Gets or sets the collection of constant expression bindings.
         /// </summary>
-        /// <param name="knownMethods">An existiong collection of expression bindings.</param>
-        /// <param name="namedFunctions">An existing collection of name bindings.</param>
-        public Scope(IDictionary<LambdaExpression, KnownFunction>? knownMethods = null, IDictionary<string, KnownFunction>? namedFunctions = null)
-        {
-            this.KnownMethods = knownMethods;
-            this.NamedFunctions = namedFunctions;
-        }
+        public IDictionary<Expression, KnownConstant> KnownConstants { get; }
 
         /// <summary>
-        /// Gets or sets the collection of expression bindings.
+        /// Gets or sets the collection of function expression bindings.
         /// </summary>
-        public IDictionary<LambdaExpression, KnownFunction> KnownMethods
-        {
-            get => this.knownMethods;
-            set
-            {
-                lock (this.syncRoot)
-                {
-                    if (this.frozen)
-                    {
-                        throw new NotSupportedException();
-                    }
-
-                    this.knownMethods = value ?? new Dictionary<LambdaExpression, KnownFunction>();
-                }
-            }
-        }
+        public IDictionary<LambdaExpression, KnownFunction> KnownMethods { get; }
 
         /// <summary>
         /// Gets or sets the collection of name bindings.
         /// </summary>
-        public IDictionary<string, KnownFunction> NamedFunctions
-        {
-            get => this.namedFunctions;
-            set
-            {
-                lock (this.syncRoot)
-                {
-                    if (this.frozen)
-                    {
-                        throw new NotSupportedException();
-                    }
-
-                    this.namedFunctions = value ?? new Dictionary<string, KnownFunction>();
-                }
-            }
-        }
+        public IDictionary<string, IKnownObject> NamedObjects { get; }
 
         /// <inheritdoc/>
         public IEnumerator<Scope> GetEnumerator()
@@ -98,8 +69,9 @@
             {
                 if (!this.frozen)
                 {
-                    this.knownMethods = this.knownMethods.AsReadOnly();
-                    this.namedFunctions = this.namedFunctions.AsReadOnly();
+                    this.knownConstants = this.KnownConstants;
+                    this.knownMethods = this.KnownMethods;
+                    this.namedObjects = this.NamedObjects;
                     this.frozen = true;
                 }
             }
@@ -108,11 +80,26 @@
         }
 
         /// <summary>
-        /// Adds all known operators as well as generic math interfaces for the given type.
+        /// Adds all known operators, constants, and generic math interfaces for the given type.
         /// </summary>
         /// <param name="numberType">The type to search for <see cref="WellKnownFunctions"/>.</param>
         public void Add(Type numberType) =>
-            WellKnownFunctionMapping.Add(this.KnownMethods, numberType);
+            WellKnownFunctionMapping.Add(numberType, this.knownConstants, this.knownMethods);
+
+        /// <summary>
+        /// Adds an expression as a representation of the specified <see cref="KnownConstant"/>.
+        /// </summary>
+        /// <param name="expression">The expression that represents the constant.</param>
+        /// <param name="value">The <see cref="KnownConstant"/> that is represented.</param>
+        public void Add(Expression expression, KnownConstant value) =>
+            this.knownConstants.Add(expression, value);
+
+        /// <summary>
+        /// Adds a <see cref="KnownConstant"/> to the named object list under its default name.
+        /// </summary>
+        /// <param name="knownConstant">The <see cref="KnownConstant"/> to add.</param>
+        public void Add(KnownConstant knownConstant) =>
+            this.namedObjects.Add(knownConstant.Name, knownConstant);
 
         /// <summary>
         /// Adds an expression as an implementation of the specified <see cref="KnownFunction"/>.
@@ -120,7 +107,7 @@
         /// <param name="expression">The expression that implements the function.</param>
         /// <param name="value">The <see cref="KnownFunction"/> that is implemented.</param>
         public void Add<TIn, TOut>(Expression<Func<TIn, TOut>> expression, KnownFunction value) =>
-            this.KnownMethods.Add(expression, value);
+            this.knownMethods.Add(expression, value);
 
         /// <summary>
         /// Adds an expression as an implementation of the specified <see cref="KnownFunction"/>.
@@ -128,7 +115,7 @@
         /// <param name="expression">The expression that implements the function.</param>
         /// <param name="value">The <see cref="KnownFunction"/> that is implemented.</param>
         public void Add<T1, T2, TOut>(Expression<Func<T1, T2, TOut>> expression, KnownFunction value) =>
-            this.KnownMethods.Add(expression, value);
+            this.knownMethods.Add(expression, value);
 
         /// <summary>
         /// Adds an expression as an implementation of the specified <see cref="KnownFunction"/>.
@@ -136,14 +123,14 @@
         /// <param name="expression">The expression that implements the function.</param>
         /// <param name="value">The <see cref="KnownFunction"/> that is implemented.</param>
         public void Add(LambdaExpression expression, KnownFunction value) =>
-            this.KnownMethods.Add(expression, value);
+            this.knownMethods.Add(expression, value);
 
         /// <summary>
         /// Adds a <see cref="KnownFunction"/> to the named function list under its default name.
         /// </summary>
         /// <param name="knownFunction">The <see cref="KnownFunction"/> to add.</param>
         public void Add(KnownFunction knownFunction) =>
-            this.NamedFunctions.Add(knownFunction.Name, knownFunction);
+            this.namedObjects.Add(knownFunction.Name, knownFunction);
 
         /// <summary>
         /// Adds a <see cref="KnownFunction"/> to the named function list under an assoicated name.
@@ -151,18 +138,69 @@
         /// <param name="name">The associated name.</param>
         /// <param name="knownFunction">The <see cref="KnownFunction"/> to add.</param>
         public void Add(string name, KnownFunction knownFunction) =>
-            this.NamedFunctions.Add(name, knownFunction);
+            this.namedObjects.Add(name, knownFunction);
+
+        public Expression BindConstant(string name)
+        {
+            if (this.TryBindConstant(name, out var expression))
+            {
+                return expression;
+            }
+
+            throw new MissingMethodException($"Could not find a binding for '{name}'.");
+        }
+
+        public bool TryBindConstant(string name, [NotNullWhen(true)] out Expression? expression)
+        {
+            if (this.NamedObjects.TryGetValue(name, out var knownObject) && knownObject is KnownConstant constant && this.TryBindConstant(constant, out expression))
+            {
+                return true;
+            }
+
+            expression = null;
+            return false;
+        }
+
+        public Expression BindConstant(KnownConstant constant)
+        {
+            if (this.TryBindConstant(constant, out var expression))
+            {
+                return expression;
+            }
+
+            throw new MissingMethodException($"Could not find a binding for '{constant.Name}'.");
+        }
+
+        public bool TryBindConstant(KnownConstant constant, [NotNullWhen(true)] out Expression? expression)
+        {
+            var constants = from known in this.KnownConstants
+                            where known.Value == constant
+                            let m = known.Key
+                            orderby m is ConstantExpression ascending,
+                                    m is MethodCallExpression ascending
+                            select m;
+
+            using var enumerator = constants.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                expression = enumerator.Current;
+                return true;
+            }
+
+            expression = null;
+            return false;
+        }
 
         public Expression Bind(string name, params Expression[] arguments) => this.Bind(name, (IList<Expression>)arguments);
 
         public Expression Bind(string name, IList<Expression> arguments)
         {
-            if (!this.NamedFunctions.TryGetValue(name, out var function))
+            if (this.NamedObjects.TryGetValue(name, out var knownObject) && knownObject is KnownFunction function)
             {
-                throw new MissingMethodException($"Could not find a binding for '{name}'.");
+                return this.Bind(function, arguments);
             }
 
-            return this.Bind(function, arguments);
+            throw new MissingMethodException($"Could not find a binding for '{name}'.");
         }
 
         public Expression Bind(KnownFunction function, params Expression[] arguments) => this.Bind(function, (IList<Expression>)arguments);
@@ -206,6 +244,38 @@
                 .Visit(lambda.Body);
         }
 
+        public void Bind(Expression expression, out KnownConstant knownConstant)
+        {
+            if (!this.TryBind(expression, out knownConstant))
+            {
+                throw new MissingMethodException($"Could not find a binding for '{expression}'.");
+            }
+        }
+
+        public bool TryBind([NotNullWhen(true)] Expression? expression, [NotNullWhen(true)] out KnownConstant? knownConstant)
+        {
+            if (expression != null)
+            {
+                var visitor = new MatchVisitor(expression);
+
+                var methods = (from known in this.KnownConstants
+                               let match = visitor.PatternMatch(known.Key)
+                               where match.Success
+                               where match.Arguments.Count == 0
+                               select known.Value).Distinct();
+
+                using var enumerator = methods.GetEnumerator();
+                if (enumerator.MoveNext())
+                {
+                    knownConstant = enumerator.Current;
+                    return true;
+                }
+            }
+
+            knownConstant = null;
+            return false;
+        }
+
         public void Bind(Expression expression, out KnownFunction knownMethod, out IList<Expression>? arguments)
         {
             if (!this.TryBind(expression, out knownMethod, out arguments))
@@ -238,20 +308,20 @@
             return false;
         }
 
-        public string BindName(KnownFunction function)
+        public string BindName(IKnownObject knownObject)
         {
-            if (!this.TryBindName(function, out var name))
+            if (!this.TryBindName(knownObject, out var name))
             {
-                throw new MissingMethodException($"Could not find a binding for '{function.Name}'.");
+                throw new MissingMethodException($"Could not find a binding for '{knownObject.Name}'.");
             }
 
             return name;
         }
 
-        public bool TryBindName(KnownFunction function, [NotNullWhen(true)] out string? name)
+        public bool TryBindName(IKnownObject knownObject, [NotNullWhen(true)] out string? name)
         {
-            var names = from binding in this.NamedFunctions
-                        where binding.Value == function
+            var names = from binding in this.NamedObjects
+                        where binding.Value == knownObject
                         orderby binding.Key.Length descending
                         select binding.Key;
 
@@ -329,7 +399,7 @@
                 [ExpressionType.LessThanOrEqual] = WKF.Comparison.LessThanOrEqual,
             };
 
-            public static void Add(IDictionary<LambdaExpression, KnownFunction> t, Type numberType)
+            public static void Add(Type numberType, IDictionary<Expression, KnownConstant> c, IDictionary<LambdaExpression, KnownFunction> f)
             {
                 var methods = numberType.GetMethods(BindingFlags.Public | BindingFlags.Static).ToLookup(m => m.Name);
                 var matches = from methodGroup in methods
@@ -344,7 +414,7 @@
 
                 foreach (var (expression, function) in matches)
                 {
-                    t.Add(expression, function);
+                    f.Add(expression, function);
                 }
 
                 var interfaces = numberType.GetInterfaces();
@@ -353,19 +423,40 @@
                     var definition = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
                     var typeArgs = type.IsGenericType ? type.GetGenericArguments() : [];
 
-                    if (definition == typeof(IEqualityOperators<,,>))
+                    if (definition == typeof(INumberBase<>))
+                    {
+                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(INumberBase<>.Zero)).Single()), WKC.Zero);
+                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(INumberBase<>.One)).Single()), WKC.One);
+                    }
+                    ////else if (definition == typeof(INumber<>))
+                    ////{
+                    ////    /* Clamp, Min, Max, Sign */
+                    ////}
+                    else if (definition == typeof(IFloatingPointConstants<>))
+                    {
+                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.E)).Single()), WKC.EulersNumber);
+                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.Pi)).Single()), WKC.Pi);
+                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.Tau)).Single()), WKC.Tau);
+                    }
+                    else if (definition == typeof(IFloatingPointIeee754<>))
+                    {
+                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.NaN)).Single()), WKC.Indeterminate);
+                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.NegativeInfinity)).Single()), WKC.NegativeInfinity);
+                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.PositiveInfinity)).Single()), WKC.PositiveInfinity);
+                    }
+                    else if (definition == typeof(IEqualityOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        t.Add(MakeLambda(argTypes, p => Expression.Equal(p[0], p[1])), WKF.Comparison.Equal);
-                        t.Add(MakeLambda(argTypes, p => Expression.NotEqual(p[0], p[1])), WKF.Comparison.NotEqual);
+                        f.Add(MakeLambda(argTypes, p => Expression.Equal(p[0], p[1])), WKF.Comparison.Equal);
+                        f.Add(MakeLambda(argTypes, p => Expression.NotEqual(p[0], p[1])), WKF.Comparison.NotEqual);
                     }
                     else if (definition == typeof(IComparisonOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        t.Add(MakeLambda(argTypes, p => Expression.GreaterThan(p[0], p[1])), WKF.Comparison.GreaterThan);
-                        t.Add(MakeLambda(argTypes, p => Expression.GreaterThanOrEqual(p[0], p[1])), WKF.Comparison.GreaterThanOrEqual);
-                        t.Add(MakeLambda(argTypes, p => Expression.LessThan(p[0], p[1])), WKF.Comparison.LessThan);
-                        t.Add(MakeLambda(argTypes, p => Expression.LessThanOrEqual(p[0], p[1])), WKF.Comparison.LessThanOrEqual);
+                        f.Add(MakeLambda(argTypes, p => Expression.GreaterThan(p[0], p[1])), WKF.Comparison.GreaterThan);
+                        f.Add(MakeLambda(argTypes, p => Expression.GreaterThanOrEqual(p[0], p[1])), WKF.Comparison.GreaterThanOrEqual);
+                        f.Add(MakeLambda(argTypes, p => Expression.LessThan(p[0], p[1])), WKF.Comparison.LessThan);
+                        f.Add(MakeLambda(argTypes, p => Expression.LessThanOrEqual(p[0], p[1])), WKF.Comparison.LessThanOrEqual);
                     }
                     ////else if (definition == typeof(IUnaryPlusOperators<,>))
                     ////{
@@ -375,57 +466,57 @@
                     else if (definition == typeof(IUnaryNegationOperators<,>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        t.Add(MakeLambda(argTypes, p => Expression.Negate(p[0])), WKF.Arithmetic.Negate);
-                        t.Add(MakeLambda(argTypes, p => Expression.NegateChecked(p[0])), WKF.Arithmetic.Negate);
+                        f.Add(MakeLambda(argTypes, p => Expression.Negate(p[0])), WKF.Arithmetic.Negate);
+                        f.Add(MakeLambda(argTypes, p => Expression.NegateChecked(p[0])), WKF.Arithmetic.Negate);
                     }
                     else if (definition == typeof(IAdditionOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        t.Add(MakeLambda(argTypes, p => Expression.Add(p[0], p[1])), WKF.Arithmetic.Add);
-                        t.Add(MakeLambda(argTypes, p => Expression.AddChecked(p[0], p[1])), WKF.Arithmetic.Add);
+                        f.Add(MakeLambda(argTypes, p => Expression.Add(p[0], p[1])), WKF.Arithmetic.Add);
+                        f.Add(MakeLambda(argTypes, p => Expression.AddChecked(p[0], p[1])), WKF.Arithmetic.Add);
                     }
                     else if (definition == typeof(ISubtractionOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        t.Add(MakeLambda(argTypes, p => Expression.Subtract(p[0], p[1])), WKF.Arithmetic.Subtract);
-                        t.Add(MakeLambda(argTypes, p => Expression.SubtractChecked(p[0], p[1])), WKF.Arithmetic.Subtract);
+                        f.Add(MakeLambda(argTypes, p => Expression.Subtract(p[0], p[1])), WKF.Arithmetic.Subtract);
+                        f.Add(MakeLambda(argTypes, p => Expression.SubtractChecked(p[0], p[1])), WKF.Arithmetic.Subtract);
                     }
                     else if (definition == typeof(IMultiplyOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        t.Add(MakeLambda(argTypes, p => Expression.Multiply(p[0], p[1])), WKF.Arithmetic.Multiply);
-                        t.Add(MakeLambda(argTypes, p => Expression.MultiplyChecked(p[0], p[1])), WKF.Arithmetic.Multiply);
+                        f.Add(MakeLambda(argTypes, p => Expression.Multiply(p[0], p[1])), WKF.Arithmetic.Multiply);
+                        f.Add(MakeLambda(argTypes, p => Expression.MultiplyChecked(p[0], p[1])), WKF.Arithmetic.Multiply);
                     }
                     else if (definition == typeof(IDivisionOperators<,,>))
                     {
                         var argTypes = typeArgs[..^1];
-                        t.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1])), WKF.Arithmetic.Divide);
+                        f.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1])), WKF.Arithmetic.Divide);
                         var opDivideChecked = type.GetMethod("op_CheckedDivision", argTypes);
-                        t.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked)), WKF.Arithmetic.Divide);
+                        f.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked)), WKF.Arithmetic.Divide);
                     }
                     else if (definition == typeof(IPowerFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0], typeArgs[0] };
                         var pow = type.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes);
-                        t.Add(MakeLambda(argTypes, p => Expression.Call(pow, p[0], p[1])), WKF.Exponential.Pow);
+                        f.Add(MakeLambda(argTypes, p => Expression.Call(pow, p[0], p[1])), WKF.Exponential.Pow);
                     }
                     else if (definition == typeof(IRootFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
                         var sqrt = type.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes);
-                        t.Add(MakeLambda(argTypes, p => Expression.Call(sqrt, p[0])), WKF.Exponential.Sqrt);
+                        f.Add(MakeLambda(argTypes, p => Expression.Call(sqrt, p[0])), WKF.Exponential.Sqrt);
                     }
                     else if (definition == typeof(ILogarithmicFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
                         var log = type.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes);
-                        t.Add(MakeLambda(argTypes, p => Expression.Call(log, p[0])), WKF.Exponential.Ln);
+                        f.Add(MakeLambda(argTypes, p => Expression.Call(log, p[0])), WKF.Exponential.Ln);
                     }
                     else if (definition == typeof(IExponentialFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
                         var exp = type.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes);
-                        t.Add(MakeLambda(argTypes, p => Expression.Call(exp, p[0])), WKF.Exponential.Exp);
+                        f.Add(MakeLambda(argTypes, p => Expression.Call(exp, p[0])), WKF.Exponential.Exp);
                     }
                 }
             }
