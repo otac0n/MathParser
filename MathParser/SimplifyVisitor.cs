@@ -388,6 +388,12 @@
                 }
             }
 
+            if (this.CombineLikeAddition(addend, augend, out var combined) ||
+                this.CombineLikeAddition(augend, addend, out combined))
+            {
+                return this.Visit(combined);
+            }
+
             return this.Scope.Add(augend, addend);
         }
 
@@ -546,12 +552,6 @@
                 return this.Visit(this.Scope.Subtract(this.Scope.Multiply(leftSubtractLeft, multiplier), this.Scope.Multiply(leftSubtractRight, multiplier)));
             }
 
-            if (this.CombineLikeMultiplication(multiplicand, multiplier, out var combined) ||
-                this.CombineLikeMultiplication(multiplier, multiplicand, out combined))
-            {
-                return this.Visit(combined);
-            }
-
             if (this.Scope.IsConstantValue(multiplier, out var rightConstant))
             {
                 if (this.Scope.IsConstantValue(multiplicand, out var leftConstant))
@@ -568,6 +568,12 @@
                     // Convert "a * 2" into "2 * a"
                     (multiplicand, multiplier) = (multiplier, multiplicand);
                 }
+            }
+
+            if (this.CombineLikeMultiplication(multiplicand, multiplier, out var combined) ||
+                this.CombineLikeMultiplication(multiplier, multiplicand, out combined))
+            {
+                return this.Visit(combined);
             }
 
             return this.Scope.Multiply(multiplicand, multiplier);
@@ -697,6 +703,79 @@
         private Expression SimplifyCompare(Expression left, ExpressionType op, Expression right)
         {
             return this.Scope.Compare(left, op, right);
+        }
+
+        private bool CombineLikeAddition(Expression left, Expression right, out Expression combined)
+        {
+            this.GetCoefficientAndFactor(left, out var leftFactor, out var coefficient);
+
+            Expression? remainder = right;
+            if (this.ExtractByFactor(leftFactor, ref coefficient, ref remainder))
+            {
+                var newLeft = this.Scope.Multiply(coefficient, leftFactor);
+                combined = remainder == null ? newLeft : this.Scope.Add(newLeft, remainder);
+                return true;
+            }
+
+            combined = null;
+            return false;
+        }
+
+        private bool ExtractByFactor(Expression factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder) =>
+            this.ExtractByFactor(new MatchVisitor(factor), ref coefficient, ref remainder);
+
+        private bool ExtractByFactor(MatchVisitor factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder)
+        {
+            if (this.Scope.MatchAdd(remainder, out var left, out var right))
+            {
+                bool changed;
+                changed = this.ExtractByFactor(factor, ref coefficient, ref left);
+                changed |= this.ExtractByFactor(factor, ref coefficient, ref right);
+                if (changed)
+                {
+                    remainder =
+                        left == null ? right :
+                        right == null ? left : this.Scope.Add(left, right);
+                }
+
+                return changed;
+            }
+
+            if (remainder != null)
+            {
+                this.GetCoefficientAndFactor(remainder, out var rFactor, out var rCoefficient);
+                if (factor.PatternMatch(rFactor).Success)
+                {
+                    coefficient = this.Scope.Add(coefficient ?? this.Scope.One(), rCoefficient ?? this.Scope.One());
+                    remainder = null;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void GetCoefficientAndFactor(Expression expr, out Expression factor, out Expression? coefficient)
+        {
+            if (this.Scope.MatchMultiply(expr, out var left, out var right))
+            {
+                if (this.Scope.IsConstantValue(left, out _))
+                {
+                    coefficient = left;
+                    factor = right;
+                    return;
+                }
+                else if (this.Scope.IsConstantValue(right, out _))
+                {
+                    coefficient = right;
+                    factor = left;
+                    return;
+                }
+            }
+
+            factor = expr;
+            coefficient = null; // null -> one.
+            return;
         }
 
         private bool CombineLikeMultiplication(Expression left, Expression right, out Expression combined)
