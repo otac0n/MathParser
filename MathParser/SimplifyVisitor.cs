@@ -511,13 +511,10 @@
                 return this.Visit(this.Scope.Subtract(this.Scope.Multiply(leftSubtractLeft, multiplier), this.Scope.Multiply(leftSubtractRight, multiplier)));
             }
 
-            this.GetBaseAndPower(multiplicand, out var leftBase, out var leftExponent);
-            this.GetBaseAndPower(multiplier, out var rightBase, out var rightExponent);
-
-            // Convert "a^y * a^x" into "a ^ (y + x)"
-            if (leftBase == rightBase)
+            if (this.CombineLikeMultiplication(multiplicand, multiplier, out var combined) ||
+                this.CombineLikeMultiplication(multiplier, multiplicand, out combined))
             {
-                return this.Visit(this.Scope.Pow(leftBase, this.Scope.Add(leftExponent ?? this.Scope.One(), rightExponent ?? this.Scope.One())));
+                return this.Visit(combined);
             }
 
             if (this.Scope.IsConstantValue(multiplier, out var rightConstant))
@@ -672,6 +669,22 @@
             return this.Scope.Compare(left, op, right);
         }
 
+        private bool CombineLikeMultiplication(Expression left, Expression right, out Expression combined)
+        {
+            this.GetBaseAndPower(left, out var leftBase, out var exponent);
+
+            Expression? remainder = right;
+            if (this.ExtractByBase(leftBase, ref exponent, ref remainder))
+            {
+                var newLeft = this.Scope.Pow(leftBase, exponent);
+                combined = remainder == null ? newLeft : this.Scope.Multiply(newLeft, remainder);
+                return true;
+            }
+
+            combined = null;
+            return false;
+        }
+
         private void GetBaseAndPower(Expression expr, out Expression @base, out Expression? exponent)
         {
             if (this.Scope.MatchPower(expr, out @base, out exponent))
@@ -682,6 +695,37 @@
             @base = expr;
             exponent = null; // null -> one.
             return;
+        }
+
+        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder)
+        {
+            if (this.Scope.MatchMultiply(remainder, out var left, out var right))
+            {
+                bool changed;
+                changed = this.ExtractByBase(@base, ref exponent, ref left);
+                changed |= this.ExtractByBase(@base, ref exponent, ref right);
+                if (changed)
+                {
+                    remainder =
+                        left == null ? right :
+                        right == null ? left : this.Scope.Multiply(left, right);
+                }
+
+                return changed;
+            }
+
+            if (remainder != null)
+            {
+                this.GetBaseAndPower(remainder, out var rBase, out var rExponent);
+                if (@base == rBase)
+                {
+                    exponent = this.Scope.Add(exponent ?? this.Scope.One(), rExponent ?? this.Scope.One());
+                    remainder = null;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }
