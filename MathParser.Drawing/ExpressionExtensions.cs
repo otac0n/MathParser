@@ -18,7 +18,7 @@
         [SupportedOSPlatform("windows")]
         public static VisualNode TransformToVisualTree(this Expression expression, Scope? scope = null)
         {
-            var transformer = new VisualNodeTransformer(scope);
+            var transformer = new VisualNodeTransformer(scope ?? DefaultScope.Instance);
             transformer.Visit(expression);
             return transformer.Result;
         }

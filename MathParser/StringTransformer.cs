@@ -8,7 +8,7 @@
     /// Converts expressions to their string representation. Can be overridden.
     /// </summary>
     /// <param name="scope">The scope in which the transformations are performed.</param>
-    public class StringTransformer(Scope? scope = null) : ExpressionTransformer<string>(scope)
+    public class StringTransformer(Scope scope) : ExpressionTransformer<string>(scope)
     {
         /// <inheritdoc />
         protected override string AddBrackets(string left, string expression, string right) => left + expression + right;

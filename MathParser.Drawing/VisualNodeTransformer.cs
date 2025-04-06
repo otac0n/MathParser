@@ -13,7 +13,7 @@ namespace MathParser.Drawing
     /// </summary>
     /// <param name="scope">The scope in which the transformations are performed.</param>
     [SupportedOSPlatform("windows")]
-    public class VisualNodeTransformer(Scope? scope = null) : ExpressionTransformer<VisualNode>(scope)
+    public class VisualNodeTransformer(Scope scope) : ExpressionTransformer<VisualNode>(scope)
     {
         /// <inheritdoc />
         protected override VisualNode AddBrackets(string left, VisualNode expression, string right) => new BracketedVisualNode(left, expression, right);

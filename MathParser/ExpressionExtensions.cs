@@ -34,7 +34,7 @@ namespace MathParser
         /// <returns>The string representation of the expression.</returns>
         public static string TransformToString(this Expression expression, Scope? scope = null)
         {
-            var transformer = new StringTransformer(scope);
+            var transformer = new StringTransformer(scope ?? DefaultScope.Instance);
             transformer.Visit(expression);
             return transformer.Result;
         }
