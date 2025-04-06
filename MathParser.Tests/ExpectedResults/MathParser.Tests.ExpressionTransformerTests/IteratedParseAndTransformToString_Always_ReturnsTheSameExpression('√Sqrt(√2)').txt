@@ -2,7 +2,7 @@
 (parsed)
 Sqrt(Sqrt(Convert(Sqrt(2), Complex)))
 (transformed)
-√(√(√2))
+√√√2
 (parsed)
 Sqrt(Sqrt(Convert(Sqrt(2), Complex)))
 (stable)

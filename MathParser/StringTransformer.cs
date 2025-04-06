@@ -79,12 +79,6 @@
         /// <inheritdoc />
         protected override bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
-            if (outerEffectiveType == ExpressionType.Power &&
-                ((outer is MethodCallExpression outerMethod && outerMethod.Method.Name == nameof(Math.Sqrt)) || (inner is MethodCallExpression innerMethod && innerMethod.Method.Name == nameof(Math.Sqrt))))
-            {
-                return GetPrecedence(this.GetEffectiveNodeType(inner)) <= GetPrecedence(outerEffectiveType);
-            }
-
             if (innerEffectiveType == ExpressionType.Conditional &&
                 !this.Scope.MatchConstraint(inner, out _, out _))
             {

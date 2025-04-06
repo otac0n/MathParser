@@ -2,7 +2,7 @@
 (parsed)
 (Pow(Sqrt(Convert((1 * 2), Complex)), Sqrt(3)) * 4)
 (transformed)
-(√(1·2))^√3·4
+√(1·2)^√3·4
 (parsed)
 (Pow(Sqrt(Convert((1 * 2), Complex)), Sqrt(3)) * 4)
 (stable)

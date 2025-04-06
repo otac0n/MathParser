@@ -2,7 +2,5 @@
 (parsed)
 Sqrt(((((1 + Sqrt(Sqrt(Convert(Sqrt(2), Complex)))) + (3 / 4)) + Sqrt(Convert((1 / 3), Complex))) + Sqrt(Pow(Complex.ImaginaryOne, 2))))
 (transformed)
-√(1+√(√(√2))+3/4+√(1/3)+√(i^2))
-(parsed)
-Sqrt(((((1 + Sqrt(Sqrt(Convert(Sqrt(2), Complex)))) + (3 / 4)) + Sqrt(Convert((1 / 3), Complex))) + Sqrt(Pow(Complex.ImaginaryOne, 2))))
+√(1+√√√2+3/4+√(1/3)+√(i^2))
 (stable)

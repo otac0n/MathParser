@@ -815,7 +815,7 @@ namespace MathParser
                 {
                     return knownType;
                 }
-                else if (knownMethod == WKF.Exponential.Exp || knownMethod == WKF.Exponential.Sqrt)
+                else if (knownMethod == WKF.Exponential.Exp)
                 {
                     return ExpressionType.Power;
                 }
