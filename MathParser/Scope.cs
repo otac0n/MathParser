@@ -331,7 +331,7 @@
         {
             var names = from binding in this.NamedObjects
                         where binding.Value == knownObject
-                        orderby binding.Key.Length descending
+                        orderby binding.Key.Length ascending
                         select binding.Key;
 
             using var enumerator = names.GetEnumerator();

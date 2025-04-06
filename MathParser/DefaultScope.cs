@@ -28,6 +28,7 @@ namespace MathParser
             { WKF.Exponential.Pow },
             { WKF.Exponential.Exp },
             { WKF.Exponential.Sqrt },
+            { WKF.Exponential.Ln },
             { "log", WKF.Exponential.Ln },
             { WKF.Trigonometric.Sine },
             { WKF.Trigonometric.Cosine },
