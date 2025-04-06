@@ -27,49 +27,10 @@ namespace MathParser
             return Expression.Lambda(scope.Simplify(scope.Derivative(expression.Body, variable)), expression.Name, expression.TailCall, [variable]);
         }
 
-        public static Expression Derivative(this Scope scope, Expression expression, ParameterExpression variable) =>
-            expression.NodeType switch
-            {
-                ExpressionType.Parameter when expression is ParameterExpression parameter => parameter == variable ? scope.One() : scope.Zero(),
-                ExpressionType.MemberAccess when expression is MemberExpression member => scope.Zero(),
-                ExpressionType.Constant when expression is ConstantExpression constant => scope.IsNaN(constant) ? constant : scope.Zero(), // TODO: Does constant infinity have a derivative?
-                ExpressionType.Convert when expression is UnaryExpression unary => Expression.Convert(scope.Derivative(unary.Operand, variable), unary.Type),
-                ExpressionType.Conditional when expression is ConditionalExpression conditional => scope.Conditional(conditional.Test, scope.Derivative(conditional.IfTrue, variable), scope.Derivative(conditional.IfFalse, variable)),
-                ExpressionType.Negate when expression is UnaryExpression unary => scope.Negate(scope.Derivative(unary.Operand, variable)),
-                ExpressionType.Add when expression is BinaryExpression binary => scope.Add(scope.Derivative(binary.Left, variable), scope.Derivative(binary.Right, variable)),
-                ExpressionType.Subtract when expression is BinaryExpression binary => scope.Subtract(scope.Derivative(binary.Left, variable), scope.Derivative(binary.Right, variable)),
-                ExpressionType.Multiply when expression is BinaryExpression binary => scope.Add(scope.Multiply(scope.Derivative(binary.Left, variable), binary.Right), scope.Multiply(binary.Left, scope.Derivative(binary.Right, variable))),
-                ExpressionType.Divide when expression is BinaryExpression binary => scope.Divide(scope.Subtract(scope.Multiply(scope.Derivative(binary.Left, variable), binary.Right), scope.Multiply(binary.Left, scope.Derivative(binary.Right, variable))), scope.Pow(binary.Right, Expression.Constant(2.0))),
-                ExpressionType.Call when expression is MethodCallExpression methodCall && methodCall.Object is null => methodCall.Method.Name switch
-                {
-                    nameof(Math.Abs) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Divide(expression, methodCall.Arguments[0])),
-                    nameof(Math.Sin) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Cos(methodCall.Arguments[0])),
-                    nameof(Math.Cos) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Negate(scope.Sin(methodCall.Arguments[0]))),
-                    nameof(Math.Tan) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), scope.Pow(scope.Cos(methodCall.Arguments[0]), Expression.Constant(2.0))),
-                    nameof(Math.Asin) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), scope.Sqrt(scope.Subtract(Expression.Constant(1.0), scope.Pow(methodCall.Arguments[0], Expression.Constant(2.0))))),
-                    nameof(Math.Acos) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), scope.Negate(scope.Sqrt(scope.Subtract(Expression.Constant(1.0), scope.Pow(methodCall.Arguments[0], Expression.Constant(2.0)))))),
-                    nameof(Math.Atan) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), scope.Add(scope.Pow(methodCall.Arguments[0], Expression.Constant(2.0)), Expression.Constant(1.0))),
-                    nameof(Math.Sinh) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Cosh(methodCall.Arguments[0])),
-                    nameof(Math.Cosh) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Sinh(methodCall.Arguments[0])),
-                    nameof(Math.Tanh) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), scope.Pow(scope.Cosh(methodCall.Arguments[0]), Expression.Constant(2.0))),
-                    nameof(Math.Asinh) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), scope.Sqrt(scope.Add(scope.Pow(methodCall.Arguments[0], Expression.Constant(2.0)), Expression.Constant(1.0)))),
-                    nameof(Math.Acosh) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), scope.Sqrt(scope.Subtract(scope.Pow(methodCall.Arguments[0], Expression.Constant(2.0)), Expression.Constant(1.0)))), // TODO: Domain of the function is Reals > 1
-                    nameof(Math.Atanh) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), scope.Subtract(Expression.Constant(1.0), scope.Pow(methodCall.Arguments[0], Expression.Constant(2.0)))), // TODO: Domain of the function is |Reals| < 1
-                    nameof(Math.Sqrt) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Multiply(Expression.Constant(0.5), scope.Divide(expression, methodCall.Arguments[0]))),
-                    nameof(Math.Exp) when methodCall.Arguments.Count == 1 => scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), expression),
-                    nameof(Math.Log) when methodCall.Arguments.Count == 1 => scope.Divide(scope.Derivative(methodCall.Arguments[0], variable), methodCall.Arguments[0]), // TODO: Domain of the function is Reals > 0.
-                    nameof(Math.Pow) when methodCall.Arguments.Count == 2 =>
-                        scope.IsConstantValue(methodCall.Arguments[1], out var constant)
-                            ? scope.Multiply(scope.Derivative(methodCall.Arguments[0], variable), scope.Multiply(constant, scope.Pow(methodCall.Arguments[0], scope.Subtract(constant, scope.One()))))
-                            : scope.Multiply(expression, scope.Derivative(scope.Multiply(scope.Log(methodCall.Arguments[0]), methodCall.Arguments[1]), variable)),
-                    _ => throw new NotImplementedException($"The method, {methodCall.Method}, is not implemented."),
-                },
-                ExpressionType.Power when expression is BinaryExpression binary =>
-                        scope.IsConstantValue(binary.Right, out var constant)
-                            ? scope.Multiply(scope.Derivative(binary.Left, variable), scope.Multiply(constant, scope.Pow(binary.Left, scope.Subtract(constant, scope.One()))))
-                            : scope.Multiply(expression, scope.Derivative(scope.Multiply(scope.Log(binary.Left), binary.Right), variable)),
-                _ => throw new NotImplementedException($"The {expression.NodeType}, {expression}, is not implemented."),
-            };
+        public static Expression Derivative(this Scope scope, Expression expression, ParameterExpression variable)
+        {
+            return new DerivativeVisitor(scope, variable).Visit(expression);
+        }
 
         public static Expression Zero(this Scope scope) => scope.BindConstant(WKC.Zero);
 
