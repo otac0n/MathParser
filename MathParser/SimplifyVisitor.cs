@@ -681,13 +681,26 @@
 
             if (this.Scope.IsConstantValue(exponent, out var rightConstant))
             {
-                if (this.Scope.IsConstantValue(@base, out var leftConstant))
+                if (rightConstant.Value is double rightValue && rightValue > 0)
                 {
-                    // Convert "2 ^ 2" into "4"
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue && rightValue >= 0) // TODO: Support all types.
+                    if (this.Scope.IsConstantValue(@base, out var leftConstant))
                     {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(Math.Pow(leftValue, rightValue));
+                        // Convert "2 ^ 2" into "4"
+                        if (leftConstant.Value is double leftValue) // TODO: Support all types.
+                        {
+                            // TODO: Add a configuration option to detect and prevent loss of precision.
+                            return Expression.Constant(Math.Pow(leftValue, rightValue));
+                        }
+                    }
+                    else if (double.IsInteger(rightValue) && rightValue <= 10 &&
+                        this.Scope.TryBind(@base, out var knownFunction, out _) &&
+                        (knownFunction == WKF.Arithmetic.Add || knownFunction == WKF.Arithmetic.Subtract))
+                    {
+                        var totalPower = (int)rightValue;
+                        var rightPower = totalPower / 2;
+                        var leftPower = totalPower - rightPower;
+
+                        return this.Visit(this.Scope.Multiply(this.Scope.Pow(@base, Expression.Constant((double)leftPower)), this.Scope.Pow(@base, Expression.Constant((double)rightPower))));
                     }
                 }
             }
