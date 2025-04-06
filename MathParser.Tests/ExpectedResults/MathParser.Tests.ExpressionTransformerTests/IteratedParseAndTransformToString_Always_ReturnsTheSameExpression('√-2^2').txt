@@ -1,0 +1,6 @@
+√-2^2
+(parsed)
+Pow(Sqrt(Convert(-2, Complex)), 2)
+(transformed)
+√-2^2
+(stable)

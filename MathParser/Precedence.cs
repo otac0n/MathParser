@@ -53,6 +53,11 @@ namespace MathParser
         Exponential,
 
         /// <summary>
+        /// Values and function calls.
+        /// </summary>
+        Primary,
+
+        /// <summary>
         /// Unknown precedence.
         /// </summary>
         Unknown = byte.MaxValue,

@@ -117,6 +117,9 @@ namespace MathParser
                 case ExpressionType.Power:
                     return Precedence.Exponential;
 
+                case ExpressionType.Call:
+                    return Precedence.Primary;
+
                 default:
                     return Precedence.Unknown;
             }
@@ -441,13 +444,23 @@ namespace MathParser
             return NeedsRightBrackets(outerPrecedence, innerPrecedence);
         }
 
-        protected bool NeedsLeftBrackets(Precedence outerPrecedence, Precedence innerPrecedence)
+        protected static bool NeedsLeftBrackets(Precedence outerPrecedence, Precedence innerPrecedence)
         {
+            if (outerPrecedence == Precedence.Primary)
+            {
+                return false;
+            }
+
             return outerPrecedence >= innerPrecedence;
         }
 
-        protected bool NeedsRightBrackets(Precedence outerPrecedence, Precedence innerPrecedence)
+        protected static bool NeedsRightBrackets(Precedence outerPrecedence, Precedence innerPrecedence)
         {
+            if (outerPrecedence == Precedence.Primary)
+            {
+                return false;
+            }
+
             if (outerPrecedence == Precedence.Exponential && innerPrecedence == Precedence.Unary)
             {
                 return false;
@@ -731,7 +744,7 @@ namespace MathParser
                 var @base = arguments[0];
                 var baseEffectiveType = this.GetEffectiveNodeType(@base);
 
-                if (this.NeedsLeftBrackets(ExpressionType.Power, node, baseEffectiveType, @base))
+                if (this.NeedsRightBrackets(ExpressionType.Call, node, baseEffectiveType, @base))
                 {
                     inner = this.AddBrackets(inner);
                 }

@@ -2,7 +2,5 @@
 (parsed)
 Sqrt(Convert(-1, Complex))
 (transformed)
-√(-1)
-(parsed)
-Sqrt(Convert(-1, Complex))
+√-1
 (stable)

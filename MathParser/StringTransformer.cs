@@ -91,6 +91,21 @@
 
         protected override bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
+            if (scope.MatchSqrt(outer, out _))
+            {
+                var outerPrecedence = Precedence.Exponential;
+                var innerPrecedence = GetPrecedence(innerEffectiveType);
+                var exposed = this.GetLeftExposedType(innerEffectiveType, inner); // Assumed to be a lower precedence than innerEffectiveType if changed.
+                var exposedPrecedence = GetPrecedence(exposed);
+
+                if (exposedPrecedence != innerPrecedence)
+                {
+                    return true;
+                }
+
+                return NeedsRightBrackets(outerPrecedence, innerPrecedence);
+            }
+
             if (innerEffectiveType == ExpressionType.Conditional &&
                 !this.Scope.MatchConstraint(inner, out _, out _))
             {
