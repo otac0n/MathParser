@@ -2,7 +2,7 @@
 (parsed)
 ((1 / Sqrt(Convert(Math.Tau, Complex))) * Pow(Convert(Math.E, Complex), -(Pow(x, 2) / 2)))
 (transformed)
-1/√τ·e^(-(x^2/2))
+1/√τ·e^-(x^2/2)
 (parsed)
 ((1 / Sqrt(Convert(Math.Tau, Complex))) * Pow(Convert(Math.E, Complex), -(Pow(x, 2) / 2)))
 (stable)

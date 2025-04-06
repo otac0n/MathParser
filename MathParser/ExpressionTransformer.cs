@@ -387,7 +387,7 @@ namespace MathParser
                 return true;
             }
 
-            if (outerPrecedence < innerPrecedence || fullyAssociative)
+            if (fullyAssociative)
             {
                 return false;
             }
@@ -400,7 +400,7 @@ namespace MathParser
                 }
             }
 
-            return true;
+            return NeedsLeftBrackets(outerPrecedence, innerPrecedence);
         }
 
         /// <summary>
@@ -425,7 +425,7 @@ namespace MathParser
                 return true;
             }
 
-            if (outerPrecedence < innerPrecedence || fullyAssociative)
+            if (fullyAssociative)
             {
                 return false;
             }
@@ -438,7 +438,22 @@ namespace MathParser
                 }
             }
 
-            return true;
+            return NeedsRightBrackets(outerPrecedence, innerPrecedence);
+        }
+
+        protected bool NeedsLeftBrackets(Precedence outerPrecedence, Precedence innerPrecedence)
+        {
+            return outerPrecedence >= innerPrecedence;
+        }
+
+        protected bool NeedsRightBrackets(Precedence outerPrecedence, Precedence innerPrecedence)
+        {
+            if (outerPrecedence == Precedence.Exponential && innerPrecedence == Precedence.Unary)
+            {
+                return false;
+            }
+
+            return outerPrecedence >= innerPrecedence;
         }
 
         [return: NotNullIfNotNull(nameof(node))]
