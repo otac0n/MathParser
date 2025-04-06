@@ -44,7 +44,7 @@
         protected override string CreateConditional((string condition, string consequent)[] conditions, string alternative) =>
             conditions.Length == 1 && alternative == null
             ? conditions[0].consequent + "; " + conditions[0].condition
-            : conditions.AsEnumerable().Reverse().Aggregate(alternative, (e, c) => "iif(" + c.condition + ", " + c.consequent + ", " + alternative + ")");
+            : conditions.AsEnumerable().Reverse().Aggregate(alternative, (e, c) => "iif(" + c.condition + ", " + c.consequent + ", " + e + ")");
 
         /// <inheritdoc />
         protected override string CreateFunction(string name, params string[] arguments) => name + "(" + string.Join(", ", arguments) + ")";

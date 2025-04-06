@@ -1,0 +1,8 @@
+f(x)=iif(x<=-3,-3-x,iif(x<=0,x+3,iif(x<=3,3-2x,0.5x-4.5)))
+(parsed)
+x => IIF((x.Real <= -3), (-3 - x), IIF((x.Real <= 0), (x + 3), IIF((x.Real <= 3), (3 - (2 * x)), ((0.5 * x) - 4.5))))
+(transformed)
+f(x)=iif(Re(x)<=-3, -3-x, iif(Re(x)<=0, x+3, iif(Re(x)<=3, 3-2·x, 0.5·x-4.5)))
+(parsed)
+x => IIF((x.Real <= -3), (-3 - x), IIF((x.Real <= 0), (x + 3), IIF((x.Real <= 3), (3 - (2 * x)), ((0.5 * x) - 4.5))))
+(stable)
