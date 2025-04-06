@@ -1,0 +1,8 @@
+a³⁻⁸
+(parsed)
+Pow(a, (3 - 8))
+(transformed)
+a^(3-8)
+(parsed)
+Pow(a, (3 - 8))
+(stable)

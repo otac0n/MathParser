@@ -1,0 +1,8 @@
+a⁽⁽¹⁻²⁾⁻⁽³⁻⁴⁾⁾
+(parsed)
+Pow(a, ((1 - 2) - (3 - 4)))
+(transformed)
+a^(1-2-(3-4))
+(parsed)
+Pow(a, ((1 - 2) - (3 - 4)))
+(stable)

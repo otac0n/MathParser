@@ -1,0 +1,8 @@
+√(1²)
+(parsed)
+Sqrt(Convert((1 ** 2), Complex))
+(transformed)
+√(1^2)
+(parsed)
+Sqrt(Convert((1 ** 2), Complex))
+(stable)

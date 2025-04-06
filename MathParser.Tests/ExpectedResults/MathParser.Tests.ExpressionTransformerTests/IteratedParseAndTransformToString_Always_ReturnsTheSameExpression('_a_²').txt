@@ -1,0 +1,8 @@
+|a|²
+(parsed)
+(Abs(a) ** 2)
+(transformed)
+|a|^2
+(parsed)
+(Abs(a) ** 2)
+(stable)

@@ -1,0 +1,8 @@
+√1^2
+(parsed)
+(Sqrt(1) ** 2)
+(transformed)
+(√1)^2
+(parsed)
+(Sqrt(1) ** 2)
+(stable)

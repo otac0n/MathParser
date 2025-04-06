@@ -1,0 +1,8 @@
+-2²
+(parsed)
+-(2 ** 2)
+(transformed)
+-2^2
+(parsed)
+-(2 ** 2)
+(stable)

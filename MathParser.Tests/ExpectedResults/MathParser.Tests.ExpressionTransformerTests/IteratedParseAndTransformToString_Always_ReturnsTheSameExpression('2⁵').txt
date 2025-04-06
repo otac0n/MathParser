@@ -1,0 +1,8 @@
+2⁵
+(parsed)
+(2 ** 5)
+(transformed)
+2^5
+(parsed)
+(2 ** 5)
+(stable)

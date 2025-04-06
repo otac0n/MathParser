@@ -1,0 +1,8 @@
+e⁻¹
+(parsed)
+(Math.E ** -1)
+(transformed)
+e^-1
+(parsed)
+(Math.E ** -1)
+(stable)

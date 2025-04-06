@@ -1,0 +1,10 @@
+a⁸⁺⁽⁵⁺²⁾
+(parsed)
+Pow(a, (8 + (5 + 2)))
+(transformed)
+a^(8+5+2)
+(parsed)
+Pow(a, ((8 + 5) + 2))
+(transformed)
+a^(8+5+2)
+(stable)

@@ -94,7 +94,8 @@ negationPrimary <Expression>
     / primary
 
 power <Expression> -memoize
-    = left:primary _ "^" _ right:negation { Scope.Pow(left, right) }
+    = left:power _ right:superscript { Scope.Pow(left, right) }
+    / left:power _ "^" _ right:negation { Scope.Pow(left, right) }
     / primary
 
 primary <Expression> -memoize
@@ -135,6 +136,39 @@ keyword
     / "or"
     / "not"
     / "if") !idChar
+
+superscript <Expression> -memoize
+    = superAdditive
+
+superAdditive <Expression> -memoize
+    = left:superAdditive _ "⁺" _ right:superNegation { Scope.Add(left, right) }
+    / left:superAdditive _ "⁻" _ right:superNegation { Scope.Subtract(left, right) }
+    / superNegation
+
+superNegation <Expression>
+    = "⁻" _ negation:superNegation { Scope.Negate(negation) }
+    / "⁺" _ negation:superNegation { negation }
+    / superPrimary
+
+superPrimary <Expression> -memoize
+    = n:superDecimal { Expression.Constant((double)n) }
+    / "⁽" _ additive:superAdditive _ "⁾" { additive }
+
+superDecimal <long> -memoize
+  = a:superDecimal b:superDigit { checked(a * 10 + b) }
+  / superDigit
+
+superDigit <long>
+  = "⁰" { 0 }
+  / "¹" { 1 }
+  / "²" { 2 }
+  / "³" { 3 }
+  / "⁴" { 4 }
+  / "⁵" { 5 }
+  / "⁶" { 6 }
+  / "⁷" { 7 }
+  / "⁸" { 8 }
+  / "⁹" { 9 }
 
 _ = [ \t\r\n]*
 

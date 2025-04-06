@@ -1,0 +1,8 @@
+0⁰
+(parsed)
+(0 ** 0)
+(transformed)
+0^0
+(parsed)
+(0 ** 0)
+(stable)

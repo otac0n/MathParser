@@ -1,0 +1,8 @@
+a¹⁺¹
+(parsed)
+Pow(a, (1 + 1))
+(transformed)
+a^(1+1)
+(parsed)
+Pow(a, (1 + 1))
+(stable)
