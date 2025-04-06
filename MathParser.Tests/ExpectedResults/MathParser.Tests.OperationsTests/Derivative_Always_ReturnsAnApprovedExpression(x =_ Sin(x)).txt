@@ -1,4 +1,4 @@
 (x)=sin(x)
-(x)=cos(x)
-(x)=-sin(x)
-(x)=-cos(x)
+'(x)=cos(x)
+''(x)=-sin(x)
+'''(x)=-cos(x)

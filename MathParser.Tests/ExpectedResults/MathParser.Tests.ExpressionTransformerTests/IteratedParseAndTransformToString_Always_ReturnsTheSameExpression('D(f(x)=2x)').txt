@@ -2,7 +2,7 @@ D(f(x)=2x)
 (parsed)
 x => 2
 (transformed)
-f(x)=2
+f'(x)=2
 (parsed)
 x => 2
 (stable)

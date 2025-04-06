@@ -1,4 +1,4 @@
 (x)=sinh(x)
-(x)=cosh(x)
-(x)=sinh(x)
-(x)=cosh(x)
+'(x)=cosh(x)
+''(x)=sinh(x)
+'''(x)=cosh(x)

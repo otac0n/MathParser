@@ -32,7 +32,7 @@ statement <Expression>
 
 lambda <LambdaExpression>
     = "D(" _ lambda:lambda _ ")" { Scope.Derivative(lambda) }
-    / name:identifier _ names:nameTuple _ ("==" / "=" / ":=") _ body:conditional #{ foreach(var p in names) CreateVariable(state, p); } { Expression.Lambda(body, name, names.Select(p => (ParameterExpression)state[p])) }
+    / name:(identifier "'"*) _ names:nameTuple _ ("==" / "=" / ":=") _ body:conditional #{ foreach(var p in names) CreateVariable(state, p); } { Expression.Lambda(body, name, names.Select(p => (ParameterExpression)state[p])) }
 
 nameTuple <IList<string>>
     = "(" _ names:identifier<1,,_ "," _> _ ")" { names }

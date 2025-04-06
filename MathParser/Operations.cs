@@ -22,9 +22,7 @@ namespace MathParser
         public static LambdaExpression Derivative(this Scope scope, LambdaExpression expression)
         {
             var variable = expression.Parameters.Single();
-
-            // TODO: Should the name be altered, e.g. `f'`?
-            return Expression.Lambda(scope.Simplify(scope.Derivative(expression.Body, variable)), expression.Name, expression.TailCall, [variable]);
+            return Expression.Lambda(scope.Simplify(scope.Derivative(expression.Body, variable)), expression.Name + "'", expression.TailCall, [variable]);
         }
 
         public static Expression Derivative(this Scope scope, Expression expression, ParameterExpression variable)
