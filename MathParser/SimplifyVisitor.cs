@@ -238,7 +238,7 @@
             }
 
             // Convert "a and a" into "a"
-            if (left == right)
+            if (new MatchVisitor(left).PatternMatch(right).Success)
             {
                 return left;
             }
@@ -273,7 +273,7 @@
             }
 
             // Convert "a or a" into "a"
-            if (left == right)
+            if (new MatchVisitor(left).PatternMatch(right).Success)
             {
                 return left;
             }
