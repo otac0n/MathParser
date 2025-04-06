@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq.Expressions;
 
@@ -9,6 +10,7 @@
     /// A visitor that replaces nodes.
     /// </summary>
     /// <param name="root">The root node to match.</param>
+    [DebuggerDisplay("{Root}")]
     public class MatchVisitor(Expression? root) : ExpressionVisitor
     {
         public Expression? Root { get; } = root;

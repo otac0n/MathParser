@@ -461,10 +461,13 @@
                 return this.Visit(this.Scope.Add(minuend, negateOperand));
             }
 
-            // Convert "a - a" into "0"
-            if (subtrahend == minuend)
+            if (this.CombineLikeAddition(minuend, subtrahend, out var combined, negateRight: true))
             {
-                return this.Scope.Zero();
+                return this.Visit(combined);
+            }
+            else if (this.CombineLikeAddition(subtrahend, minuend, out combined, negateRight: true))
+            {
+                return this.Visit(this.Scope.Negate(combined));
             }
 
             return this.Scope.Subtract(minuend, subtrahend);
@@ -761,15 +764,19 @@
             return 0;
         }
 
-        private bool CombineLikeAddition(Expression left, Expression right, out Expression combined)
+        private bool CombineLikeAddition(Expression left, Expression right, out Expression combined, bool negateRight = false)
         {
             this.GetCoefficientAndFactor(left, out var leftFactor, out var coefficient);
 
             Expression? remainder = right;
-            if (this.ExtractByFactor(leftFactor, ref coefficient, ref remainder))
+            if (this.ExtractByFactor(leftFactor, ref coefficient, ref remainder, negateRight))
             {
                 var newLeft = this.Scope.Multiply(coefficient, leftFactor);
-                combined = remainder == null ? newLeft : this.Scope.Add(newLeft, remainder);
+                combined = remainder == null
+                    ? newLeft
+                    : negateRight
+                        ? this.Scope.Subtract(newLeft, remainder)
+                        : this.Scope.Add(newLeft, remainder);
                 return true;
             }
 
@@ -777,21 +784,35 @@
             return false;
         }
 
-        private bool ExtractByFactor(Expression factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder) =>
-            this.ExtractByFactor(new MatchVisitor(factor), ref coefficient, ref remainder);
+        private bool ExtractByFactor(Expression factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder, bool negate) =>
+            this.ExtractByFactor(new MatchVisitor(factor), ref coefficient, ref remainder, negate);
 
-        private bool ExtractByFactor(MatchVisitor factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder)
+        private bool ExtractByFactor(MatchVisitor factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder, bool negate)
         {
-            if (this.Scope.MatchAdd(remainder, out var left, out var right))
+            if (this.Scope.MatchAdd(remainder, out var addLeft, out var addRight))
             {
                 bool changed;
-                changed = this.ExtractByFactor(factor, ref coefficient, ref left);
-                changed |= this.ExtractByFactor(factor, ref coefficient, ref right);
+                changed = this.ExtractByFactor(factor, ref coefficient, ref addLeft, negate);
+                changed |= this.ExtractByFactor(factor, ref coefficient, ref addRight, negate);
                 if (changed)
                 {
                     remainder =
-                        left == null ? right :
-                        right == null ? left : this.Scope.Add(left, right);
+                        addLeft == null ? addRight :
+                        addRight == null ? addLeft : this.Scope.Add(addLeft, addRight);
+                }
+
+                return changed;
+            }
+            else if (this.Scope.MatchSubtract(remainder, out var subLeft, out var subRight))
+            {
+                bool changed;
+                changed = this.ExtractByFactor(factor, ref coefficient, ref subLeft, negate);
+                changed |= this.ExtractByFactor(factor, ref coefficient, ref subRight, !negate);
+                if (changed)
+                {
+                    remainder =
+                        subLeft == null ? this.Scope.Negate(subRight ?? this.Scope.One()) :
+                        subRight == null ? subLeft : this.Scope.Subtract(subLeft, subRight);
                 }
 
                 return changed;
@@ -802,7 +823,9 @@
                 this.GetCoefficientAndFactor(remainder, out var rFactor, out var rCoefficient);
                 if (factor.PatternMatch(rFactor).Success)
                 {
-                    coefficient = this.Scope.Add(coefficient ?? this.Scope.One(), rCoefficient ?? this.Scope.One());
+                    coefficient = negate
+                        ? this.Scope.Subtract(coefficient ?? this.Scope.One(), rCoefficient ?? this.Scope.One())
+                        : this.Scope.Add(coefficient ?? this.Scope.One(), rCoefficient ?? this.Scope.One());
                     remainder = null;
                     return true;
                 }
@@ -811,26 +834,33 @@
             return false;
         }
 
-        private void GetCoefficientAndFactor(Expression expr, out Expression factor, out Expression? coefficient)
+        private void GetCoefficientAndFactor(Expression expr, out Expression factor, out Expression? coefficient, bool negate = false)
         {
+            // Correct, but causes infinte loop with distribution of negate through addition.
+            if (false && this.Scope.MatchNegate(expr, out var operand))
+            {
+                this.GetCoefficientAndFactor(operand, out factor, out coefficient, !negate);
+                return;
+            }
+
             if (this.Scope.MatchMultiply(expr, out var left, out var right))
             {
                 if (this.Scope.IsConstantValue(left, out _))
                 {
-                    coefficient = left;
+                    coefficient = negate ? this.Scope.Negate(left) : left;
                     factor = right;
                     return;
                 }
                 else if (this.Scope.IsConstantValue(right, out _))
                 {
-                    coefficient = right;
+                    coefficient = negate ? this.Scope.Negate(right) : right;
                     factor = left;
                     return;
                 }
             }
 
             factor = expr;
-            coefficient = null; // null -> one.
+            coefficient = negate ? this.Scope.NegativeOne() : null; // null -> one.
             return;
         }
 

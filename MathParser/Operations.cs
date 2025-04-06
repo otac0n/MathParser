@@ -75,6 +75,8 @@ namespace MathParser
 
         public static Expression One(this Scope scope) => scope.BindConstant(WKC.One);
 
+        public static Expression NegativeOne(this Scope scope) => scope.TryBindConstant(WKC.NegativeOne, out var constant) ? constant : scope.Negate(scope.One());
+
         public static ConstantExpression NaN(this Scope scope) => Expression.Constant(double.NaN);
 
         public static Expression Tau(this Scope scope) => scope.BindConstant(WKC.Tau);
