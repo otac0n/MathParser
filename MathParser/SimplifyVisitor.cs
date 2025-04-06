@@ -339,10 +339,37 @@
                 return augend;
             }
 
+            if (this.Scope.IsConstantValue(addend, out var rightConstant))
+            {
+                if (this.Scope.IsConstantValue(augend, out var leftConstant))
+                {
+                    // Convert "1 + 1" into "2"
+                    // TODO: Support all types.
+                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
+                    {
+                        // TODO: Add a configuration option to detect and prevent loss of precision.
+                        return Expression.Constant(leftValue + rightValue);
+                    }
+                }
+                else if (this.Scope.MatchAdd(augend, out var augendLeft, out var augendRight) &&
+                    this.Scope.IsConstantValue(augendRight, out _))
+                {
+                    // Convert "a + 1 + 1" into "a + (1 + 1)"
+                    return this.Visit(this.Scope.Add(augendLeft, this.Scope.Add(augendRight, addend)));
+                }
+            }
+
             // Convert "a + (b + c)" into "a + b + c"
             if (this.Scope.MatchAdd(addend, out var addendLeft, out var addendRight))
             {
                 return this.Visit(this.Scope.Add(this.Scope.Add(augend, addendLeft), addendRight));
+            }
+
+            // Convert "a + 1 + b" into "a + b + 1"
+            if (this.Scope.MatchAdd(augend, out var leftAddLeft, out var leftAddRight) &&
+                this.SortNodes(ref leftAddRight, ref addend))
+            {
+                return this.Visit(this.Scope.Add(this.Scope.Add(leftAddLeft, leftAddRight), addend));
             }
 
             // Convert "a + (b - c)" into "a + b - c"
@@ -363,30 +390,10 @@
                 return this.Visit(this.Scope.Subtract(addend, leftNegateOperand));
             }
 
-            // Convert "a + a" into "2 * a"
-            if (augend == addend)
-            {
-                return this.Visit(this.Scope.Multiply(Expression.Constant(2.0), augend));
-            }
-
-            if (this.Scope.IsConstantValue(addend, out var rightConstant))
-            {
-                if (this.Scope.IsConstantValue(augend, out var leftConstant))
-                {
-                    // Convert "1 + 1" into "2"
-                    // TODO: Support all types.
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue + rightValue);
-                    }
-                }
-            }
-
-            if (this.CompareNodes(augend, addend) < 0)
+            if (this.SortNodes(ref augend, ref addend))
             {
                 // Convert "1 + a" into "a + 1"
-                (augend, addend) = (addend, augend);
+                return this.Visit(this.Scope.Add(augend, addend));
             }
 
             if (this.CombineLikeAddition(addend, augend, out var combined) ||
@@ -422,6 +429,20 @@
                 return minuend;
             }
 
+            if (this.Scope.IsConstantValue(minuend, out var leftConstant))
+            {
+                if (this.Scope.IsConstantValue(subtrahend, out var rightConstant))
+                {
+                    // Convert "1 - 1" into "0"
+                    // TODO: Support all types.
+                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
+                    {
+                        // TODO: Add a configuration option to detect and prevent loss of precision.
+                        return Expression.Constant(leftValue - rightValue);
+                    }
+                }
+            }
+
             // Convert "a - (b + c)" into "a - b - c"
             if (this.Scope.MatchAdd(subtrahend, out var rightAddLeft, out var rightAddRight))
             {
@@ -444,20 +465,6 @@
             if (subtrahend == minuend)
             {
                 return this.Scope.Zero();
-            }
-
-            if (this.Scope.IsConstantValue(minuend, out var leftConstant))
-            {
-                if (this.Scope.IsConstantValue(subtrahend, out var rightConstant))
-                {
-                    // Convert "1 - 1" into "0"
-                    // TODO: Support all types.
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue - rightValue);
-                    }
-                }
             }
 
             return this.Scope.Subtract(minuend, subtrahend);
@@ -499,10 +506,30 @@
                 return multiplicand;
             }
 
+            if (this.Scope.IsConstantValue(multiplier, out var rightConstant))
+            {
+                if (this.Scope.IsConstantValue(multiplicand, out var leftConstant))
+                {
+                    // Convert "2 * 2" into "4"
+                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue) // TODO: Support all types.
+                    {
+                        // TODO: Add a configuration option to detect and prevent loss of precision.
+                        return Expression.Constant(leftValue * rightValue);
+                    }
+                }
+            }
+
             // Convert "a * (b * c)" into "a * b * c"
             if (this.Scope.MatchMultiply(multiplier, out var rightMultiplyLeft, out var rightMultiplyRight))
             {
                 return this.Visit(this.Scope.Multiply(this.Scope.Multiply(multiplicand, rightMultiplyLeft), rightMultiplyRight));
+            }
+
+            // Convert "a * b * 1" into "a * 1 * b"
+            if (this.Scope.MatchMultiply(multiplicand, out var leftMultiplyLeft, out var leftMultiplyRight) &&
+                this.SortNodes(ref leftMultiplyRight, ref multiplier, constantsFirst: true))
+            {
+                return this.Visit(this.Scope.Multiply(this.Scope.Multiply(leftMultiplyLeft, leftMultiplyRight), multiplier));
             }
 
             // Convert "(a / b) * c" into "a * c / b"
@@ -553,23 +580,10 @@
                 return this.Visit(this.Scope.Subtract(this.Scope.Multiply(leftSubtractLeft, multiplier), this.Scope.Multiply(leftSubtractRight, multiplier)));
             }
 
-            if (this.Scope.IsConstantValue(multiplier, out var rightConstant))
-            {
-                if (this.Scope.IsConstantValue(multiplicand, out var leftConstant))
-                {
-                    // Convert "2 * 2" into "4"
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue) // TODO: Support all types.
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue * rightValue);
-                    }
-                }
-            }
-
-            if (this.CompareNodes(multiplicand, multiplier, constantsFirst: true) < 0)
+            if (this.SortNodes(ref multiplicand, ref multiplier, constantsFirst: true))
             {
                 // Convert "a * 2" into "2 * a"
-                (multiplicand, multiplier) = (multiplier, multiplicand);
+                return this.Visit(this.Scope.Multiply(multiplicand, multiplier));
             }
 
             if (this.CombineLikeMultiplication(multiplicand, multiplier, out var combined) ||
@@ -665,12 +679,6 @@
                 }
             }
 
-            // Convert "(a ^ b) ^ c" into "a ^ (b * c)"
-            if (this.Scope.MatchPower(@base, out var leftBase, out var leftExponent))
-            {
-                return this.Visit(this.Scope.Pow(leftBase, this.Scope.Multiply(leftExponent, exponent)));
-            }
-
             if (this.Scope.IsConstantValue(exponent, out var rightConstant))
             {
                 if (this.Scope.IsConstantValue(@base, out var leftConstant))
@@ -682,6 +690,12 @@
                         return Expression.Constant(Math.Pow(leftValue, rightValue));
                     }
                 }
+            }
+
+            // Convert "(a ^ b) ^ c" into "a ^ (b * c)"
+            if (this.Scope.MatchPower(@base, out var leftBase, out var leftExponent))
+            {
+                return this.Visit(this.Scope.Pow(leftBase, this.Scope.Multiply(leftExponent, exponent)));
             }
 
             return this.Scope.Pow(@base, exponent);
@@ -705,6 +719,17 @@
         private Expression SimplifyCompare(Expression left, ExpressionType op, Expression right)
         {
             return this.Scope.Compare(left, op, right);
+        }
+
+        private bool SortNodes(ref Expression a, ref Expression b, bool constantsFirst = false)
+        {
+            if (CompareNodes(a, b, constantsFirst) < 0)
+            {
+                (a, b) = (b, a);
+                return true;
+            }
+
+            return false;
         }
 
         private int CompareNodes(Expression a, Expression b, bool constantsFirst = false)

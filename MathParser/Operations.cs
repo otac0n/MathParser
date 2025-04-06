@@ -94,7 +94,7 @@ namespace MathParser
             var from = expression.Type;
 
             var target = scope.FindLargest(from, to) ?? throw new NotSupportedException($"Could not find a conversion between '{from}' and '{to}'.");
-            if (from.IsAssignableTo(target))
+            if (from == target)
             {
                 return expression;
             }
