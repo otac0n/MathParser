@@ -3,7 +3,6 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Numerics;
@@ -15,7 +14,7 @@
     /// <summary>
     /// Provides a collection of <see cref="KnownFunction">known functions</see> that can be bound to <see cref="Expression">expressions</see>.
     /// </summary>
-    public sealed class Scope : IEnumerable<Scope>
+    public sealed partial class Scope : IEnumerable<Scope>
     {
         private readonly Lock syncRoot = new();
         private IDictionary<string, IKnownObject> namedObjects;
@@ -148,202 +147,6 @@
         /// <param name="knownFunction">The <see cref="KnownFunction"/> to add.</param>
         public void Add(string name, KnownFunction knownFunction) =>
             this.namedObjects.Add(name, knownFunction);
-
-        public Expression BindConstant(string name)
-        {
-            if (this.TryBindConstant(name, out var expression))
-            {
-                return expression;
-            }
-
-            throw new MissingMethodException($"Could not find a binding for '{name}'.");
-        }
-
-        public bool TryBindConstant(string name, [NotNullWhen(true)] out Expression? expression)
-        {
-            if (this.NamedObjects.TryGetValue(name, out var knownObject) && knownObject is KnownConstant constant && this.TryBindConstant(constant, out expression))
-            {
-                return true;
-            }
-
-            expression = null;
-            return false;
-        }
-
-        public Expression BindConstant(KnownConstant constant)
-        {
-            if (this.TryBindConstant(constant, out var expression))
-            {
-                return expression;
-            }
-
-            throw new MissingMethodException($"Could not find a binding for '{constant.Name}'.");
-        }
-
-        public bool TryBindConstant(KnownConstant constant, [NotNullWhen(true)] out Expression? expression)
-        {
-            var constants = from known in this.KnownConstants
-                            where known.Value == constant
-                            let m = known.Key
-                            orderby m is ConstantExpression ascending,
-                                    m is MethodCallExpression ascending
-                            select m;
-
-            using var enumerator = constants.GetEnumerator();
-            if (enumerator.MoveNext())
-            {
-                expression = enumerator.Current;
-                return true;
-            }
-
-            expression = null;
-            return false;
-        }
-
-        public Expression Bind(string name, params Expression[] arguments) => this.Bind(name, (IList<Expression>)arguments);
-
-        public Expression Bind(string name, IList<Expression> arguments)
-        {
-            if (this.NamedObjects.TryGetValue(name, out var knownObject) && knownObject is KnownFunction function)
-            {
-                return this.Bind(function, arguments);
-            }
-
-            throw new MissingMethodException($"Could not find a binding for '{name}'.");
-        }
-
-        public Expression Bind(KnownFunction function, params Expression[] arguments) => this.Bind(function, (IList<Expression>)arguments);
-
-        public Expression Bind(KnownFunction function, IList<Expression> arguments)
-        {
-            // TODO: This is a hack to avoid Math.Sqrt(-1) preferring Complext.Sqrt(-1)
-            if (function == WKF.Exponential.Sqrt && arguments.Count == 1)
-            {
-                var @base = arguments[0];
-                if (!this.TryConvert(@base, false, (double value) => value >= 0))
-                {
-                    arguments = [this.ConvertIfLower(@base, to: typeof(Complex))];
-                }
-            }
-
-            var match = (from known in this.KnownMethods
-                         where known.Value == function
-                         let m = known.Key
-                         let mp = m.Parameters
-                         where mp.Count == arguments.Count
-                         let parameterMatches = (from i in Enumerable.Range(0, arguments.Count)
-                                                 select new
-                                                 {
-                                                     ParameterType = mp[i].Type,
-                                                     Assignable = mp[i].Type.IsAssignableFrom(arguments[i].Type),
-                                                     Convertible = mp[i].Type == typeof(Complex), // TODO: This should probably look for registered converters.
-                                                 }).ToList()
-                         where parameterMatches.All(p => p.Assignable || p.Convertible)
-                         orderby parameterMatches.Count(p => !p.Assignable) ascending,
-                                 m.Body is MethodCallExpression ascending
-                         select (m, parameterMatches)).First();
-
-            var (lambda, parameters) = match;
-
-            return new ReplaceVisitor(
-                Enumerable.Range(0, arguments.Count)
-                    .ToDictionary(
-                        i => (Expression)lambda.Parameters[i],
-                        i => parameters[i].Assignable ? arguments[i] : this.ConvertIfLower(arguments[i], to: parameters[i].ParameterType)))
-                .Visit(lambda.Body);
-        }
-
-        public void Bind(Expression expression, out KnownConstant knownConstant)
-        {
-            if (!this.TryBind(expression, out knownConstant))
-            {
-                throw new MissingMethodException($"Could not find a binding for '{expression}'.");
-            }
-        }
-
-        public bool TryBind([NotNullWhen(true)] Expression? expression, [NotNullWhen(true)] out KnownConstant? knownConstant)
-        {
-            if (expression != null)
-            {
-                var visitor = new MatchVisitor(expression);
-
-                var methods = (from known in this.KnownConstants
-                               let match = visitor.PatternMatch(known.Key)
-                               where match.Success
-                               where match.Arguments.Count == 0
-                               select known.Value).Distinct();
-
-                using var enumerator = methods.GetEnumerator();
-                if (enumerator.MoveNext())
-                {
-                    knownConstant = enumerator.Current;
-                    return true;
-                }
-            }
-
-            knownConstant = null;
-            return false;
-        }
-
-        public void Bind(Expression expression, out KnownFunction knownMethod, out IList<Expression>? arguments)
-        {
-            if (!this.TryBind(expression, out knownMethod, out arguments))
-            {
-                throw new MissingMethodException($"Could not find a binding for '{expression}'.");
-            }
-        }
-
-        public bool TryBind([NotNullWhen(true)] Expression? expression, [NotNullWhen(true)] out KnownFunction? knownMethod, [NotNullWhen(true)] out IList<Expression>? arguments)
-        {
-            if (expression != null)
-            {
-                var visitor = new MatchVisitor(expression);
-
-                var methods = (from known in this.KnownMethods
-                               let match = visitor.PatternMatch(known.Key)
-                               where match.Success
-                               where match.Arguments.All(p => p != null)
-                               select (known.Value, match.Arguments)).Distinct();
-
-                using var enumerator = methods.GetEnumerator();
-                if (enumerator.MoveNext())
-                {
-                    (knownMethod, arguments) = enumerator.Current;
-                    return true;
-                }
-            }
-
-            (knownMethod, arguments) = (null, null);
-            return false;
-        }
-
-        public string BindName(IKnownObject knownObject)
-        {
-            if (!this.TryBindName(knownObject, out var name))
-            {
-                throw new MissingMethodException($"Could not find a binding for '{knownObject.Name}'.");
-            }
-
-            return name;
-        }
-
-        public bool TryBindName(IKnownObject knownObject, [NotNullWhen(true)] out string? name)
-        {
-            var names = from binding in this.NamedObjects
-                        where binding.Value == knownObject
-                        orderby binding.Key.Length ascending
-                        select binding.Key;
-
-            using var enumerator = names.GetEnumerator();
-            if (enumerator.MoveNext())
-            {
-                name = enumerator.Current;
-                return true;
-            }
-
-            name = null;
-            return false;
-        }
 
         public Type? FindLargest(Type a, Type b)
         {
