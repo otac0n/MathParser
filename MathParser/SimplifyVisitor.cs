@@ -623,6 +623,18 @@
                 return this.SimplifyNegate(this.SimplifyDivide(dividend, rightNegateOperand));
             }
 
+            // Convert "(a / b) / c" into "a / (b * c)"
+            if (scope.MatchDivide(dividend, out var leftDivideLeft, out var leftDivideRight))
+            {
+                return this.SimplifyDivide(leftDivideLeft, this.SimplifyMultiply(leftDivideRight, divisor));
+            }
+
+            // Convert "a / (b / c)" into "(a * c) / b; c != 0"
+            if (scope.MatchDivide(divisor, out var rightDivideLeft, out var rightDivideRight))
+            {
+                return this.SimplifyConditional(scope.NotEqual(rightDivideRight, scope.Zero()), this.SimplifyDivide(this.SimplifyMultiply(dividend, rightDivideRight), rightDivideLeft), scope.NaN());
+            }
+
             // Convert "a / √2" into "a√2 / 2"
             if (scope.MatchSqrt(divisor, out var @base) && scope.IsConstantValue(@base, out var constant) && constant.Value is double value && value >= 0)
             {
