@@ -568,7 +568,7 @@
             }
 
             if (this.CombineLikeMultiplication(multiplicand, multiplier, out var combined) ||
-                this.CombineLikeMultiplication(multiplier, multiplicand, out combined))
+                this.CombineLikeMultiplication(multiplicand, multiplier, out combined, relativeRight: true))
             {
                 return this.Visit(combined);
             }
@@ -638,13 +638,10 @@
                 return this.SimplifyDivide(this.SimplifyMultiply(dividend, divisor), @base);
             }
 
-            if (this.CombineLikeMultiplication(dividend, divisor, out var combined, invertRight: true))
+            if (this.CombineLikeMultiplication(dividend, divisor, out var combined, invertRight: true) ||
+                this.CombineLikeMultiplication(dividend, divisor, out combined, relativeRight: true, invertRight: true))
             {
                 return this.Visit(combined);
-            }
-            else if (this.CombineLikeMultiplication(divisor, dividend, out combined, invertRight: true))
-            {
-                return this.Visit(scope.Reciprocal(combined));
             }
 
             return scope.Divide(dividend, divisor);
@@ -893,20 +890,43 @@
             coefficient = negate ? scope.NegativeOne() : null; // null -> one.
         }
 
-        private bool CombineLikeMultiplication(Expression left, Expression right, out Expression combined, bool invertRight = false)
+        private bool CombineLikeMultiplication(Expression left, Expression right, out Expression combined, bool relativeRight = false, bool invertRight = false)
         {
-            this.GetBaseAndExponent(left, out var leftBase, out var exponent);
-
-            Expression? remainder = right;
-            if (this.ExtractByBase(leftBase, ref exponent, ref remainder, invertRight))
+            if (relativeRight)
             {
-                var newLeft = scope.Pow(leftBase, exponent);
-                combined = remainder == null
-                    ? newLeft
-                    : invertRight
-                        ? scope.Divide(newLeft, remainder)
-                        : scope.Multiply(newLeft, remainder);
-                return true;
+                this.GetBaseAndExponent(right, out var rightBase, out var exponent);
+                if (invertRight)
+                {
+                    exponent = exponent == null
+                        ? scope.NegativeOne()
+                        : this.SimplifyNegate(exponent);
+                }
+
+                Expression? remainder = left;
+                if (this.ExtractByBase(rightBase, ref exponent, ref remainder, false))
+                {
+                    var newRight = this.SimplifyPower(rightBase, exponent);
+                    combined = remainder == null
+                        ? newRight
+                        : this.SimplifyMultiply(remainder, newRight);
+                    return true;
+                }
+            }
+            else
+            {
+                this.GetBaseAndExponent(left, out var leftBase, out var exponent);
+
+                Expression? remainder = right;
+                if (this.ExtractByBase(leftBase, ref exponent, ref remainder, invertRight))
+                {
+                    var newLeft = this.SimplifyPower(leftBase, exponent);
+                    combined = remainder == null
+                        ? newLeft
+                        : invertRight
+                            ? this.SimplifyDivide(newLeft, remainder)
+                            : this.SimplifyMultiply(newLeft, remainder);
+                    return true;
+                }
             }
 
             combined = null;
