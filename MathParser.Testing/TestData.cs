@@ -96,6 +96,7 @@ namespace MathParser.Testing
             () => Complex.Pow(5, Complex.Divide((Complex)1, (Complex)2)),
             () => Complex.Pow(5, Complex.ImaginaryOne * 2),
             () => Complex.Pow(-1, 0.5).Real,
+            () => Complex.Reciprocal(Complex.One + Complex.One),
         ];
 
         public static string[] ExpressionStrings =>

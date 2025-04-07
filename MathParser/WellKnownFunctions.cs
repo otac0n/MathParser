@@ -5,6 +5,7 @@ namespace MathParser
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
+    using System.Numerics;
 
     /// <summary>
     /// The collection of built-in functions.
@@ -78,6 +79,14 @@ namespace MathParser
             /// The binary `/` operator.
             /// </remarks>
             public static KnownFunction Divide { get; } = new("div");
+
+            /// <summary>
+            /// Gets an object that represents the reciprocal function.
+            /// </summary>
+            /// <remarks>
+            /// The `1/x` function. Implemented by <see cref="Math.ReciprocalEstimate"/>.
+            /// </remarks>
+            public static KnownFunction Reciprocal { get; } = new("inv");
         }
 
         /// <summary>

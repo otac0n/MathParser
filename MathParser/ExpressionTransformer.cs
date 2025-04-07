@@ -774,6 +774,20 @@ namespace MathParser
                 this.Result = this.CreatePower(@base, inner);
                 return node;
             }
+            else if (function == WKF.Arithmetic.Reciprocal && arguments.Count == 1)
+            {
+                var denominator = converted[0];
+                var denominatorArg = arguments[0];
+                var denomEffectiveType = this.GetEffectiveNodeType(denominatorArg);
+
+                if (this.NeedsRightBrackets(effectiveType, node, denomEffectiveType, denominatorArg))
+                {
+                    denominator = this.AddBrackets(denominator);
+                }
+
+                this.Result = this.CreateDivide(this.FormatReal(1), denominator);
+                return node;
+            }
 
             this.Result = this.CreateFunction(scope.BindName(function), converted);
             return node;

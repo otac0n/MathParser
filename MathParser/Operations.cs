@@ -146,6 +146,8 @@ namespace MathParser
         public static bool MatchDivide(this Scope scope, Expression? quotient, [NotNullWhen(true)] out Expression? dividend, [NotNullWhen(true)] out Expression? divisor) =>
             scope.MatchKnownBinary(WKF.Arithmetic.Divide, quotient, out dividend, out divisor);
 
+        public static Expression Reciprocal(this Scope scope, Expression denominator) => scope.Bind(WKF.Arithmetic.Reciprocal, denominator);
+
         public static Expression Pow(this Scope scope, Expression @base, Expression exponent) => scope.Bind(WKF.Exponential.Pow, @base, exponent);
 
         public static bool MatchPower(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? @base, [NotNullWhen(true)] out Expression? exponent) =>

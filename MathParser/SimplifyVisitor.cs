@@ -126,6 +126,10 @@
             {
                 return this.SimplifyPower(scope.E(), converted[0]);
             }
+            else if (function == WKF.Arithmetic.Reciprocal && arguments.Count == 1)
+            {
+                return this.SimplifyDivide(scope.One(), converted[0]);
+            }
 
             return scope.Bind(function, converted);
         }
