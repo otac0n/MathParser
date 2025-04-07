@@ -300,12 +300,6 @@
                 return this.SimplifySubtract(subtractRight, subtractLeft);
             }
 
-            // Convert "-(a / b)" into "-a / b"
-            if (scope.MatchDivide(operand, out var divideLeft, out var divideRight))
-            {
-                return this.SimplifyDivide(this.SimplifyNegate(divideLeft), divideRight);
-            }
-
             return scope.Negate(operand);
         }
 
@@ -611,6 +605,18 @@
             if (scope.IsZero(dividend))
             {
                 return dividend;
+            }
+
+            // Convert "-a / b" into "-(a / b)"
+            if (scope.MatchNegate(dividend, out var leftNegateOperand))
+            {
+                return this.SimplifyNegate(this.SimplifyDivide(leftNegateOperand, divisor));
+            }
+
+            // Convert "a / -b" into "-(a / b)"
+            if (scope.MatchNegate(divisor, out var rightNegateOperand))
+            {
+                return this.SimplifyNegate(this.SimplifyDivide(dividend, rightNegateOperand));
             }
 
             // Convert "a / √2" into "a√2 / 2"
