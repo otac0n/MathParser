@@ -28,6 +28,9 @@
     <Compile Update="Scope.Binding.cs">
       <DependentUpon>Scope.cs</DependentUpon>
     </Compile>
+    <Compile Update="Scope.Fluent.cs">
+      <DependentUpon>Scope.cs</DependentUpon>
+    </Compile>
     <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 </Project>
