@@ -535,6 +535,18 @@
                     t[conversion] = (t.TryGetValue(conversion, out var existing) && existing) || @implicit;
                 }
 
+                void AddConstant(PropertyInfo? property, KnownConstant constant)
+                {
+                    if (property != null)
+                    {
+                        c.Add(Expression.MakeMemberAccess(null, property), constant);
+
+                        var map = numberType.GetInterfaceMap(property.DeclaringType);
+                        var value = map.TargetMethods[Array.IndexOf(map.InterfaceMethods, property.GetMethod)].Invoke(null, []);
+                        c.Add(Expression.Constant(value), constant);
+                    }
+                }
+
                 var interfaces = numberType.GetInterfaces();
                 foreach (var type in interfaces)
                 {
@@ -543,8 +555,8 @@
 
                     if (definition == typeof(INumberBase<>))
                     {
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(INumberBase<>.Zero)).Single()), WKC.Zero);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(INumberBase<>.One)).Single()), WKC.One);
+                        AddConstant(type.GetProperty(nameof(INumberBase<>.Zero)), WKC.Zero);
+                        AddConstant(type.GetProperty(nameof(INumberBase<>.One)), WKC.One);
                     }
                     ////else if (definition == typeof(INumber<>))
                     ////{
@@ -552,15 +564,15 @@
                     ////}
                     else if (definition == typeof(IFloatingPointConstants<>))
                     {
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.E)).Single()), WKC.EulersNumber);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.Pi)).Single()), WKC.Pi);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.Tau)).Single()), WKC.Tau);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.E)), WKC.EulersNumber);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.Pi)), WKC.Pi);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.Tau)), WKC.Tau);
                     }
                     else if (definition == typeof(IFloatingPointIeee754<>))
                     {
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.NaN)).Single()), WKC.Indeterminate);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.NegativeInfinity)).Single()), WKC.NegativeInfinity);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.PositiveInfinity)).Single()), WKC.PositiveInfinity);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.NaN)), WKC.Indeterminate);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.NegativeInfinity)), WKC.NegativeInfinity);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.PositiveInfinity)), WKC.PositiveInfinity);
                     }
                     else if (definition == typeof(IEqualityOperators<,,>))
                     {
