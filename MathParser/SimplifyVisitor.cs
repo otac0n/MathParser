@@ -383,7 +383,7 @@
             }
 
             if (this.CombineLikeAddition(addend, augend, out var combined) ||
-                this.CombineLikeAddition(augend, addend, out combined))
+                this.CombineLikeAddition(addend, augend, out combined, relativeRight: true))
             {
                 return this.Visit(combined);
             }
@@ -448,13 +448,10 @@
                 return this.SimplifyAdd(minuend, negateOperand);
             }
 
-            if (this.CombineLikeAddition(minuend, subtrahend, out var combined, negateRight: true))
+            if (this.CombineLikeAddition(minuend, subtrahend, out var combined, negateRight: true) ||
+                this.CombineLikeAddition(minuend, subtrahend, out combined, relativeRight: true, negateRight: true))
             {
                 return this.Visit(combined);
-            }
-            else if (this.CombineLikeAddition(subtrahend, minuend, out combined, negateRight: true))
-            {
-                return this.Visit(scope.Negate(combined));
             }
 
             return scope.Subtract(minuend, subtrahend);
@@ -774,20 +771,43 @@
             return 0;
         }
 
-        private bool CombineLikeAddition(Expression left, Expression right, out Expression combined, bool negateRight = false)
+        private bool CombineLikeAddition(Expression left, Expression right, out Expression combined, bool relativeRight = false, bool negateRight = false)
         {
-            this.GetFactorAndCoefficient(left, out var leftFactor, out var coefficient);
-
-            Expression? remainder = right;
-            if (this.ExtractByFactor(leftFactor, ref coefficient, ref remainder, negateRight))
+            if (relativeRight)
             {
-                var newLeft = scope.Multiply(coefficient, leftFactor);
-                combined = remainder == null
-                    ? newLeft
-                    : negateRight
-                        ? scope.Subtract(newLeft, remainder)
-                        : scope.Add(newLeft, remainder);
-                return true;
+                this.GetFactorAndCoefficient(right, out var rightFactor, out var coefficient);
+                if (negateRight)
+                {
+                    coefficient = scope.Negate(coefficient ?? scope.One());
+                }
+
+                Expression? remainder = left;
+                if (this.ExtractByFactor(rightFactor, ref coefficient, ref remainder, false))
+                {
+                    var newRight = scope.Multiply(coefficient, rightFactor);
+                    combined = remainder == null
+                        ? newRight
+                        : negateRight
+                            ? scope.Subtract(remainder, newRight)
+                            : scope.Add(remainder, newRight);
+                    return true;
+                }
+            }
+            else
+            {
+                this.GetFactorAndCoefficient(left, out var leftFactor, out var coefficient);
+
+                Expression? remainder = right;
+                if (this.ExtractByFactor(leftFactor, ref coefficient, ref remainder, negateRight))
+                {
+                    var newLeft = scope.Multiply(coefficient, leftFactor);
+                    combined = remainder == null
+                        ? newLeft
+                        : negateRight
+                            ? scope.Subtract(newLeft, remainder)
+                            : scope.Add(newLeft, remainder);
+                    return true;
+                }
             }
 
             combined = null;
