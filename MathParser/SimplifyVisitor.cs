@@ -283,7 +283,7 @@
         {
             if (scope.MatchConstraint(operand, out var condition, out var consequent))
             {
-                return this.Visit(scope.Constraint(condition, scope.Negate(consequent)));
+                return this.SimplifyConditional(condition, this.SimplifyNegate(consequent), scope.NaN());
             }
 
             // Convert "--a" into "a"
@@ -311,12 +311,12 @@
         {
             if (scope.MatchConstraint(augend, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(scope.Constraint(leftCondition, scope.Add(leftConsequent, addend)));
+                return this.SimplifyConditional(leftCondition, scope.Add(leftConsequent, addend), scope.NaN());
             }
 
             if (scope.MatchConstraint(addend, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(scope.Constraint(rightCondition, scope.Add(augend, rightConsequent)));
+                return this.SimplifyConditional(rightCondition, scope.Add(augend, rightConsequent), scope.NaN());
             }
 
             // Convert "0 + a" into "a"
@@ -385,7 +385,7 @@
             if (this.CombineLikeAddition(addend, augend, out var combined) ||
                 this.CombineLikeAddition(augend, addend, out combined))
             {
-                return this.Visit(combined);
+                return combined;
             }
 
             this.SortNodes(ref augend, ref addend);
@@ -396,12 +396,12 @@
         {
             if (scope.MatchConstraint(minuend, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(scope.Constraint(leftCondition, scope.Subtract(leftConsequent, subtrahend)));
+                return this.SimplifyConditional(leftCondition, this.SimplifySubtract(leftConsequent, subtrahend), scope.NaN());
             }
 
             if (scope.MatchConstraint(subtrahend, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(scope.Constraint(rightCondition, scope.Subtract(minuend, rightConsequent)));
+                return this.SimplifyConditional(rightCondition, this.SimplifySubtract(minuend, rightConsequent), scope.NaN());
             }
 
             // Convert "0 - a" into "-a"
@@ -450,11 +450,11 @@
 
             if (this.CombineLikeAddition(minuend, subtrahend, out var combined, negateRight: true))
             {
-                return this.Visit(combined);
+                return combined;
             }
             else if (this.CombineLikeAddition(subtrahend, minuend, out combined, negateRight: true))
             {
-                return this.Visit(scope.Negate(combined));
+                return this.SimplifyNegate(combined);
             }
 
             return scope.Subtract(minuend, subtrahend);
@@ -464,12 +464,12 @@
         {
             if (scope.MatchConstraint(multiplicand, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(scope.Constraint(leftCondition, scope.Multiply(leftConsequent, multiplier)));
+                return this.SimplifyConditional(leftCondition, this.SimplifyMultiply(leftConsequent, multiplier), scope.NaN());
             }
 
             if (scope.MatchConstraint(multiplier, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(scope.Constraint(rightCondition, scope.Multiply(multiplicand, rightConsequent)));
+                return this.SimplifyConditional(rightCondition, this.SimplifyMultiply(multiplicand, rightConsequent), scope.NaN());
             }
 
             // Convert "0 * a" into "0"
@@ -573,7 +573,7 @@
             if (this.CombineLikeMultiplication(multiplicand, multiplier, out var combined) ||
                 this.CombineLikeMultiplication(multiplier, multiplicand, out combined))
             {
-                return this.Visit(combined);
+                return combined;
             }
 
             // Convert "a * 2" into "2 * a"
@@ -585,12 +585,12 @@
         {
             if (scope.MatchConstraint(dividend, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(scope.Constraint(leftCondition, scope.Divide(leftConsequent, divisor)));
+                return this.SimplifyConditional(leftCondition, this.SimplifyDivide(leftConsequent, divisor), scope.NaN());
             }
 
             if (scope.MatchConstraint(divisor, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(scope.Constraint(rightCondition, scope.Divide(dividend, rightConsequent)));
+                return this.SimplifyConditional(rightCondition, this.SimplifyDivide(dividend, rightConsequent), scope.NaN());
             }
 
             // Maintain "a / 0"
@@ -632,7 +632,7 @@
             // Convert "a / a" into "a; a!=0"
             if (dividend == divisor)
             {
-                return this.Visit(scope.Constraint(scope.NotEqual(divisor, scope.Zero()), scope.One()));
+                return this.SimplifyConditional(scope.NotEqual(divisor, scope.Zero()), scope.One(), scope.NaN());
             }
 
             return scope.Divide(dividend, divisor);
@@ -642,12 +642,12 @@
         {
             if (scope.MatchConstraint(@base, out var leftCondition, out var leftConsequent))
             {
-                return this.Visit(scope.Constraint(leftCondition, scope.Pow(leftConsequent, exponent)));
+                return this.SimplifyConditional(leftCondition, scope.Pow(leftConsequent, exponent), scope.NaN());
             }
 
             if (scope.MatchConstraint(exponent, out var rightCondition, out var rightConsequent))
             {
-                return this.Visit(scope.Constraint(rightCondition, scope.Pow(@base, rightConsequent)));
+                return this.SimplifyConditional(rightCondition, scope.Pow(@base, rightConsequent), scope.NaN());
             }
 
             // Convert "1 ^ a" to "1"
@@ -698,7 +698,7 @@
                         var rightPower = totalPower / 2;
                         var leftPower = totalPower - rightPower;
 
-                        return this.Visit(scope.Multiply(scope.Pow(@base, Expression.Constant((double)leftPower)), scope.Pow(@base, Expression.Constant((double)rightPower))));
+                        return this.SimplifyMultiply(this.SimplifyPower(@base, Expression.Constant((double)leftPower)), this.SimplifyPower(@base, Expression.Constant((double)rightPower)));
                     }
                 }
             }
@@ -766,12 +766,12 @@
             Expression? remainder = right;
             if (this.ExtractByFactor(leftFactor, ref coefficient, ref remainder, negateRight))
             {
-                var newLeft = scope.Multiply(coefficient, leftFactor);
+                var newLeft = this.SimplifyMultiply(coefficient, leftFactor);
                 combined = remainder == null
                     ? newLeft
                     : negateRight
-                        ? scope.Subtract(newLeft, remainder)
-                        : scope.Add(newLeft, remainder);
+                        ? this.SimplifySubtract(newLeft, remainder)
+                        : this.SimplifyAdd(newLeft, remainder);
                 return true;
             }
 
@@ -806,8 +806,8 @@
                 if (changed)
                 {
                     remainder =
-                        subLeft == null ? scope.Negate(subRight ?? scope.One()) :
-                        subRight == null ? subLeft : scope.Subtract(subLeft, subRight);
+                        subLeft == null ? this.SimplifyNegate(subRight ?? scope.One()) :
+                        subRight == null ? subLeft : this.SimplifySubtract(subLeft, subRight);
                 }
 
                 return changed;
@@ -819,8 +819,8 @@
                 if (factor.PatternMatch(rFactor).Success)
                 {
                     coefficient = negate
-                        ? scope.Subtract(coefficient ?? scope.One(), rCoefficient ?? scope.One())
-                        : scope.Add(coefficient ?? scope.One(), rCoefficient ?? scope.One());
+                        ? this.SimplifySubtract(coefficient ?? scope.One(), rCoefficient ?? scope.One())
+                        : this.SimplifyAdd(coefficient ?? scope.One(), rCoefficient ?? scope.One());
                     remainder = null;
                     return true;
                 }
@@ -842,13 +842,13 @@
             {
                 if (scope.IsConstantValue(left, out _))
                 {
-                    coefficient = negate ? scope.Negate(left) : left;
+                    coefficient = negate ? this.SimplifyNegate(left) : left;
                     factor = right;
                     return;
                 }
                 else if (scope.IsConstantValue(right, out _))
                 {
-                    coefficient = negate ? scope.Negate(right) : right;
+                    coefficient = negate ? this.SimplifyNegate(right) : right;
                     factor = left;
                     return;
                 }
@@ -912,7 +912,7 @@
                 this.GetBaseAndPower(remainder, out var rBase, out var rExponent);
                 if (@base.PatternMatch(rBase).Success)
                 {
-                    exponent = scope.Add(exponent ?? scope.One(), rExponent ?? scope.One());
+                    exponent = this.SimplifyAdd(exponent ?? scope.One(), rExponent ?? scope.One());
                     remainder = null;
                     return true;
                 }
