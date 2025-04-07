@@ -23,11 +23,11 @@
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
         {
-            if (scope.TryBind(node, out var knownConstant))
+            if (scope.TryBindConstant(node, out var knownConstant))
             {
                 return this.VisitKnownConstant(knownConstant, node);
             }
-            else if (scope.TryBind(node, out var knownFunction, out var functionArguments))
+            else if (scope.TryBindFunction(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }

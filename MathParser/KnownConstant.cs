@@ -13,6 +13,9 @@
         /// <summary>
         /// Gets the name of the constant.
         /// </summary>
-        public string Name { get; } = name;
+        public string Name => name;
+
+        /// <inheritdoc/>
+        public override string ToString() => name;
     }
 }

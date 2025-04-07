@@ -19,11 +19,11 @@
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
         {
-            if (scope.TryBind(node, out var knownConstant))
+            if (scope.TryBindConstant(node, out var knownConstant))
             {
                 return this.VisitKnownConstant(knownConstant, node);
             }
-            else if (scope.TryBind(node, out var knownFunction, out var functionArguments))
+            else if (scope.TryBindFunction(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
@@ -131,7 +131,7 @@
                 return this.SimplifyDivide(scope.One(), converted[0]);
             }
 
-            return scope.Bind(function, converted);
+            return scope.BindFunction(function, converted);
         }
 
         /// <inheritdoc/>
@@ -700,7 +700,7 @@
                         }
                     }
                     else if (double.IsInteger(rightValue) && rightValue <= 10 &&
-                        scope.TryBind(@base, out var knownFunction, out _) &&
+                        scope.TryBindFunction(@base, out var knownFunction, out _) &&
                         (knownFunction == WKF.Arithmetic.Add || knownFunction == WKF.Arithmetic.Subtract))
                     {
                         var totalPower = (int)rightValue;
@@ -899,16 +899,16 @@
                 {
                     exponent = exponent == null
                         ? scope.NegativeOne()
-                        : this.SimplifyNegate(exponent);
+                        : scope.Negate(exponent);
                 }
 
                 Expression? remainder = left;
                 if (this.ExtractByBase(rightBase, ref exponent, ref remainder, false))
                 {
-                    var newRight = this.SimplifyPower(rightBase, exponent);
+                    var newRight = scope.Pow(rightBase, exponent);
                     combined = remainder == null
                         ? newRight
-                        : this.SimplifyMultiply(remainder, newRight);
+                        : scope.Multiply(remainder, newRight);
                     return true;
                 }
             }
@@ -919,12 +919,12 @@
                 Expression? remainder = right;
                 if (this.ExtractByBase(leftBase, ref exponent, ref remainder, invertRight))
                 {
-                    var newLeft = this.SimplifyPower(leftBase, exponent);
+                    var newLeft = scope.Pow(leftBase, exponent);
                     combined = remainder == null
                         ? newLeft
                         : invertRight
-                            ? this.SimplifyDivide(newLeft, remainder)
-                            : this.SimplifyMultiply(newLeft, remainder);
+                            ? scope.Divide(newLeft, remainder)
+                            : scope.Multiply(newLeft, remainder);
                     return true;
                 }
             }

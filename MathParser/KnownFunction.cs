@@ -14,5 +14,8 @@
         /// Gets the name of the function.
         /// </summary>
         public string Name { get; } = name;
+
+        /// <inheritdoc/>
+        public override string ToString() => $"{this.Name}()";
     }
 }

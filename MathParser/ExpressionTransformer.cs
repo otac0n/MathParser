@@ -472,11 +472,11 @@ namespace MathParser
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
         {
-            if (scope.TryBind(node, out var knownConstant))
+            if (scope.TryBindConstant(node, out var knownConstant))
             {
                 return this.VisitKnownConstant(knownConstant, node);
             }
-            else if (scope.TryBind(node, out var knownFunction, out var functionArguments))
+            else if (scope.TryBindFunction(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
@@ -588,7 +588,7 @@ namespace MathParser
         {
             ArgumentNullException.ThrowIfNull(node);
 
-            if (scope.TryBind(node, out var function, out var arguments))
+            if (scope.TryBindFunction(node, out var function, out var arguments))
             {
                 return this.VisitKnownFunction(function, node, arguments);
             }
@@ -851,7 +851,7 @@ namespace MathParser
 
             var actualType = expression.NodeType;
 
-            if (scope.TryBind(expression, out var knownMethod, out _))
+            if (scope.TryBindFunction(expression, out var knownMethod, out _))
             {
                 if (WKF.ExpressionTypeLookup.TryGetValue(knownMethod, out var knownType))
                 {
