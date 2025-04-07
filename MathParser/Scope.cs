@@ -624,28 +624,34 @@
                         var opDivideChecked = type.GetMethod("op_CheckedDivision", argTypes);
                         f.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked)), WKF.Arithmetic.Divide);
                     }
+                    else if (definition == typeof(IFloatingPointIeee754<>))
+                    {
+                        var argTypes = new[] { typeArgs[0] };
+                        var inv = type.GetMethod(nameof(IFloatingPointIeee754<>.ReciprocalEstimate), argTypes)!;
+                        f.Add(MakeLambda(argTypes, p => Expression.Call(inv, p[0])), WKF.Arithmetic.Reciprocal);
+                    }
                     else if (definition == typeof(IPowerFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0], typeArgs[0] };
-                        var pow = type.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes);
+                        var pow = type.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes)!;
                         f.Add(MakeLambda(argTypes, p => Expression.Call(pow, p[0], p[1])), WKF.Exponential.Pow);
                     }
                     else if (definition == typeof(IRootFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var sqrt = type.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes);
+                        var sqrt = type.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes)!;
                         f.Add(MakeLambda(argTypes, p => Expression.Call(sqrt, p[0])), WKF.Exponential.Sqrt);
                     }
                     else if (definition == typeof(ILogarithmicFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var log = type.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes);
+                        var log = type.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes)!;
                         f.Add(MakeLambda(argTypes, p => Expression.Call(log, p[0])), WKF.Exponential.Ln);
                     }
                     else if (definition == typeof(IExponentialFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var exp = type.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes);
+                        var exp = type.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes)!;
                         f.Add(MakeLambda(argTypes, p => Expression.Call(exp, p[0])), WKF.Exponential.Exp);
                     }
                 }
