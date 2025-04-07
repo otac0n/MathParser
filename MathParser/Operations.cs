@@ -258,6 +258,10 @@ namespace MathParser
             return false;
         }
 
+        public static bool IsConstant(this Scope scope, Expression expression) =>
+            scope.TryBind(expression, out _) ||
+            scope.IsConstantValue(expression, out _);
+
         public static bool IsConstantEqual(this Scope scope, Expression expression, double value) =>
             scope.TryConvert(expression, false, (int x) => x == value) ||
             scope.TryConvert(expression, false, (float x) => x == value) ||

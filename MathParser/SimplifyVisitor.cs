@@ -19,42 +19,12 @@
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
         {
-            if (scope.TryBind(node, out var knownConstant))
-            {
-                return this.VisitKnownConstant(knownConstant, node);
-            }
-            else if (scope.TryBind(node, out var knownFunction, out var functionArguments))
+            if (scope.TryBind(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
 
             return base.Visit(node);
-        }
-
-        protected Expression VisitKnownConstant(KnownConstant knownConstant, Expression node)
-        {
-            if (knownConstant == WKC.Zero)
-            {
-                return Expression.Constant(0.0);
-            }
-            else if (knownConstant == WKC.One)
-            {
-                return Expression.Constant(1.0);
-            }
-            else if (knownConstant == WKC.NegativeOne)
-            {
-                return Expression.Constant(-1.0);
-            }
-            else if (knownConstant == WKC.PositiveInfinity)
-            {
-                return Expression.Constant(double.PositiveInfinity);
-            }
-            else if (knownConstant == WKC.NegativeInfinity)
-            {
-                return Expression.Constant(double.NegativeInfinity);
-            }
-
-            return scope.BindConstant(knownConstant);
         }
 
         protected Expression VisitKnownFunction(KnownFunction function, Expression node, IList<Expression> arguments)
@@ -331,9 +301,9 @@
                 return augend;
             }
 
-            if (scope.IsConstantValue(addend, out var rightConstant))
+            if (scope.IsConstant(addend))
             {
-                if (scope.IsConstantValue(augend, out var leftConstant))
+                if (scope.IsConstant(augend))
                 {
                     // Convert "1 + 1" into "2"
                     // TODO: Support all types.
@@ -343,8 +313,8 @@
                         return Expression.Constant(leftValue + rightValue);
                     }
                 }
-                else if (scope.MatchAdd(augend, out var augendLeft, out var augendRight) &&
-                    scope.IsConstantValue(augendRight, out _))
+                else if (scope.MatchAdd(augend, out var augendLeft, out var augendRight)
+                    && scope.IsConstant(augendRight))
                 {
                     // Convert "a + 1 + 1" into "a + (1 + 1)"
                     return this.SimplifyAdd(augendLeft, this.SimplifyAdd(augendRight, addend));
