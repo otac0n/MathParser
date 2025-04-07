@@ -535,6 +535,18 @@
                     t[conversion] = (t.TryGetValue(conversion, out var existing) && existing) || @implicit;
                 }
 
+                void AddConstant(PropertyInfo? property, KnownConstant constant)
+                {
+                    if (property != null)
+                    {
+                        c.Add(Expression.MakeMemberAccess(null, property), constant);
+
+                        var map = numberType.GetInterfaceMap(property.DeclaringType);
+                        var value = map.TargetMethods[Array.IndexOf(map.InterfaceMethods, property.GetMethod)].Invoke(null, []);
+                        c.Add(Expression.Constant(value), constant);
+                    }
+                }
+
                 var interfaces = numberType.GetInterfaces();
                 foreach (var type in interfaces)
                 {
@@ -543,8 +555,8 @@
 
                     if (definition == typeof(INumberBase<>))
                     {
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(INumberBase<>.Zero)).Single()), WKC.Zero);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(INumberBase<>.One)).Single()), WKC.One);
+                        AddConstant(type.GetProperty(nameof(INumberBase<>.Zero)), WKC.Zero);
+                        AddConstant(type.GetProperty(nameof(INumberBase<>.One)), WKC.One);
                     }
                     ////else if (definition == typeof(INumber<>))
                     ////{
@@ -552,15 +564,15 @@
                     ////}
                     else if (definition == typeof(IFloatingPointConstants<>))
                     {
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.E)).Single()), WKC.EulersNumber);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.Pi)).Single()), WKC.Pi);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointConstants<>.Tau)).Single()), WKC.Tau);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.E)), WKC.EulersNumber);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.Pi)), WKC.Pi);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.Tau)), WKC.Tau);
                     }
                     else if (definition == typeof(IFloatingPointIeee754<>))
                     {
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.NaN)).Single()), WKC.Indeterminate);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.NegativeInfinity)).Single()), WKC.NegativeInfinity);
-                        c.Add(Expression.MakeMemberAccess(null, type.GetMember(nameof(IFloatingPointIeee754<>.PositiveInfinity)).Single()), WKC.PositiveInfinity);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.NaN)), WKC.Indeterminate);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.NegativeInfinity)), WKC.NegativeInfinity);
+                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.PositiveInfinity)), WKC.PositiveInfinity);
                     }
                     else if (definition == typeof(IEqualityOperators<,,>))
                     {
@@ -612,28 +624,34 @@
                         var opDivideChecked = type.GetMethod("op_CheckedDivision", argTypes);
                         f.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked)), WKF.Arithmetic.Divide);
                     }
+                    else if (definition == typeof(IFloatingPointIeee754<>))
+                    {
+                        var argTypes = new[] { typeArgs[0] };
+                        var inv = type.GetMethod(nameof(IFloatingPointIeee754<>.ReciprocalEstimate), argTypes)!;
+                        f.Add(MakeLambda(argTypes, p => Expression.Call(inv, p[0])), WKF.Arithmetic.Reciprocal);
+                    }
                     else if (definition == typeof(IPowerFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0], typeArgs[0] };
-                        var pow = type.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes);
+                        var pow = type.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes)!;
                         f.Add(MakeLambda(argTypes, p => Expression.Call(pow, p[0], p[1])), WKF.Exponential.Pow);
                     }
                     else if (definition == typeof(IRootFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var sqrt = type.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes);
+                        var sqrt = type.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes)!;
                         f.Add(MakeLambda(argTypes, p => Expression.Call(sqrt, p[0])), WKF.Exponential.Sqrt);
                     }
                     else if (definition == typeof(ILogarithmicFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var log = type.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes);
+                        var log = type.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes)!;
                         f.Add(MakeLambda(argTypes, p => Expression.Call(log, p[0])), WKF.Exponential.Ln);
                     }
                     else if (definition == typeof(IExponentialFunctions<>))
                     {
                         var argTypes = new[] { typeArgs[0] };
-                        var exp = type.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes);
+                        var exp = type.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes)!;
                         f.Add(MakeLambda(argTypes, p => Expression.Call(exp, p[0])), WKF.Exponential.Exp);
                     }
                 }
