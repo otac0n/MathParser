@@ -283,12 +283,12 @@
         {
             if (scope.MatchConstraint(augend, out var leftCondition, out var leftConsequent))
             {
-                return this.SimplifyConditional(leftCondition, scope.Add(leftConsequent, addend), scope.NaN());
+                return this.SimplifyConditional(leftCondition, this.SimplifyAdd(leftConsequent, addend), scope.NaN());
             }
 
             if (scope.MatchConstraint(addend, out var rightCondition, out var rightConsequent))
             {
-                return this.SimplifyConditional(rightCondition, scope.Add(augend, rightConsequent), scope.NaN());
+                return this.SimplifyConditional(rightCondition, this.SimplifyAdd(augend, rightConsequent), scope.NaN());
             }
 
             // Convert "0 + a" into "a"
@@ -587,7 +587,7 @@
             // Convert "a / (b / c)" into "(a * c) / b; c != 0"
             if (scope.MatchDivide(divisor, out var rightDivideLeft, out var rightDivideRight))
             {
-                return this.SimplifyConditional(scope.NotEqual(rightDivideRight, scope.Zero()), this.SimplifyDivide(this.SimplifyMultiply(dividend, rightDivideRight), rightDivideLeft), scope.NaN());
+                return this.SimplifyConditional(this.SimplifyCompare(rightDivideRight, ExpressionType.NotEqual, scope.Zero()), this.SimplifyDivide(this.SimplifyMultiply(dividend, rightDivideRight), rightDivideLeft), scope.NaN());
             }
 
             // Convert "a / √2" into "a√2 / 2"
@@ -609,12 +609,12 @@
         {
             if (scope.MatchConstraint(@base, out var leftCondition, out var leftConsequent))
             {
-                return this.SimplifyConditional(leftCondition, scope.Pow(leftConsequent, exponent), scope.NaN());
+                return this.SimplifyConditional(leftCondition, this.SimplifyPower(leftConsequent, exponent), scope.NaN());
             }
 
             if (scope.MatchConstraint(exponent, out var rightCondition, out var rightConsequent))
             {
-                return this.SimplifyConditional(rightCondition, scope.Pow(@base, rightConsequent), scope.NaN());
+                return this.SimplifyConditional(rightCondition, this.SimplifyPower(@base, rightConsequent), scope.NaN());
             }
 
             // Convert "1 ^ a" to "1"
@@ -736,7 +736,7 @@
                 this.GetFactorAndCoefficient(right, out var rightFactor, out var coefficient);
                 if (negateRight)
                 {
-                    coefficient = scope.Negate(coefficient ?? scope.One());
+                    coefficient = this.SimplifyNegate(coefficient ?? scope.One());
                 }
 
                 Expression? remainder = left;
@@ -783,7 +783,7 @@
                 {
                     remainder =
                         addLeft == null ? addRight :
-                        addRight == null ? addLeft : scope.Add(addLeft, addRight);
+                        addRight == null ? addLeft : this.SimplifyAdd(addLeft, addRight);
                 }
 
                 return changed;
@@ -859,16 +859,16 @@
                 {
                     exponent = exponent == null
                         ? scope.NegativeOne()
-                        : scope.Negate(exponent);
+                        : this.SimplifyNegate(exponent);
                 }
 
                 Expression? remainder = left;
                 if (this.ExtractByBase(rightBase, ref exponent, ref remainder, false))
                 {
-                    var newRight = scope.Pow(rightBase, exponent);
+                    var newRight = this.SimplifyPower(rightBase, exponent);
                     combined = remainder == null
                         ? newRight
-                        : scope.Multiply(remainder, newRight);
+                        : this.SimplifyMultiply(remainder, newRight);
                     return true;
                 }
             }
@@ -879,12 +879,12 @@
                 Expression? remainder = right;
                 if (this.ExtractByBase(leftBase, ref exponent, ref remainder, invertRight))
                 {
-                    var newLeft = scope.Pow(leftBase, exponent);
+                    var newLeft = this.SimplifyPower(leftBase, exponent);
                     combined = remainder == null
                         ? newLeft
                         : invertRight
-                            ? scope.Divide(newLeft, remainder)
-                            : scope.Multiply(newLeft, remainder);
+                            ? this.SimplifyDivide(newLeft, remainder)
+                            : this.SimplifyMultiply(newLeft, remainder);
                     return true;
                 }
             }
@@ -898,7 +898,7 @@
             if (scope.MatchPower(expr, out var b, out var e))
             {
                 @base = b;
-                exponent = invert ? scope.Negate(e) : e;
+                exponent = invert ? this.SimplifyNegate(e) : e;
                 return;
             }
 
@@ -917,7 +917,7 @@
                 {
                     remainder =
                         multiplyLeft == null ? multiplyRight :
-                        multiplyRight == null ? multiplyLeft : scope.Multiply(multiplyLeft, multiplyRight);
+                        multiplyRight == null ? multiplyLeft : this.SimplifyMultiply(multiplyLeft, multiplyRight);
                 }
 
                 return changed;
@@ -929,9 +929,7 @@
                 changed |= this.ExtractByBase(@base, ref exponent, ref divRight, !invert);
                 if (changed)
                 {
-                    remainder =
-                        divLeft == null ? scope.Reciprocal(divRight ?? scope.One()) :
-                        divRight == null ? divLeft : scope.Divide(divLeft, divRight);
+                    remainder = this.SimplifyDivide(divLeft ?? scope.One(), divRight ?? scope.One());
                 }
 
                 return changed;
@@ -945,7 +943,7 @@
                     exponent ??= scope.One();
                     rExponent ??= scope.One();
                     exponent = invert
-                        ? this.SimplifyConditional(scope.NotEqual(@base, scope.Zero()), this.SimplifySubtract(exponent, rExponent), scope.NaN())
+                        ? this.SimplifyConditional(this.SimplifyCompare(@base, ExpressionType.NotEqual, scope.Zero()), this.SimplifySubtract(exponent, rExponent), scope.NaN())
                         : this.SimplifyAdd(exponent, rExponent);
                     remainder = null;
                     return true;
