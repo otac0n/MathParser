@@ -383,9 +383,9 @@
                 return minuend;
             }
 
-            if (scope.IsConstantValue(minuend, out var leftConstant))
+            if (scope.IsConstant(minuend))
             {
-                if (scope.IsConstantValue(subtrahend, out var rightConstant))
+                if (scope.IsConstant(subtrahend))
                 {
                     // Convert "1 - 1" into "0"
                     return this.EvaluateAsConstant(scope.Subtract(minuend, subtrahend));
@@ -455,9 +455,9 @@
                 return multiplicand;
             }
 
-            if (scope.IsConstantValue(multiplier, out _))
+            if (scope.IsConstant(multiplier))
             {
-                if (scope.IsConstantValue(multiplicand, out _))
+                if (scope.IsConstant(multiplicand))
                 {
                     // Convert "2 * 2" into "4"
                     return this.EvaluateAsConstant(scope.Multiply(multiplicand, multiplier));
@@ -649,7 +649,7 @@
                 // TODO: Support all types.
                 if (rightConstant.Value is double rightValue && rightValue > 0)
                 {
-                    if (scope.IsConstantValue(@base, out _))
+                    if (scope.IsConstant(@base))
                     {
                         // Convert "2 ^ 2" into "4"
                         return this.EvaluateAsConstant(scope.Pow(@base, exponent));
