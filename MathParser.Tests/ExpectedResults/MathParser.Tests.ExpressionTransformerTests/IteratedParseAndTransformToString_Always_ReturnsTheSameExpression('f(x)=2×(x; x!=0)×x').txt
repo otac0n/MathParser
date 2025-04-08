@@ -1,8 +1,8 @@
 f(x)=2*(x; x!=0)*x
 (parsed)
-x => ((2 * IIF((x != Convert(0, Complex)), x, Convert(NaN, Complex))) * x)
+x => ((2 * IIF((x != Convert(0, Complex)), x, Convert(Double.System.Numerics.IFloatingPointIeee754<System.Double>.NaN, Complex))) * x)
 (transformed)
 f(x)=2·(x; x!=0)·x
 (parsed)
-x => ((2 * IIF((x != Convert(0, Complex)), x, Convert(NaN, Complex))) * x)
+x => ((2 * IIF((x != Convert(0, Complex)), x, Convert(Double.System.Numerics.IFloatingPointIeee754<System.Double>.NaN, Complex))) * x)
 (stable)

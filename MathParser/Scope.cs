@@ -155,11 +155,14 @@
                     add(nameof(IFloatingPointConstants<>.Pi), WKC.Pi, false);
                     add(nameof(IFloatingPointConstants<>.Tau), WKC.Tau, false);
                 },
-                [typeof(IFloatingPointIeee754<>)] = (i, typeArgs, add, _) =>
+                [typeof(IFloatingPointIeee754<>)] = (i, typeArgs, addC, addF) =>
                 {
-                    add(nameof(IFloatingPointIeee754<>.NaN), WKC.Indeterminate, true);
-                    add(nameof(IFloatingPointIeee754<>.NegativeInfinity), WKC.NegativeInfinity, true);
-                    add(nameof(IFloatingPointIeee754<>.PositiveInfinity), WKC.PositiveInfinity, true);
+                    addC(nameof(IFloatingPointIeee754<>.NaN), WKC.Indeterminate, true);
+                    addC(nameof(IFloatingPointIeee754<>.NegativeInfinity), WKC.NegativeInfinity, true);
+                    addC(nameof(IFloatingPointIeee754<>.PositiveInfinity), WKC.PositiveInfinity, true);
+                    var argTypes = new[] { typeArgs[0] };
+                    var inv = i.GetMethod(nameof(IFloatingPointIeee754<>.ReciprocalEstimate), argTypes)!;
+                    addF(argTypes, p => Expression.Call(inv, p[0]), WKF.Arithmetic.Reciprocal);
                 },
                 [typeof(IEqualityOperators<,,>)] = (i, typeArgs, _, add) =>
                 {
@@ -210,12 +213,6 @@
                     add(argTypes, p => Expression.Divide(p[0], p[1]), WKF.Arithmetic.Divide);
                     var opDivideChecked = i.GetMethod("op_CheckedDivision", argTypes)!;
                     add(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked), WKF.Arithmetic.Divide);
-                },
-                [typeof(IFloatingPointIeee754<>)] = (i, typeArgs, _, add) =>
-                {
-                    var argTypes = new[] { typeArgs[0] };
-                    var inv = i.GetMethod(nameof(IFloatingPointIeee754<>.ReciprocalEstimate), argTypes)!;
-                    add(argTypes, p => Expression.Call(inv, p[0]), WKF.Arithmetic.Reciprocal);
                 },
                 [typeof(IPowerFunctions<>)] = (i, typeArgs, _, add) =>
                 {
@@ -374,15 +371,17 @@
                             typeArgs,
                             (name, constant, valueFirst) =>
                             {
-                                var property = type.GetProperty(name);
+                                var interfaceProperty = type.GetProperty(name);
+                                var map = numberType.GetInterfaceMap(type);
+                                var getMethod = map.TargetMethods[Array.IndexOf(map.InterfaceMethods, interfaceProperty.GetMethod)];
+                                var property = numberType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(p => p.GetMethod == getMethod).Single();
+                                var value = property.GetValue(null);
 
                                 if (!valueFirst)
                                 {
                                     c.Add(Expression.MakeMemberAccess(null, property), constant);
                                 }
 
-                                var map = numberType.GetInterfaceMap(property.DeclaringType);
-                                var value = map.TargetMethods[Array.IndexOf(map.InterfaceMethods, property.GetMethod)].Invoke(null, []);
                                 c.Add(Expression.Constant(value), constant);
 
                                 if (valueFirst)

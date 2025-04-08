@@ -614,6 +614,10 @@ namespace MathParser
             {
                 this.Result = this.FormatComplex(0, 1);
             }
+            else if (constant == WKC.Indeterminate)
+            {
+                this.Result = this.FormatReal(double.NaN);
+            }
             else
             {
                 this.Result = this.FormatVariable(scope.BindName(constant));

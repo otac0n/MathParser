@@ -36,7 +36,7 @@ namespace MathParser
 
         public static Expression NegativeOne(this Scope scope) => scope.TryBindConstant(WKC.NegativeOne, out var constant) ? constant : scope.Negate(scope.One());
 
-        public static ConstantExpression NaN(this Scope scope) => Expression.Constant(double.NaN);
+        public static Expression NaN(this Scope scope) => scope.BindConstant(WKC.Indeterminate);
 
         public static Expression Tau(this Scope scope) => scope.BindConstant(WKC.Tau);
 
@@ -188,15 +188,11 @@ namespace MathParser
 
         public static bool IsConstantValue(this Scope scope, Expression expression, [NotNullWhen(true)] out ConstantExpression? constantExpression)
         {
+            expression = UnwrapConvert(expression);
             if (expression is ConstantExpression outerConstant)
             {
                 constantExpression = outerConstant;
                 return true;
-            }
-
-            if (expression is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
-            {
-                return scope.IsConstantValue(unary.Operand, out constantExpression);
             }
 
             constantExpression = null;
@@ -248,15 +244,32 @@ namespace MathParser
             return false;
         }
 
-        private static bool MatchKnownConstant(this Scope scope, KnownConstant knownConstant, [NotNullWhen(true)] Expression? result)
+        private static bool MatchKnownConstant(this Scope scope, KnownConstant knownConstant, [NotNullWhen(true)] Expression? expression)
         {
-            if (scope.TryBindConstant(result, out var foundConstant) && foundConstant == knownConstant)
+            expression = UnwrapConvert(expression);
+            if (scope.TryBindConstant(expression, out var foundConstant) && foundConstant == knownConstant)
             {
                 return true;
             }
 
             return false;
         }
+
+        [return: NotNullIfNotNull(nameof(expression))]
+        private static Expression? UnwrapConvert(Expression? expression)
+        {
+            while (expression is UnaryExpression unary && unary.NodeType == ExpressionType.Convert)
+            {
+                // TODO: Break if the convert is explicit.
+                expression = unary.Operand;
+            }
+
+            return expression;
+        }
+
+        public static bool IsConstant(this Scope scope, Expression expression) =>
+            scope.TryBindConstant(expression, out _) ||
+            scope.IsConstantValue(expression, out _);
 
         public static bool IsConstantEqual(this Scope scope, Expression expression, double value) =>
             scope.TryConvert(expression, false, (int x) => x == value) ||

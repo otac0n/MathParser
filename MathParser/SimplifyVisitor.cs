@@ -21,42 +21,12 @@
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
         {
-            if (scope.TryBindConstant(node, out var knownConstant))
-            {
-                return this.VisitKnownConstant(knownConstant, node);
-            }
-            else if (scope.TryBindFunction(node, out var knownFunction, out var functionArguments))
+            if (scope.TryBindFunction(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
 
             return base.Visit(node);
-        }
-
-        protected Expression VisitKnownConstant(KnownConstant knownConstant, Expression node)
-        {
-            if (knownConstant == WKC.Zero)
-            {
-                return Expression.Constant(0.0);
-            }
-            else if (knownConstant == WKC.One)
-            {
-                return Expression.Constant(1.0);
-            }
-            else if (knownConstant == WKC.NegativeOne)
-            {
-                return Expression.Constant(-1.0);
-            }
-            else if (knownConstant == WKC.PositiveInfinity)
-            {
-                return Expression.Constant(double.PositiveInfinity);
-            }
-            else if (knownConstant == WKC.NegativeInfinity)
-            {
-                return Expression.Constant(double.NegativeInfinity);
-            }
-
-            return scope.BindConstant(knownConstant);
         }
 
         protected Expression VisitKnownFunction(KnownFunction function, Expression node, IList<Expression> arguments)
@@ -333,20 +303,15 @@
                 return augend;
             }
 
-            if (scope.IsConstantValue(addend, out var rightConstant))
+            if (scope.IsConstant(addend))
             {
-                if (scope.IsConstantValue(augend, out var leftConstant))
+                if (scope.IsConstant(augend))
                 {
                     // Convert "1 + 1" into "2"
-                    // TODO: Support all types.
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue + rightValue);
-                    }
+                    return this.EvaluateAsConstant(scope.Add(addend, augend));
                 }
-                else if (scope.MatchAdd(augend, out var augendLeft, out var augendRight) &&
-                    scope.IsConstantValue(augendRight, out _))
+                else if (scope.MatchAdd(augend, out var augendLeft, out var augendRight)
+                    && scope.IsConstant(augendRight))
                 {
                     // Convert "a + 1 + 1" into "a + (1 + 1)"
                     return this.SimplifyAdd(augendLeft, this.SimplifyAdd(augendRight, addend));
@@ -385,7 +350,7 @@
             }
 
             if (this.CombineLikeAddition(addend, augend, out var combined) ||
-                this.CombineLikeAddition(augend, addend, out combined))
+                this.CombineLikeAddition(addend, augend, out combined, relativeRight: true))
             {
                 return combined;
             }
@@ -418,17 +383,12 @@
                 return minuend;
             }
 
-            if (scope.IsConstantValue(minuend, out var leftConstant))
+            if (scope.IsConstant(minuend))
             {
-                if (scope.IsConstantValue(subtrahend, out var rightConstant))
+                if (scope.IsConstant(subtrahend))
                 {
                     // Convert "1 - 1" into "0"
-                    // TODO: Support all types.
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue - rightValue);
-                    }
+                    return this.EvaluateAsConstant(scope.Subtract(minuend, subtrahend));
                 }
             }
 
@@ -450,13 +410,10 @@
                 return this.SimplifyAdd(minuend, negateOperand);
             }
 
-            if (this.CombineLikeAddition(minuend, subtrahend, out var combined, negateRight: true))
+            if (this.CombineLikeAddition(minuend, subtrahend, out var combined, negateRight: true) ||
+                this.CombineLikeAddition(minuend, subtrahend, out combined, relativeRight: true, negateRight: true))
             {
                 return combined;
-            }
-            else if (this.CombineLikeAddition(subtrahend, minuend, out combined, negateRight: true))
-            {
-                return this.SimplifyNegate(combined);
             }
 
             return scope.Subtract(minuend, subtrahend);
@@ -498,16 +455,12 @@
                 return multiplicand;
             }
 
-            if (scope.IsConstantValue(multiplier, out var rightConstant))
+            if (scope.IsConstant(multiplier))
             {
-                if (scope.IsConstantValue(multiplicand, out var leftConstant))
+                if (scope.IsConstant(multiplicand))
                 {
                     // Convert "2 * 2" into "4"
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue) // TODO: Support all types.
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue * rightValue);
-                    }
+                    return this.EvaluateAsConstant(scope.Multiply(multiplicand, multiplier));
                 }
             }
 
@@ -573,7 +526,7 @@
             }
 
             if (this.CombineLikeMultiplication(multiplicand, multiplier, out var combined) ||
-                this.CombineLikeMultiplication(multiplier, multiplicand, out combined))
+                this.CombineLikeMultiplication(multiplicand, multiplier, out combined, relativeRight: true))
             {
                 return combined;
             }
@@ -625,16 +578,28 @@
                 return this.SimplifyNegate(this.SimplifyDivide(dividend, rightNegateOperand));
             }
 
+            // Convert "(a / b) / c" into "a / (b * c)"
+            if (scope.MatchDivide(dividend, out var leftDivideLeft, out var leftDivideRight))
+            {
+                return this.SimplifyDivide(leftDivideLeft, this.SimplifyMultiply(leftDivideRight, divisor));
+            }
+
+            // Convert "a / (b / c)" into "(a * c) / b; c != 0"
+            if (scope.MatchDivide(divisor, out var rightDivideLeft, out var rightDivideRight))
+            {
+                return this.SimplifyConditional(scope.NotEqual(rightDivideRight, scope.Zero()), this.SimplifyDivide(this.SimplifyMultiply(dividend, rightDivideRight), rightDivideLeft), scope.NaN());
+            }
+
             // Convert "a / √2" into "a√2 / 2"
             if (scope.MatchSqrt(divisor, out var @base) && scope.IsConstantValue(@base, out var constant) && constant.Value is double value && value >= 0)
             {
                 return this.SimplifyDivide(this.SimplifyMultiply(dividend, divisor), @base);
             }
 
-            // Convert "a / a" into "a; a!=0"
-            if (dividend == divisor)
+            if (this.CombineLikeMultiplication(dividend, divisor, out var combined, invertRight: true) ||
+                this.CombineLikeMultiplication(dividend, divisor, out combined, relativeRight: true, invertRight: true))
             {
-                return this.SimplifyConditional(scope.NotEqual(divisor, scope.Zero()), scope.One(), scope.NaN());
+                return combined;
             }
 
             return scope.Divide(dividend, divisor);
@@ -681,16 +646,13 @@
 
             if (scope.IsConstantValue(exponent, out var rightConstant))
             {
+                // TODO: Support all types.
                 if (rightConstant.Value is double rightValue && rightValue > 0)
                 {
-                    if (scope.IsConstantValue(@base, out var leftConstant))
+                    if (scope.IsConstant(@base))
                     {
                         // Convert "2 ^ 2" into "4"
-                        if (leftConstant.Value is double leftValue) // TODO: Support all types.
-                        {
-                            // TODO: Add a configuration option to detect and prevent loss of precision.
-                            return Expression.Constant(Math.Pow(leftValue, rightValue));
-                        }
+                        return this.EvaluateAsConstant(scope.Pow(@base, exponent));
                     }
                     else if (double.IsInteger(rightValue) && rightValue <= 10 &&
                         scope.TryBindFunction(@base, out var knownFunction, out _) &&
@@ -734,6 +696,12 @@
             return scope.Compare(left, op, right);
         }
 
+        private ConstantExpression EvaluateAsConstant(Expression expression)
+        {
+            // TODO: Add a configuration option to detect and prevent loss of precision.
+            return Expression.Constant(Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)), []).Compile()());
+        }
+
         private bool SortNodes(ref Expression a, ref Expression b, bool constantsFirst = false)
         {
             if (this.CompareNodes(a, b, constantsFirst) < 0)
@@ -761,20 +729,43 @@
             return 0;
         }
 
-        private bool CombineLikeAddition(Expression left, Expression right, out Expression combined, bool negateRight = false)
+        private bool CombineLikeAddition(Expression left, Expression right, out Expression combined, bool relativeRight = false, bool negateRight = false)
         {
-            this.GetCoefficientAndFactor(left, out var leftFactor, out var coefficient);
-
-            Expression? remainder = right;
-            if (this.ExtractByFactor(leftFactor, ref coefficient, ref remainder, negateRight))
+            if (relativeRight)
             {
-                var newLeft = this.SimplifyMultiply(coefficient, leftFactor);
-                combined = remainder == null
-                    ? newLeft
-                    : negateRight
-                        ? this.SimplifySubtract(newLeft, remainder)
-                        : this.SimplifyAdd(newLeft, remainder);
-                return true;
+                this.GetFactorAndCoefficient(right, out var rightFactor, out var coefficient);
+                if (negateRight)
+                {
+                    coefficient = scope.Negate(coefficient ?? scope.One());
+                }
+
+                Expression? remainder = left;
+                if (this.ExtractByFactor(rightFactor, ref coefficient, ref remainder, false))
+                {
+                    var newRight = this.SimplifyMultiply(coefficient, rightFactor);
+                    combined = remainder == null
+                        ? newRight
+                        : negateRight
+                            ? this.SimplifySubtract(remainder, newRight)
+                            : this.SimplifyAdd(remainder, newRight);
+                    return true;
+                }
+            }
+            else
+            {
+                this.GetFactorAndCoefficient(left, out var leftFactor, out var coefficient);
+
+                Expression? remainder = right;
+                if (this.ExtractByFactor(leftFactor, ref coefficient, ref remainder, negateRight))
+                {
+                    var newLeft = this.SimplifyMultiply(coefficient, leftFactor);
+                    combined = remainder == null
+                        ? newLeft
+                        : negateRight
+                            ? this.SimplifySubtract(newLeft, remainder)
+                            : this.SimplifyAdd(newLeft, remainder);
+                    return true;
+                }
             }
 
             combined = null;
@@ -814,12 +805,14 @@
 
             if (remainder != null)
             {
-                this.GetCoefficientAndFactor(remainder, out var rFactor, out var rCoefficient);
+                this.GetFactorAndCoefficient(remainder, out var rFactor, out var rCoefficient);
                 if (this.matchVisitor.PatternMatch(factor, rFactor).Success)
                 {
+                    coefficient ??= scope.One();
+                    rCoefficient ??= scope.One();
                     coefficient = negate
-                        ? this.SimplifySubtract(coefficient ?? scope.One(), rCoefficient ?? scope.One())
-                        : this.SimplifyAdd(coefficient ?? scope.One(), rCoefficient ?? scope.One());
+                        ? this.SimplifySubtract(coefficient, rCoefficient)
+                        : this.SimplifyAdd(coefficient, rCoefficient);
                     remainder = null;
                     return true;
                 }
@@ -828,12 +821,12 @@
             return false;
         }
 
-        private void GetCoefficientAndFactor(Expression expr, out Expression factor, out Expression? coefficient, bool negate = false)
+        private void GetFactorAndCoefficient(Expression expr, out Expression factor, out Expression? coefficient, bool negate = false)
         {
             // Correct, but causes infinte loop with distribution of negate through addition.
             if (false && scope.MatchNegate(expr, out var operand))
             {
-                this.GetCoefficientAndFactor(operand, out factor, out coefficient, !negate);
+                this.GetFactorAndCoefficient(operand, out factor, out coefficient, !negate);
                 return;
             }
 
@@ -855,49 +848,90 @@
 
             factor = expr;
             coefficient = negate ? scope.NegativeOne() : null; // null -> one.
-            return;
         }
 
-        private bool CombineLikeMultiplication(Expression left, Expression right, out Expression combined)
+        private bool CombineLikeMultiplication(Expression left, Expression right, out Expression combined, bool relativeRight = false, bool invertRight = false)
         {
-            this.GetBaseAndPower(left, out var leftBase, out var exponent);
-
-            Expression? remainder = right;
-            if (this.ExtractByBase(leftBase, ref exponent, ref remainder))
+            if (relativeRight)
             {
-                var newLeft = scope.Pow(leftBase, exponent);
-                combined = remainder == null ? newLeft : scope.Multiply(newLeft, remainder);
-                return true;
+                this.GetBaseAndExponent(right, out var rightBase, out var exponent);
+                if (invertRight)
+                {
+                    exponent = exponent == null
+                        ? scope.NegativeOne()
+                        : scope.Negate(exponent);
+                }
+
+                Expression? remainder = left;
+                if (this.ExtractByBase(rightBase, ref exponent, ref remainder, false))
+                {
+                    var newRight = scope.Pow(rightBase, exponent);
+                    combined = remainder == null
+                        ? newRight
+                        : scope.Multiply(remainder, newRight);
+                    return true;
+                }
+            }
+            else
+            {
+                this.GetBaseAndExponent(left, out var leftBase, out var exponent);
+
+                Expression? remainder = right;
+                if (this.ExtractByBase(leftBase, ref exponent, ref remainder, invertRight))
+                {
+                    var newLeft = scope.Pow(leftBase, exponent);
+                    combined = remainder == null
+                        ? newLeft
+                        : invertRight
+                            ? scope.Divide(newLeft, remainder)
+                            : scope.Multiply(newLeft, remainder);
+                    return true;
+                }
             }
 
             combined = null;
             return false;
         }
 
-        private void GetBaseAndPower(Expression expr, out Expression @base, out Expression? exponent)
+        private void GetBaseAndExponent(Expression expr, out Expression @base, out Expression? exponent, bool invert = false)
         {
-            if (scope.MatchPower(expr, out @base, out exponent))
+            if (scope.MatchPower(expr, out var b, out var e))
             {
+                @base = b;
+                exponent = invert ? scope.Negate(e) : e;
                 return;
             }
 
             @base = expr;
             exponent = null; // null -> one.
-            return;
         }
 
-        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder)
+        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder, bool invert)
         {
-            if (scope.MatchMultiply(remainder, out var left, out var right))
+            if (scope.MatchMultiply(remainder, out var multiplyLeft, out var multiplyRight))
             {
                 bool changed;
-                changed = this.ExtractByBase(@base, ref exponent, ref left);
-                changed |= this.ExtractByBase(@base, ref exponent, ref right);
+                changed = this.ExtractByBase(@base, ref exponent, ref multiplyLeft, invert);
+                changed |= this.ExtractByBase(@base, ref exponent, ref multiplyRight, invert);
                 if (changed)
                 {
                     remainder =
-                        left == null ? right :
-                        right == null ? left : scope.Multiply(left, right);
+                        multiplyLeft == null ? multiplyRight :
+                        multiplyRight == null ? multiplyLeft : scope.Multiply(multiplyLeft, multiplyRight);
+                }
+
+                return changed;
+            }
+            else if (scope.MatchDivide(remainder, out var divLeft, out var divRight))
+            {
+                bool changed;
+                changed = this.ExtractByBase(@base, ref exponent, ref divLeft, invert);
+                changed |= this.ExtractByBase(@base, ref exponent, ref divRight, !invert);
+                if (changed)
+                {
+                    remainder =
+                        divLeft == null ? scope.Reciprocal(divRight ?? scope.One()) :
+                        divRight == null ? divLeft : scope.Divide(divLeft, divRight);
                 }
 
                 return changed;
@@ -905,10 +939,14 @@
 
             if (remainder != null)
             {
-                this.GetBaseAndPower(remainder, out var rBase, out var rExponent);
+                this.GetBaseAndExponent(remainder, out var rBase, out var rExponent);
                 if (this.matchVisitor.PatternMatch(@base, rBase).Success)
                 {
-                    exponent = this.SimplifyAdd(exponent ?? scope.One(), rExponent ?? scope.One());
+                    exponent ??= scope.One();
+                    rExponent ??= scope.One();
+                    exponent = invert
+                        ? this.SimplifyConditional(scope.NotEqual(@base, scope.Zero()), this.SimplifySubtract(exponent, rExponent), scope.NaN())
+                        : this.SimplifyAdd(exponent, rExponent);
                     remainder = null;
                     return true;
                 }
