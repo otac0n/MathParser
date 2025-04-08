@@ -195,10 +195,10 @@ namespace MathParser
         {
             if (expression != null)
             {
-                var visitor = new MatchVisitor(expression);
+                var visitor = new MatchVisitor();
 
                 var methods = (from known in this.KnownConstants
-                               let match = visitor.PatternMatch(known.Key)
+                               let match = visitor.PatternMatch(expression, known.Key)
                                where match.Success
                                where match.Arguments.Count == 0
                                select known.Value).Distinct();
@@ -219,10 +219,10 @@ namespace MathParser
         {
             if (expression != null)
             {
-                var visitor = new MatchVisitor(expression);
+                var visitor = new MatchVisitor();
 
                 var methods = (from known in this.KnownMethods
-                               let match = visitor.PatternMatch(known.Key)
+                               let match = visitor.PatternMatch(expression, known.Key)
                                where match.Success
                                where match.Arguments.All(p => p != null)
                                select (known.Value, match.Arguments)).Distinct();
