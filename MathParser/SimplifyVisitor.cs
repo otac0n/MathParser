@@ -10,6 +10,8 @@
 
     public sealed class SimplifyVisitor(Scope scope) : ExpressionVisitor
     {
+        private readonly MatchVisitor matchVisitor = new MatchVisitor();
+
         /// <summary>
         /// Gets the scope in which the transformations are performed.
         /// </summary>
@@ -19,11 +21,11 @@
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
         {
-            if (scope.TryBind(node, out var knownConstant))
+            if (scope.TryBindConstant(node, out var knownConstant))
             {
                 return this.VisitKnownConstant(knownConstant, node);
             }
-            else if (scope.TryBind(node, out var knownFunction, out var functionArguments))
+            else if (scope.TryBindFunction(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
@@ -131,7 +133,7 @@
                 return this.SimplifyDivide(scope.One(), converted[0]);
             }
 
-            return scope.Bind(function, converted);
+            return scope.BindFunction(function, converted);
         }
 
         /// <inheritdoc/>
@@ -236,7 +238,7 @@
             }
 
             // Convert "a and a" into "a"
-            if (new MatchVisitor(left).PatternMatch(right).Success)
+            if (this.matchVisitor.PatternMatch(left, right).Success)
             {
                 return left;
             }
@@ -271,7 +273,7 @@
             }
 
             // Convert "a or a" into "a"
-            if (new MatchVisitor(left).PatternMatch(right).Success)
+            if (this.matchVisitor.PatternMatch(left, right).Success)
             {
                 return left;
             }
@@ -691,7 +693,7 @@
                         }
                     }
                     else if (double.IsInteger(rightValue) && rightValue <= 10 &&
-                        scope.TryBind(@base, out var knownFunction, out _) &&
+                        scope.TryBindFunction(@base, out var knownFunction, out _) &&
                         (knownFunction == WKF.Arithmetic.Add || knownFunction == WKF.Arithmetic.Subtract))
                     {
                         var totalPower = (int)rightValue;
@@ -779,10 +781,7 @@
             return false;
         }
 
-        private bool ExtractByFactor(Expression factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder, bool negate) =>
-            this.ExtractByFactor(new MatchVisitor(factor), ref coefficient, ref remainder, negate);
-
-        private bool ExtractByFactor(MatchVisitor factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder, bool negate)
+        private bool ExtractByFactor(Expression factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder, bool negate)
         {
             if (scope.MatchAdd(remainder, out var addLeft, out var addRight))
             {
@@ -816,7 +815,7 @@
             if (remainder != null)
             {
                 this.GetCoefficientAndFactor(remainder, out var rFactor, out var rCoefficient);
-                if (factor.PatternMatch(rFactor).Success)
+                if (this.matchVisitor.PatternMatch(factor, rFactor).Success)
                 {
                     coefficient = negate
                         ? this.SimplifySubtract(coefficient ?? scope.One(), rCoefficient ?? scope.One())
@@ -887,10 +886,7 @@
             return;
         }
 
-        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder) =>
-            this.ExtractByBase(new MatchVisitor(@base), ref exponent, ref remainder);
-
-        private bool ExtractByBase(MatchVisitor @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder)
+        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder)
         {
             if (scope.MatchMultiply(remainder, out var left, out var right))
             {
@@ -910,7 +906,7 @@
             if (remainder != null)
             {
                 this.GetBaseAndPower(remainder, out var rBase, out var rExponent);
-                if (@base.PatternMatch(rBase).Success)
+                if (this.matchVisitor.PatternMatch(@base, rBase).Success)
                 {
                     exponent = this.SimplifyAdd(exponent ?? scope.One(), rExponent ?? scope.One());
                     remainder = null;
