@@ -333,17 +333,12 @@
                 return augend;
             }
 
-            if (scope.IsConstantValue(addend, out var rightConstant))
+            if (scope.IsConstantValue(addend, out _))
             {
-                if (scope.IsConstantValue(augend, out var leftConstant))
+                if (scope.IsConstantValue(augend, out _))
                 {
                     // Convert "1 + 1" into "2"
-                    // TODO: Support all types.
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue + rightValue);
-                    }
+                    return this.EvaluateAsConstant(scope.Add(addend, augend));
                 }
                 else if (scope.MatchAdd(augend, out var augendLeft, out var augendRight) &&
                     scope.IsConstantValue(augendRight, out _))
@@ -423,12 +418,7 @@
                 if (scope.IsConstantValue(subtrahend, out var rightConstant))
                 {
                     // Convert "1 - 1" into "0"
-                    // TODO: Support all types.
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue)
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue - rightValue);
-                    }
+                    return this.EvaluateAsConstant(scope.Subtract(minuend, subtrahend));
                 }
             }
 
@@ -495,16 +485,12 @@
                 return multiplicand;
             }
 
-            if (scope.IsConstantValue(multiplier, out var rightConstant))
+            if (scope.IsConstantValue(multiplier, out _))
             {
-                if (scope.IsConstantValue(multiplicand, out var leftConstant))
+                if (scope.IsConstantValue(multiplicand, out _))
                 {
                     // Convert "2 * 2" into "4"
-                    if (leftConstant.Value is double leftValue && rightConstant.Value is double rightValue) // TODO: Support all types.
-                    {
-                        // TODO: Add a configuration option to detect and prevent loss of precision.
-                        return Expression.Constant(leftValue * rightValue);
-                    }
+                    return this.EvaluateAsConstant(scope.Multiply(multiplicand, multiplier));
                 }
             }
 
@@ -690,16 +676,13 @@
 
             if (scope.IsConstantValue(exponent, out var rightConstant))
             {
+                // TODO: Support all types.
                 if (rightConstant.Value is double rightValue && rightValue > 0)
                 {
-                    if (scope.IsConstantValue(@base, out var leftConstant))
+                    if (scope.IsConstantValue(@base, out _))
                     {
                         // Convert "2 ^ 2" into "4"
-                        if (leftConstant.Value is double leftValue) // TODO: Support all types.
-                        {
-                            // TODO: Add a configuration option to detect and prevent loss of precision.
-                            return Expression.Constant(Math.Pow(leftValue, rightValue));
-                        }
+                        return this.EvaluateAsConstant(scope.Pow(@base, exponent));
                     }
                     else if (double.IsInteger(rightValue) && rightValue <= 10 &&
                         scope.TryBindFunction(@base, out var knownFunction, out _) &&
@@ -741,6 +724,12 @@
         private Expression SimplifyCompare(Expression left, ExpressionType op, Expression right)
         {
             return scope.Compare(left, op, right);
+        }
+
+        private ConstantExpression EvaluateAsConstant(Expression expression)
+        {
+            // TODO: Add a configuration option to detect and prevent loss of precision.
+            return Expression.Constant(Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)), []).Compile()());
         }
 
         private bool SortNodes(ref Expression a, ref Expression b, bool constantsFirst = false)
