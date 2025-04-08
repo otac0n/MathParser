@@ -849,9 +849,11 @@
                 this.GetFactorAndCoefficient(remainder, out var rFactor, out var rCoefficient);
                 if (this.matchVisitor.PatternMatch(factor, rFactor).Success)
                 {
+                    coefficient ??= scope.One();
+                    rCoefficient ??= scope.One();
                     coefficient = negate
-                        ? scope.Subtract(coefficient ?? scope.One(), rCoefficient ?? scope.One())
-                        : scope.Add(coefficient ?? scope.One(), rCoefficient ?? scope.One());
+                        ? scope.Subtract(coefficient, rCoefficient)
+                        : scope.Add(coefficient, rCoefficient);
                     remainder = null;
                     return true;
                 }
@@ -981,9 +983,11 @@
                 this.GetBaseAndExponent(remainder, out var rBase, out var rExponent);
                 if (this.matchVisitor.PatternMatch(@base, rBase).Success)
                 {
+                    exponent ??= scope.One();
+                    rExponent ??= scope.One();
                     exponent = invert
-                        ? scope.Subtract(exponent ?? scope.One(), rExponent ?? scope.One())
-                        : scope.Add(exponent ?? scope.One(), rExponent ?? scope.One());
+                        ? scope.Constraint(scope.NotEqual(@base, scope.Zero()), scope.Subtract(exponent, rExponent))
+                        : scope.Add(exponent, rExponent);
                     remainder = null;
                     return true;
                 }
