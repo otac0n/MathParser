@@ -126,7 +126,7 @@ namespace MathParser
             var constants = from known in this.KnownConstants
                             where known.Value == constant
                             let m = known.Key
-                            orderby m is ConstantExpression ascending,
+                            orderby m is ConstantExpression ascending, // TODO: Prefer ConstantExpression for exact values.
                                     m is MethodCallExpression ascending
                             select m;
 
