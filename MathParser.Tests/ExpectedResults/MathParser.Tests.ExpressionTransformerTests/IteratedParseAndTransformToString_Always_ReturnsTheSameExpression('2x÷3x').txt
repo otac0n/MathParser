@@ -1,0 +1,8 @@
+2x/3x
+(parsed)
+(((2 * x) / 3) * x)
+(transformed)
+2·x/3·x
+(parsed)
+(((2 * x) / 3) * x)
+(stable)

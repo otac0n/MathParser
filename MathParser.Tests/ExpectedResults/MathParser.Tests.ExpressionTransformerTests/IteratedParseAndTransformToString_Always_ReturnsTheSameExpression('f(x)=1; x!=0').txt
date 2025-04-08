@@ -1,6 +1,6 @@
 f(x)=1; x!=0
 (parsed)
-x => IIF((x != Convert(0, Complex)), 1, NaN)
+x => IIF((x != Convert(0, Complex)), 1, IFloatingPointIeee754`1.NaN)
 (transformed)
 f(x)=1; x!=0
 (stable)
