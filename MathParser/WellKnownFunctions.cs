@@ -5,7 +5,6 @@ namespace MathParser
     using System;
     using System.Collections.Generic;
     using System.Linq.Expressions;
-    using System.Numerics;
 
     /// <summary>
     /// The collection of built-in functions.

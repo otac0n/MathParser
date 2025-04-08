@@ -74,17 +74,17 @@ namespace MathParser
             return expression;
         }
 
-        public static Expression And(this Scope scope, Expression left, Expression right) => scope.Bind(WKF.Boolean.And, left, right);
+        public static Expression And(this Scope scope, Expression left, Expression right) => scope.BindFunction(WKF.Boolean.And, left, right);
 
         public static bool MatchAnd(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? left, [NotNullWhen(true)] out Expression? right) =>
             scope.MatchKnownBinary(WKF.Boolean.And, expression, out left, out right);
 
-        public static Expression Or(this Scope scope, Expression left, Expression right) => scope.Bind(WKF.Boolean.Or, left, right);
+        public static Expression Or(this Scope scope, Expression left, Expression right) => scope.BindFunction(WKF.Boolean.Or, left, right);
 
         public static bool MatchOr(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? left, [NotNullWhen(true)] out Expression? right) =>
             scope.MatchKnownBinary(WKF.Boolean.Or, expression, out left, out right);
 
-        public static Expression Not(this Scope scope, Expression expression) => scope.Bind(WKF.Boolean.Not, expression);
+        public static Expression Not(this Scope scope, Expression expression) => scope.BindFunction(WKF.Boolean.Not, expression);
 
         public static bool MatchNot(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? operand) =>
             scope.MatchKnownUnary(WKF.Boolean.Not, expression, out operand);
@@ -115,67 +115,67 @@ namespace MathParser
             return false;
         }
 
-        public static Expression Abs(this Scope scope, Expression expression) => scope.Bind(WKF.Piecewise.Abs, expression);
+        public static Expression Abs(this Scope scope, Expression expression) => scope.BindFunction(WKF.Piecewise.Abs, expression);
 
-        public static Expression Ceiling(this Scope scope, Expression expression) => scope.Bind(WKF.Piecewise.Ceiling, expression);
+        public static Expression Ceiling(this Scope scope, Expression expression) => scope.BindFunction(WKF.Piecewise.Ceiling, expression);
 
-        public static Expression Floor(this Scope scope, Expression expression) => scope.Bind(WKF.Piecewise.Floor, expression);
+        public static Expression Floor(this Scope scope, Expression expression) => scope.BindFunction(WKF.Piecewise.Floor, expression);
 
-        public static Expression Negate(this Scope scope, Expression operand) => scope.Bind(WKF.Arithmetic.Negate, operand);
+        public static Expression Negate(this Scope scope, Expression operand) => scope.BindFunction(WKF.Arithmetic.Negate, operand);
 
         public static bool MatchNegate(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? operand) =>
             scope.MatchKnownUnary(WKF.Arithmetic.Negate, expression, out operand);
 
-        public static Expression Add(this Scope scope, Expression augend, Expression addend) => scope.Bind(WKF.Arithmetic.Add, augend, addend);
+        public static Expression Add(this Scope scope, Expression augend, Expression addend) => scope.BindFunction(WKF.Arithmetic.Add, augend, addend);
 
         public static bool MatchAdd(this Scope scope, Expression? sum, [NotNullWhen(true)] out Expression? augend, [NotNullWhen(true)] out Expression? addend) =>
             scope.MatchKnownBinary(WKF.Arithmetic.Add, sum, out augend, out addend);
 
-        public static Expression Subtract(this Scope scope, Expression minuend, Expression subtrahend) => scope.Bind(WKF.Arithmetic.Subtract, minuend, subtrahend);
+        public static Expression Subtract(this Scope scope, Expression minuend, Expression subtrahend) => scope.BindFunction(WKF.Arithmetic.Subtract, minuend, subtrahend);
 
         public static bool MatchSubtract(this Scope scope, Expression? difference, [NotNullWhen(true)] out Expression? minuend, [NotNullWhen(true)] out Expression? subtrahend) =>
             scope.MatchKnownBinary(WKF.Arithmetic.Subtract, difference, out minuend, out subtrahend);
 
-        public static Expression Multiply(this Scope scope, Expression multiplicand, Expression multiplier) => scope.Bind(WKF.Arithmetic.Multiply, multiplicand, multiplier);
+        public static Expression Multiply(this Scope scope, Expression multiplicand, Expression multiplier) => scope.BindFunction(WKF.Arithmetic.Multiply, multiplicand, multiplier);
 
         public static bool MatchMultiply(this Scope scope, Expression? product, [NotNullWhen(true)] out Expression? multiplicand, [NotNullWhen(true)] out Expression? multiplier) =>
             scope.MatchKnownBinary(WKF.Arithmetic.Multiply, product, out multiplicand, out multiplier);
 
-        public static Expression Divide(this Scope scope, Expression dividend, Expression divisor) => scope.Bind(WKF.Arithmetic.Divide, dividend, divisor);
+        public static Expression Divide(this Scope scope, Expression dividend, Expression divisor) => scope.BindFunction(WKF.Arithmetic.Divide, dividend, divisor);
 
         public static bool MatchDivide(this Scope scope, Expression? quotient, [NotNullWhen(true)] out Expression? dividend, [NotNullWhen(true)] out Expression? divisor) =>
             scope.MatchKnownBinary(WKF.Arithmetic.Divide, quotient, out dividend, out divisor);
 
-        public static Expression Reciprocal(this Scope scope, Expression denominator) => scope.Bind(WKF.Arithmetic.Reciprocal, denominator);
+        public static Expression Reciprocal(this Scope scope, Expression denominator) => scope.BindFunction(WKF.Arithmetic.Reciprocal, denominator);
 
-        public static Expression Pow(this Scope scope, Expression @base, Expression exponent) => scope.Bind(WKF.Exponential.Pow, @base, exponent);
+        public static Expression Pow(this Scope scope, Expression @base, Expression exponent) => scope.BindFunction(WKF.Exponential.Pow, @base, exponent);
 
         public static bool MatchPower(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? @base, [NotNullWhen(true)] out Expression? exponent) =>
             scope.MatchKnownBinary(WKF.Exponential.Pow, expression, out @base, out exponent);
 
-        public static Expression Exp(this Scope scope, Expression exponent) => scope.Bind(WKF.Exponential.Exp, exponent);
+        public static Expression Exp(this Scope scope, Expression exponent) => scope.BindFunction(WKF.Exponential.Exp, exponent);
 
         public static bool MatchExp(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? exponent) =>
             scope.MatchKnownUnary(WKF.Exponential.Exp, expression, out exponent);
 
-        public static Expression Sqrt(this Scope scope, Expression @base) => scope.Bind(WKF.Exponential.Sqrt, @base);
+        public static Expression Sqrt(this Scope scope, Expression @base) => scope.BindFunction(WKF.Exponential.Sqrt, @base);
 
         public static bool MatchSqrt(this Scope scope, Expression? expression, [NotNullWhen(true)] out Expression? @base) =>
             scope.MatchKnownUnary(WKF.Exponential.Sqrt, expression, out @base);
 
-        public static Expression Log(this Scope scope, Expression expression) => scope.Bind(WKF.Exponential.Ln, expression);
+        public static Expression Log(this Scope scope, Expression expression) => scope.BindFunction(WKF.Exponential.Ln, expression);
 
-        public static Expression Sin(this Scope scope, Expression expression) => scope.Bind(WKF.Trigonometric.Sine, expression);
+        public static Expression Sin(this Scope scope, Expression expression) => scope.BindFunction(WKF.Trigonometric.Sine, expression);
 
-        public static Expression Cos(this Scope scope, Expression expression) => scope.Bind(WKF.Trigonometric.Cosine, expression);
+        public static Expression Cos(this Scope scope, Expression expression) => scope.BindFunction(WKF.Trigonometric.Cosine, expression);
 
-        public static Expression Tan(this Scope scope, Expression expression) => scope.Bind(WKF.Trigonometric.Tangent, expression);
+        public static Expression Tan(this Scope scope, Expression expression) => scope.BindFunction(WKF.Trigonometric.Tangent, expression);
 
-        public static Expression Sinh(this Scope scope, Expression expression) => scope.Bind(WKF.Hyperbolic.Sine, expression);
+        public static Expression Sinh(this Scope scope, Expression expression) => scope.BindFunction(WKF.Hyperbolic.Sine, expression);
 
-        public static Expression Cosh(this Scope scope, Expression expression) => scope.Bind(WKF.Hyperbolic.Cosine, expression);
+        public static Expression Cosh(this Scope scope, Expression expression) => scope.BindFunction(WKF.Hyperbolic.Cosine, expression);
 
-        public static Expression Tanh(this Scope scope, Expression expression) => scope.Bind(WKF.Hyperbolic.Tangent, expression);
+        public static Expression Tanh(this Scope scope, Expression expression) => scope.BindFunction(WKF.Hyperbolic.Tangent, expression);
 
         public static Expression Compare(this Scope scope, Expression left, ExpressionType op, Expression right)
         {
@@ -184,7 +184,7 @@ namespace MathParser
                 : Expression.MakeBinary(op, scope.LowerToReal(left), scope.LowerToReal(right));
         }
 
-        public static Expression Function(this Scope scope, string name, IList<Expression> arguments) => scope.Bind(name, arguments);
+        public static Expression Function(this Scope scope, string name, IList<Expression> arguments) => scope.BindFunction(name, arguments);
 
         public static bool IsConstantValue(this Scope scope, Expression expression, [NotNullWhen(true)] out ConstantExpression? constantExpression)
         {
@@ -225,7 +225,7 @@ namespace MathParser
 
         private static bool MatchKnownBinary(this Scope scope, KnownFunction knownFunction, [NotNullWhen(true)] Expression? result, [NotNullWhen(true)] out Expression? left, [NotNullWhen(true)] out Expression? right)
         {
-            if (scope.TryBind(result, out var foundFunction, out var arguments) && foundFunction == knownFunction && arguments.Count == 2)
+            if (scope.TryBindFunction(result, out var foundFunction, out var arguments) && foundFunction == knownFunction && arguments.Count == 2)
             {
                 left = arguments[0];
                 right = arguments[1];
@@ -238,7 +238,7 @@ namespace MathParser
 
         private static bool MatchKnownUnary(this Scope scope, KnownFunction knownFunction, [NotNullWhen(true)] Expression? result, [NotNullWhen(true)] out Expression? operand)
         {
-            if (scope.TryBind(result, out var foundFunction, out var arguments) && foundFunction == knownFunction && arguments.Count == 1)
+            if (scope.TryBindFunction(result, out var foundFunction, out var arguments) && foundFunction == knownFunction && arguments.Count == 1)
             {
                 operand = arguments[0];
                 return true;
@@ -250,7 +250,7 @@ namespace MathParser
 
         private static bool MatchKnownConstant(this Scope scope, KnownConstant knownConstant, [NotNullWhen(true)] Expression? result)
         {
-            if (scope.TryBind(result, out var foundConstant) && foundConstant == knownConstant)
+            if (scope.TryBindConstant(result, out var foundConstant) && foundConstant == knownConstant)
             {
                 return true;
             }
@@ -259,7 +259,7 @@ namespace MathParser
         }
 
         public static bool IsConstant(this Scope scope, Expression expression) =>
-            scope.TryBind(expression, out _) ||
+            scope.TryBindConstant(expression, out _) ||
             scope.IsConstantValue(expression, out _);
 
         public static bool IsConstantEqual(this Scope scope, Expression expression, double value) =>

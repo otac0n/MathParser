@@ -19,7 +19,7 @@
         [return: NotNullIfNotNull(nameof(node))]
         public override Expression? Visit(Expression? node)
         {
-            if (scope.TryBind(node, out var knownFunction, out var functionArguments))
+            if (scope.TryBindFunction(node, out var knownFunction, out var functionArguments))
             {
                 return this.VisitKnownFunction(knownFunction, node, functionArguments);
             }
@@ -101,7 +101,7 @@
                 return this.SimplifyDivide(scope.One(), converted[0]);
             }
 
-            return scope.Bind(function, converted);
+            return scope.BindFunction(function, converted);
         }
 
         /// <inheritdoc/>
@@ -661,7 +661,7 @@
                         }
                     }
                     else if (double.IsInteger(rightValue) && rightValue <= 10 &&
-                        scope.TryBind(@base, out var knownFunction, out _) &&
+                        scope.TryBindFunction(@base, out var knownFunction, out _) &&
                         (knownFunction == WKF.Arithmetic.Add || knownFunction == WKF.Arithmetic.Subtract))
                     {
                         var totalPower = (int)rightValue;
