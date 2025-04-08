@@ -371,15 +371,17 @@
                             typeArgs,
                             (name, constant, valueFirst) =>
                             {
-                                var property = type.GetProperty(name);
+                                var interfaceProperty = type.GetProperty(name);
+                                var map = numberType.GetInterfaceMap(type);
+                                var getMethod = map.TargetMethods[Array.IndexOf(map.InterfaceMethods, interfaceProperty.GetMethod)];
+                                var property = numberType.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).Where(p => p.GetMethod == getMethod).Single();
+                                var value = property.GetValue(null);
 
                                 if (!valueFirst)
                                 {
                                     c.Add(Expression.MakeMemberAccess(null, property), constant);
                                 }
 
-                                var map = numberType.GetInterfaceMap(property.DeclaringType);
-                                var value = map.TargetMethods[Array.IndexOf(map.InterfaceMethods, property.GetMethod)].Invoke(null, []);
                                 c.Add(Expression.Constant(value), constant);
 
                                 if (valueFirst)
