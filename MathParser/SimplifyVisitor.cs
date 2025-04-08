@@ -10,6 +10,8 @@
 
     public sealed class SimplifyVisitor(Scope scope) : ExpressionVisitor
     {
+        private readonly MatchVisitor matchVisitor = new MatchVisitor();
+
         /// <summary>
         /// Gets the scope in which the transformations are performed.
         /// </summary>
@@ -236,7 +238,7 @@
             }
 
             // Convert "a and a" into "a"
-            if (new MatchVisitor(left).PatternMatch(right).Success)
+            if (this.matchVisitor.PatternMatch(left, right).Success)
             {
                 return left;
             }
@@ -271,7 +273,7 @@
             }
 
             // Convert "a or a" into "a"
-            if (new MatchVisitor(left).PatternMatch(right).Success)
+            if (this.matchVisitor.PatternMatch(left, right).Success)
             {
                 return left;
             }
@@ -811,10 +813,7 @@
             return false;
         }
 
-        private bool ExtractByFactor(Expression factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder, bool negate) =>
-            this.ExtractByFactor(new MatchVisitor(factor), ref coefficient, ref remainder, negate);
-
-        private bool ExtractByFactor(MatchVisitor factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder, bool negate)
+        private bool ExtractByFactor(Expression factor, [NotNullWhen(true)] ref Expression? coefficient, ref Expression? remainder, bool negate)
         {
             if (scope.MatchAdd(remainder, out var addLeft, out var addRight))
             {
@@ -848,7 +847,7 @@
             if (remainder != null)
             {
                 this.GetFactorAndCoefficient(remainder, out var rFactor, out var rCoefficient);
-                if (factor.PatternMatch(rFactor).Success)
+                if (this.matchVisitor.PatternMatch(factor, rFactor).Success)
                 {
                     coefficient = negate
                         ? scope.Subtract(coefficient ?? scope.One(), rCoefficient ?? scope.One())
@@ -946,10 +945,7 @@
             exponent = null; // null -> one.
         }
 
-        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder, bool invert) =>
-            this.ExtractByBase(new MatchVisitor(@base), ref exponent, ref remainder, invert);
-
-        private bool ExtractByBase(MatchVisitor @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder, bool invert)
+        private bool ExtractByBase(Expression @base, [NotNullWhen(true)] ref Expression? exponent, ref Expression? remainder, bool invert)
         {
             if (scope.MatchMultiply(remainder, out var multiplyLeft, out var multiplyRight))
             {
@@ -983,7 +979,7 @@
             if (remainder != null)
             {
                 this.GetBaseAndExponent(remainder, out var rBase, out var rExponent);
-                if (@base.PatternMatch(rBase).Success)
+                if (this.matchVisitor.PatternMatch(@base, rBase).Success)
                 {
                     exponent = invert
                         ? scope.Subtract(exponent ?? scope.One(), rExponent ?? scope.One())

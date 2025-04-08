@@ -2,28 +2,23 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq.Expressions;
 
     /// <summary>
-    /// A visitor that replaces nodes.
+    /// A visitor that matches nodes.
     /// </summary>
-    /// <param name="root">The root node to match.</param>
-    [DebuggerDisplay("{Root}")]
-    public class MatchVisitor(Expression? root) : ExpressionVisitor
+    public class MatchVisitor : ExpressionVisitor
     {
-        public Expression? Root { get; } = root;
-
         private bool success;
         private Expression? compare;
         private IList<ParameterExpression> parameters;
         private bool[] bound;
         private Expression?[] arguments;
 
-        public Match PatternMatch(Expression expression)
+        public Match PatternMatch(Expression? root, Expression expression)
         {
-            this.compare = this.Root;
+            this.compare = root;
             this.success = true;
             if (expression is LambdaExpression lambda)
             {

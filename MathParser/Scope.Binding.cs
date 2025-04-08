@@ -1,4 +1,6 @@
-﻿namespace MathParser
+﻿// Copyright © John Gietzen. All Rights Reserved. This source is subject to the MIT license. Please see license.md for more information.
+
+namespace MathParser
 {
     using System;
     using System.Collections.Generic;
@@ -193,10 +195,10 @@
         {
             if (expression != null)
             {
-                var visitor = new MatchVisitor(expression);
+                var visitor = new MatchVisitor();
 
                 var methods = (from known in this.KnownConstants
-                               let match = visitor.PatternMatch(known.Key)
+                               let match = visitor.PatternMatch(expression, known.Key)
                                where match.Success
                                where match.Arguments.Count == 0
                                select known.Value).Distinct();
@@ -217,10 +219,10 @@
         {
             if (expression != null)
             {
-                var visitor = new MatchVisitor(expression);
+                var visitor = new MatchVisitor();
 
                 var methods = (from known in this.KnownMethods
-                               let match = visitor.PatternMatch(known.Key)
+                               let match = visitor.PatternMatch(expression, known.Key)
                                where match.Success
                                where match.Arguments.All(p => p != null)
                                select (known.Value, match.Arguments)).Distinct();
