@@ -138,6 +138,111 @@
                 ["op_Explicit"] = false,
             };
 
+            public static Dictionary<Type, Action<Type, Type[], Action<string, KnownConstant, bool>, Action<Type[], Func<ParameterExpression[], Expression>, KnownFunction>>> GenericMathInterfaces = new()
+            {
+                [typeof(INumberBase<>)] = (i, typeArgs, add, _) =>
+                {
+                    add(nameof(INumberBase<>.Zero), WKC.Zero, true);
+                    add(nameof(INumberBase<>.One), WKC.One, true);
+                },
+                ////[typeof(INumber<>)] = (i, typeArgs, _, add) =>
+                ////{
+                ////    /* Clamp, Min, Max, Sign */
+                ////}
+                [typeof(IFloatingPointConstants<>)] = (i, typeArgs, add, _) =>
+                {
+                    add(nameof(IFloatingPointConstants<>.E), WKC.EulersNumber, false);
+                    add(nameof(IFloatingPointConstants<>.Pi), WKC.Pi, false);
+                    add(nameof(IFloatingPointConstants<>.Tau), WKC.Tau, false);
+                },
+                [typeof(IFloatingPointIeee754<>)] = (i, typeArgs, add, _) =>
+                {
+                    add(nameof(IFloatingPointIeee754<>.NaN), WKC.Indeterminate, true);
+                    add(nameof(IFloatingPointIeee754<>.NegativeInfinity), WKC.NegativeInfinity, true);
+                    add(nameof(IFloatingPointIeee754<>.PositiveInfinity), WKC.PositiveInfinity, true);
+                },
+                [typeof(IEqualityOperators<,,>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = typeArgs[..^1];
+                    add(argTypes, p => Expression.Equal(p[0], p[1]), WKF.Comparison.Equal);
+                    add(argTypes, p => Expression.NotEqual(p[0], p[1]), WKF.Comparison.NotEqual);
+                },
+                [typeof(IComparisonOperators<,,>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = typeArgs[..^1];
+                    add(argTypes, p => Expression.GreaterThan(p[0], p[1]), WKF.Comparison.GreaterThan);
+                    add(argTypes, p => Expression.GreaterThanOrEqual(p[0], p[1]), WKF.Comparison.GreaterThanOrEqual);
+                    add(argTypes, p => Expression.LessThan(p[0], p[1]), WKF.Comparison.LessThan);
+                    add(argTypes, p => Expression.LessThanOrEqual(p[0], p[1]), WKF.Comparison.LessThanOrEqual);
+                },
+                ////[typeof(IUnaryPlusOperators<,>)] = (i, typeArgs, _, add) =>
+                ////{
+                ////    var argTypes = new[] { typeArgs[0] };
+                ////    add(argTypes, p => Expression.UnaryPlus(p[0]), WKF.Identity);
+                ////}
+                [typeof(IUnaryNegationOperators<,>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = new[] { typeArgs[0] };
+                    add(argTypes, p => Expression.Negate(p[0]), WKF.Arithmetic.Negate);
+                    add(argTypes, p => Expression.NegateChecked(p[0]), WKF.Arithmetic.Negate);
+                },
+                [typeof(IAdditionOperators<,,>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = typeArgs[..^1];
+                    add(argTypes, p => Expression.Add(p[0], p[1]), WKF.Arithmetic.Add);
+                    add(argTypes, p => Expression.AddChecked(p[0], p[1]), WKF.Arithmetic.Add);
+                },
+                [typeof(ISubtractionOperators<,,>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = typeArgs[..^1];
+                    add(argTypes, p => Expression.Subtract(p[0], p[1]), WKF.Arithmetic.Subtract);
+                    add(argTypes, p => Expression.SubtractChecked(p[0], p[1]), WKF.Arithmetic.Subtract);
+                },
+                [typeof(IMultiplyOperators<,,>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = typeArgs[..^1];
+                    add(argTypes, p => Expression.Multiply(p[0], p[1]), WKF.Arithmetic.Multiply);
+                    add(argTypes, p => Expression.MultiplyChecked(p[0], p[1]), WKF.Arithmetic.Multiply);
+                },
+                [typeof(IDivisionOperators<,,>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = typeArgs[..^1];
+                    add(argTypes, p => Expression.Divide(p[0], p[1]), WKF.Arithmetic.Divide);
+                    var opDivideChecked = i.GetMethod("op_CheckedDivision", argTypes)!;
+                    add(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked), WKF.Arithmetic.Divide);
+                },
+                [typeof(IFloatingPointIeee754<>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = new[] { typeArgs[0] };
+                    var inv = i.GetMethod(nameof(IFloatingPointIeee754<>.ReciprocalEstimate), argTypes)!;
+                    add(argTypes, p => Expression.Call(inv, p[0]), WKF.Arithmetic.Reciprocal);
+                },
+                [typeof(IPowerFunctions<>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = new[] { typeArgs[0], typeArgs[0] };
+                    var pow = i.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes)!;
+                    add(argTypes, p => Expression.Call(pow, p[0], p[1]), WKF.Exponential.Pow);
+                },
+                [typeof(IRootFunctions<>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = new[] { typeArgs[0] };
+                    var sqrt = i.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes)!;
+                    add(argTypes, p => Expression.Call(sqrt, p[0]), WKF.Exponential.Sqrt);
+                },
+                [typeof(ILogarithmicFunctions<>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = new[] { typeArgs[0] };
+                    var log = i.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes)!;
+                    add(argTypes, p => Expression.Call(log, p[0]), WKF.Exponential.Ln);
+                },
+                [typeof(IExponentialFunctions<>)] = (i, typeArgs, _, add) =>
+                {
+                    var argTypes = new[] { typeArgs[0] };
+                    var exp = i.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes)!;
+                    add(argTypes, p => Expression.Call(exp, p[0]), WKF.Exponential.Exp);
+                },
+            };
+
             /// <summary>
             /// <see href="https://github.com/dotnet/csharpstandard/blob/draft-v8/standard/conversions.md#1023-implicit-numeric-conversions"/> §10.2.3 Implicit numeric conversions.
             /// </summary>
@@ -256,124 +361,36 @@
                     t[conversion] = (t.TryGetValue(conversion, out var existing) && existing) || @implicit;
                 }
 
-                void AddConstant(PropertyInfo? property, KnownConstant constant)
-                {
-                    if (property != null)
-                    {
-                        c.Add(Expression.MakeMemberAccess(null, property), constant);
-
-                        var map = numberType.GetInterfaceMap(property.DeclaringType);
-                        var value = map.TargetMethods[Array.IndexOf(map.InterfaceMethods, property.GetMethod)].Invoke(null, []);
-                        c.Add(Expression.Constant(value), constant);
-                    }
-                }
-
                 var interfaces = numberType.GetInterfaces();
                 foreach (var type in interfaces)
                 {
                     var definition = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
                     var typeArgs = type.IsGenericType ? type.GetGenericArguments() : [];
 
-                    if (definition == typeof(INumberBase<>))
+                    if (GenericMathInterfaces.TryGetValue(definition, out var performImport))
                     {
-                        AddConstant(type.GetProperty(nameof(INumberBase<>.Zero)), WKC.Zero);
-                        AddConstant(type.GetProperty(nameof(INumberBase<>.One)), WKC.One);
-                    }
-                    ////else if (definition == typeof(INumber<>))
-                    ////{
-                    ////    /* Clamp, Min, Max, Sign */
-                    ////}
-                    else if (definition == typeof(IFloatingPointConstants<>))
-                    {
-                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.E)), WKC.EulersNumber);
-                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.Pi)), WKC.Pi);
-                        AddConstant(type.GetProperty(nameof(IFloatingPointConstants<>.Tau)), WKC.Tau);
-                    }
-                    else if (definition == typeof(IFloatingPointIeee754<>))
-                    {
-                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.NaN)), WKC.Indeterminate);
-                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.NegativeInfinity)), WKC.NegativeInfinity);
-                        AddConstant(type.GetProperty(nameof(IFloatingPointIeee754<>.PositiveInfinity)), WKC.PositiveInfinity);
-                    }
-                    else if (definition == typeof(IEqualityOperators<,,>))
-                    {
-                        var argTypes = typeArgs[..^1];
-                        f.Add(MakeLambda(argTypes, p => Expression.Equal(p[0], p[1])), WKF.Comparison.Equal);
-                        f.Add(MakeLambda(argTypes, p => Expression.NotEqual(p[0], p[1])), WKF.Comparison.NotEqual);
-                    }
-                    else if (definition == typeof(IComparisonOperators<,,>))
-                    {
-                        var argTypes = typeArgs[..^1];
-                        f.Add(MakeLambda(argTypes, p => Expression.GreaterThan(p[0], p[1])), WKF.Comparison.GreaterThan);
-                        f.Add(MakeLambda(argTypes, p => Expression.GreaterThanOrEqual(p[0], p[1])), WKF.Comparison.GreaterThanOrEqual);
-                        f.Add(MakeLambda(argTypes, p => Expression.LessThan(p[0], p[1])), WKF.Comparison.LessThan);
-                        f.Add(MakeLambda(argTypes, p => Expression.LessThanOrEqual(p[0], p[1])), WKF.Comparison.LessThanOrEqual);
-                    }
-                    ////else if (definition == typeof(IUnaryPlusOperators<,>))
-                    ////{
-                    ////    var argTypes = new[] { typeArgs[0] };
-                    ////    t.Add(MakeLambda(argTypes, p => Expression.UnaryPlus(p[0])), WellKnownFunctions.Identity);
-                    ////}
-                    else if (definition == typeof(IUnaryNegationOperators<,>))
-                    {
-                        var argTypes = new[] { typeArgs[0] };
-                        f.Add(MakeLambda(argTypes, p => Expression.Negate(p[0])), WKF.Arithmetic.Negate);
-                        f.Add(MakeLambda(argTypes, p => Expression.NegateChecked(p[0])), WKF.Arithmetic.Negate);
-                    }
-                    else if (definition == typeof(IAdditionOperators<,,>))
-                    {
-                        var argTypes = typeArgs[..^1];
-                        f.Add(MakeLambda(argTypes, p => Expression.Add(p[0], p[1])), WKF.Arithmetic.Add);
-                        f.Add(MakeLambda(argTypes, p => Expression.AddChecked(p[0], p[1])), WKF.Arithmetic.Add);
-                    }
-                    else if (definition == typeof(ISubtractionOperators<,,>))
-                    {
-                        var argTypes = typeArgs[..^1];
-                        f.Add(MakeLambda(argTypes, p => Expression.Subtract(p[0], p[1])), WKF.Arithmetic.Subtract);
-                        f.Add(MakeLambda(argTypes, p => Expression.SubtractChecked(p[0], p[1])), WKF.Arithmetic.Subtract);
-                    }
-                    else if (definition == typeof(IMultiplyOperators<,,>))
-                    {
-                        var argTypes = typeArgs[..^1];
-                        f.Add(MakeLambda(argTypes, p => Expression.Multiply(p[0], p[1])), WKF.Arithmetic.Multiply);
-                        f.Add(MakeLambda(argTypes, p => Expression.MultiplyChecked(p[0], p[1])), WKF.Arithmetic.Multiply);
-                    }
-                    else if (definition == typeof(IDivisionOperators<,,>))
-                    {
-                        var argTypes = typeArgs[..^1];
-                        f.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1])), WKF.Arithmetic.Divide);
-                        var opDivideChecked = type.GetMethod("op_CheckedDivision", argTypes);
-                        f.Add(MakeLambda(argTypes, p => Expression.Divide(p[0], p[1], opDivideChecked)), WKF.Arithmetic.Divide);
-                    }
-                    else if (definition == typeof(IFloatingPointIeee754<>))
-                    {
-                        var argTypes = new[] { typeArgs[0] };
-                        var inv = type.GetMethod(nameof(IFloatingPointIeee754<>.ReciprocalEstimate), argTypes)!;
-                        f.Add(MakeLambda(argTypes, p => Expression.Call(inv, p[0])), WKF.Arithmetic.Reciprocal);
-                    }
-                    else if (definition == typeof(IPowerFunctions<>))
-                    {
-                        var argTypes = new[] { typeArgs[0], typeArgs[0] };
-                        var pow = type.GetMethod(nameof(IPowerFunctions<>.Pow), argTypes)!;
-                        f.Add(MakeLambda(argTypes, p => Expression.Call(pow, p[0], p[1])), WKF.Exponential.Pow);
-                    }
-                    else if (definition == typeof(IRootFunctions<>))
-                    {
-                        var argTypes = new[] { typeArgs[0] };
-                        var sqrt = type.GetMethod(nameof(IRootFunctions<>.Sqrt), argTypes)!;
-                        f.Add(MakeLambda(argTypes, p => Expression.Call(sqrt, p[0])), WKF.Exponential.Sqrt);
-                    }
-                    else if (definition == typeof(ILogarithmicFunctions<>))
-                    {
-                        var argTypes = new[] { typeArgs[0] };
-                        var log = type.GetMethod(nameof(ILogarithmicFunctions<>.Log), argTypes)!;
-                        f.Add(MakeLambda(argTypes, p => Expression.Call(log, p[0])), WKF.Exponential.Ln);
-                    }
-                    else if (definition == typeof(IExponentialFunctions<>))
-                    {
-                        var argTypes = new[] { typeArgs[0] };
-                        var exp = type.GetMethod(nameof(IExponentialFunctions<>.Exp), argTypes)!;
-                        f.Add(MakeLambda(argTypes, p => Expression.Call(exp, p[0])), WKF.Exponential.Exp);
+                        performImport(
+                            type,
+                            typeArgs,
+                            (name, constant, valueFirst) =>
+                            {
+                                var property = type.GetProperty(name);
+
+                                if (!valueFirst)
+                                {
+                                    c.Add(Expression.MakeMemberAccess(null, property), constant);
+                                }
+
+                                var map = numberType.GetInterfaceMap(property.DeclaringType);
+                                var value = map.TargetMethods[Array.IndexOf(map.InterfaceMethods, property.GetMethod)].Invoke(null, []);
+                                c.Add(Expression.Constant(value), constant);
+
+                                if (valueFirst)
+                                {
+                                    c.Add(Expression.MakeMemberAccess(null, property), constant);
+                                }
+                            },
+                            (argTypes, makeLambda, function) => f.Add(MakeLambda(argTypes, makeLambda), function));
                     }
                 }
             }
