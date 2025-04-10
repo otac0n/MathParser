@@ -2,7 +2,5 @@
 (parsed)
 (Math.PI >= 3)
 (transformed)
-π>=3
-(parsed)
-(Math.PI >= 3)
+π≥3
 (stable)

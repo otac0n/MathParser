@@ -2,7 +2,7 @@
 (parsed)
 (Sqrt((Pow(x, 2) + Pow(b, 2))).Real <= 2)
 (transformed)
-Re(√(x^2+b^2))<=2
+Re(√(x^2+b^2))≤2
 (parsed)
 (Sqrt((Pow(x, 2) + Pow(b, 2))).Real <= 2)
 (stable)

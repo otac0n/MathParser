@@ -2,7 +2,7 @@ f(x)=2*iif(x!=0, x, 0)*x
 (parsed)
 x => ((2 * IIF((x != Convert(0, Complex)), x, Convert(0, Complex))) * x)
 (transformed)
-f(x)=2·iif(x!=0, x, 0)·x
+f(x)=2·iif(x≠0, x, 0)·x
 (parsed)
 x => ((2 * IIF((x != Convert(0, Complex)), x, Convert(0, Complex))) * x)
 (stable)

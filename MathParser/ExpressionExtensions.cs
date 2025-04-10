@@ -4,6 +4,7 @@ namespace MathParser
 {
     using System.Linq.Expressions;
     using System.Numerics;
+    using MathParser.Text;
 
     /// <summary>
     /// Provides convenience methods for transforming <see cref="Expression">expressions</see>.

@@ -6,6 +6,7 @@ namespace MathParser.Demo
     using System.Linq.Expressions;
     using System.Numerics;
     using System.Windows.Forms;
+    using MathParser.Text;
     using OxyPlot;
     using OxyPlot.Series;
 

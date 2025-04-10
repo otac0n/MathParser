@@ -24,7 +24,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\readme.md" Pack="true" PackagePath="\" />
-    <PegGrammar Include="Parser.peg" />
+    <PegGrammar Include="Text\Parser.peg" />
     <Compile Update="Scope.Binding.cs">
       <DependentUpon>Scope.cs</DependentUpon>
     </Compile>

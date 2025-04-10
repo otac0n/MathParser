@@ -1,4 +1,4 @@
-@namespace MathParser
+@namespace MathParser.Text
 @classname Parser
 @using System.Linq
 @using System.Linq.Expressions

@@ -1,4 +1,4 @@
-﻿namespace MathParser
+﻿namespace MathParser.Text
 {
     using System;
     using System.Globalization;
@@ -20,10 +20,10 @@
         /// <param name="value">The real number.</param>
         /// <returns>The string representation of the real number.</returns>
         public static string FormatReal(double value) =>
-            (value == Math.PI * 2) ? "τ" :
-            (value == Math.PI) ? "π" :
-            (value == Math.E) ? "e" :
-            (value == (1 + Math.Sqrt(5)) / 2) ? "φ" :
+            value == Math.PI * 2 ? "τ" :
+            value == Math.PI ? "π" :
+            value == Math.E ? "e" :
+            value == (1 + Math.Sqrt(5)) / 2 ? "φ" :
             value.ToString(DoubleFormat, CultureInfo.CurrentCulture);
 
         /// <summary>

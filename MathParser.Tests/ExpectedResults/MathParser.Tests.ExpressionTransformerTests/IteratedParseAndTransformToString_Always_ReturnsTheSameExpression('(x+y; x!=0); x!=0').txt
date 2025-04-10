@@ -2,5 +2,7 @@
 (parsed)
 IIF((x != Convert(0, Complex)), IIF((x != Convert(0, Complex)), (x + y), Convert(Double.System.Numerics.IFloatingPointIeee754<System.Double>.NaN, Complex)), Convert(Double.System.Numerics.IFloatingPointIeee754<System.Double>.NaN, Complex))
 (transformed)
-(x+y; x!=0); x!=0
+(x+y; x≠0); x≠0
+(parsed)
+IIF((x != Convert(0, Complex)), IIF((x != Convert(0, Complex)), (x + y), Convert(Double.System.Numerics.IFloatingPointIeee754<System.Double>.NaN, Complex)), Convert(Double.System.Numerics.IFloatingPointIeee754<System.Double>.NaN, Complex))
 (stable)

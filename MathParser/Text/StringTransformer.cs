@@ -1,4 +1,4 @@
-﻿namespace MathParser
+﻿namespace MathParser.Text
 {
     using System;
     using System.Linq;
@@ -53,10 +53,10 @@
         protected override string CreateRadical(string expression) => "√" + expression;
 
         /// <inheritdoc />
-        protected override string CreateEquality(string left, ExpressionType op, string right) => left + FormatEqualityOperator(op) + right;
+        protected override string CreateEquality(string left, ExpressionType op, string right) => left + OperatorFormatter.FormatEqualityOperator(op) + right;
 
         /// <inheritdoc />
-        protected override string CreateLambda(string name, string[] parameters, string body) => name + "(" + string.Join(", ", parameters) + ")" + FormatEqualityOperator(ExpressionType.Equal) + body;
+        protected override string CreateLambda(string name, string[] parameters, string body) => name + "(" + string.Join(", ", parameters) + ")" + OperatorFormatter.FormatEqualityOperator(ExpressionType.Equal) + body;
 
         /// <inheritdoc />
         protected override string FormatBoolean(bool boolean) => boolean ? "true" : "false";
@@ -115,21 +115,5 @@
 
             return base.NeedsRightBrackets(outerEffectiveType, outer, innerEffectiveType, inner);
         }
-
-        /// <summary>
-        /// Formats an equality operator as a string.
-        /// </summary>
-        /// <param name="op">The equality operator.</param>
-        /// <returns>The string representation of the operator.</returns>
-        private static string FormatEqualityOperator(ExpressionType op) =>
-            op switch
-            {
-                ExpressionType.Equal => "=",
-                ExpressionType.NotEqual => "!=",
-                ExpressionType.GreaterThan => ">",
-                ExpressionType.GreaterThanOrEqual => ">=",
-                ExpressionType.LessThan => "<",
-                ExpressionType.LessThanOrEqual => "<=",
-            };
     }
 }

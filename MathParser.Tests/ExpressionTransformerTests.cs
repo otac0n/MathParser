@@ -7,6 +7,7 @@ namespace MathParser.Tests
     using System.Linq;
     using System.Text;
     using MathParser.Testing;
+    using MathParser.Text;
     using NUnit.Framework;
 
     [TestFixture]

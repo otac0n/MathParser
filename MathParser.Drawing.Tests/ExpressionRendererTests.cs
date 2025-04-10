@@ -6,6 +6,7 @@ namespace MathParser.Drawing.Tests
     using System.Drawing;
     using System.Linq.Expressions;
     using MathParser.Testing;
+    using MathParser.Text;
     using NUnit.Framework;
 
     [TestFixture]

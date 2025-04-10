@@ -2,5 +2,7 @@ f(x)=1; x!=0
 (parsed)
 x => IIF((x != Convert(0, Complex)), 1, Double.System.Numerics.IFloatingPointIeee754<System.Double>.NaN)
 (transformed)
-f(x)=1; x!=0
+f(x)=1; x≠0
+(parsed)
+x => IIF((x != Convert(0, Complex)), 1, Double.System.Numerics.IFloatingPointIeee754<System.Double>.NaN)
 (stable)
