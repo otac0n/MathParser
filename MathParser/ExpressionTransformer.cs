@@ -6,6 +6,7 @@ namespace MathParser
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Numerics;
     using WKC = WellKnownConstants;
@@ -157,6 +158,13 @@ namespace MathParser
         /// <param name="body">The the expression defining the function.</param>
         /// <returns>The lambda expression.</returns>
         protected abstract T CreateLambda(string name, T[] parameters, T body);
+
+        /// <summary>
+        /// Constructs a matrix expression.
+        /// </summary>
+        /// <param name="cells">The cells of the matrix.</param>
+        /// <returns>The matrix expression.</returns>
+        protected abstract T CreateMatrix(T[,] cells);
 
         /// <summary>
         /// Constructs an expression representing a boolean value.
@@ -668,6 +676,42 @@ namespace MathParser
             ArgumentNullException.ThrowIfNull(node);
 
             throw new NotSupportedException($"The method '{node.Method.DeclaringType.FullName}.{node.Method.Name}' is not supported for expression transformation.");
+        }
+
+        /// <inheritdoc/>
+        protected override Expression VisitNewArray(NewArrayExpression node)
+        {
+            T[,] cells;
+
+            var elementType = node.Type.GetElementType();
+            if (elementType.IsArray && node.Expressions.All(e => e.NodeType == ExpressionType.NewArrayInit))
+            {
+                // Matrix or row vector.
+                var columns = node.Expressions.Max(e => ((NewArrayExpression)e).Expressions.Count);
+                cells = new T[columns, node.Expressions.Count];
+                for (var i = 0; i < node.Expressions.Count; i++)
+                {
+                    var row = (NewArrayExpression)node.Expressions[i];
+                    for (var j = 0; j < row.Expressions.Count; j++)
+                    {
+                        this.Visit(row.Expressions[j]);
+                        cells[i, j] = this.Result;
+                    }
+                }
+            }
+            else
+            {
+                // Column vector.
+                cells = new T[1, node.Expressions.Count];
+                for (var i = 0; i < node.Expressions.Count; i++)
+                {
+                    this.Visit(node.Expressions[i]);
+                    cells[0, i] = this.Result;
+                }
+            }
+
+            this.Result = this.CreateMatrix(cells);
+            return node;
         }
 
         /// <inheritdoc />

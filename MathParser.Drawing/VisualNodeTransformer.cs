@@ -91,6 +91,8 @@ namespace MathParser.Drawing
             return new BaselineAlignedVisualNode(new StringVisualNode(name), new BracketedVisualNode("(", new BaselineAlignedVisualNode(argumentNodes), ")"), new StringVisualNode(OperatorFormatter.FormatOperator(ExpressionType.Equal)), body);
         }
 
+        protected override VisualNode CreateMatrix(VisualNode[,] cells) => new BracketedVisualNode("[", new TableVisualNode(cells), "]");
+
         /// <inheritdoc />
         protected override VisualNode FormatBoolean(bool boolean) => new StringVisualNode(boolean ? "true" : "false");
 
