@@ -112,11 +112,11 @@ primary <Expression> -memoize
     / decimal
 
 matrix <Expression>
-    = "[" rows:vector "]" {  Expression.NewArrayInit(typeof(Complex[]), rows) }
+    = "[" rows:vector+ "]" {  Expression.NewArrayInit(typeof(Complex[]), rows) }
     / column:vector
 
 vector <Expression>
-    = "[" cells:conditional<0,,_ "," _> "]" { Expression.NewArrayInit(typeof(Complex), cells) }
+    = "[" cells:conditional<0,,_ "," _> "]" { Expression.NewArrayInit(typeof(Complex), cells.Select(c => Scope.ConvertIfLower(c, to: typeof(Complex)))) }
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }

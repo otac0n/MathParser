@@ -1,0 +1,6 @@
+[[a, b, c][d, e, f][g, h, i]]
+(parsed)
+new [] {new [] {a, b, c}, new [] {d, Convert(Math.E, Complex), f}, new [] {g, h, Complex.ImaginaryOne}}
+(transformed)
+[[a, b, c][d, e, f][g, h, i]]
+(stable)

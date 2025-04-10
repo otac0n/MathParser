@@ -57,7 +57,11 @@
         protected override string CreateEquality(string left, ExpressionType op, string right) => left + FormatOperator(op) + right;
 
         /// <inheritdoc />
-        protected override string CreateMatrix(string[,] cells) => "[" + string.Concat(Enumerable.Range(cells.GetLowerBound(1), cells.GetLength(1)).Select(j => "[" + string.Join(", ", Enumerable.Range(cells.GetLowerBound(0), cells.GetLength(0)).Select(i => cells[i, j])) + "]")) + "]";
+        protected override string CreateMatrix(string[,] cells) => "[" + (
+            cells.GetLength(1) == 1
+                ? string.Join(", ", Enumerable.Range(cells.GetLowerBound(0), cells.GetLength(0)).Select(i => cells[i, cells.GetLowerBound(1)]))
+                : string.Concat(Enumerable.Range(cells.GetLowerBound(0), cells.GetLength(0)).Select(i => "[" + string.Join(", ", Enumerable.Range(cells.GetLowerBound(1), cells.GetLength(1)).Select(j => cells[i, j])) + "]"))
+            ) + "]";
 
         /// <inheritdoc />
         protected override string CreateLambda(string name, string[] parameters, string body) => name + "(" + string.Join(", ", parameters) + ")" + FormatOperator(ExpressionType.Equal) + body;

@@ -260,6 +260,9 @@ namespace MathParser.Testing
             "f(x)=2*(x; x!=0)*x",
             "f(x)=2*iif(x!=0, x, 0)*x",
             "(x+y; x!=0); x!=0",
+            "[a, b, c]",
+            "[[a, b, c]]",
+            "[[a, b, c][d, e, f][g, h, i]]",
         ];
 
         public static string[] SimplifyStrings =>

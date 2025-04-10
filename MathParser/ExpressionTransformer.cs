@@ -688,7 +688,7 @@ namespace MathParser
             {
                 // Matrix or row vector.
                 var columns = node.Expressions.Max(e => ((NewArrayExpression)e).Expressions.Count);
-                cells = new T[columns, node.Expressions.Count];
+                cells = new T[node.Expressions.Count, columns];
                 for (var i = 0; i < node.Expressions.Count; i++)
                 {
                     var row = (NewArrayExpression)node.Expressions[i];
@@ -702,11 +702,11 @@ namespace MathParser
             else
             {
                 // Column vector.
-                cells = new T[1, node.Expressions.Count];
+                cells = new T[node.Expressions.Count, 1];
                 for (var i = 0; i < node.Expressions.Count; i++)
                 {
                     this.Visit(node.Expressions[i]);
-                    cells[0, i] = this.Result;
+                    cells[i, 0] = this.Result;
                 }
             }
 

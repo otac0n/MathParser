@@ -1,0 +1,6 @@
+[a, b, c]
+(parsed)
+new [] {a, b, c}
+(transformed)
+[a, b, c]
+(stable)
