@@ -3,6 +3,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using static OperatorFormatter;
 
     /// <summary>
     /// Converts expressions to their string representation. Can be overridden.
@@ -14,31 +15,31 @@
         protected override string AddBrackets(string left, string expression, string right) => left + expression + right;
 
         /// <inheritdoc />
-        protected override string CreateNot(string expression) => "!" + expression;
+        protected override string CreateNot(string expression) => FormatOperator(ExpressionType.Not) + expression;
 
         /// <inheritdoc />
-        protected override string CreateAnd(string left, string right) => left + " and " + right;
+        protected override string CreateAnd(string left, string right) => left + $" {FormatOperator(ExpressionType.And)} " + right;
 
         /// <inheritdoc />
-        protected override string CreateOr(string left, string right) => left + " or " + right;
+        protected override string CreateOr(string left, string right) => left + $" {FormatOperator(ExpressionType.Or)} " + right;
 
         /// <inheritdoc />
-        protected override string CreateAdd(string augend, string addend) => augend + "+" + addend;
+        protected override string CreateAdd(string augend, string addend) => augend + FormatOperator(ExpressionType.Add) + addend;
 
         /// <inheritdoc />
-        protected override string CreateDivide(string dividend, string divisor) => dividend + "/" + divisor;
+        protected override string CreateDivide(string dividend, string divisor) => dividend + FormatOperator(ExpressionType.Divide) + divisor;
 
         /// <inheritdoc />
-        protected override string CreateMultiply(string multiplicand, string multiplier) => multiplicand + "·" + multiplier;
+        protected override string CreateMultiply(string multiplicand, string multiplier) => multiplicand + FormatOperator(ExpressionType.Multiply) + multiplier;
 
         /// <inheritdoc />
-        protected override string CreateNegate(string expression) => "-" + expression;
+        protected override string CreateNegate(string expression) => FormatOperator(ExpressionType.Negate) + expression;
 
         /// <inheritdoc />
-        protected override string CreatePower(string @base, string exponent) => @base + "^" + exponent;
+        protected override string CreatePower(string @base, string exponent) => @base + FormatOperator(ExpressionType.Power) + exponent;
 
         /// <inheritdoc />
-        protected override string CreateSubtract(string minuend, string subtrahend) => minuend + "-" + subtrahend;
+        protected override string CreateSubtract(string minuend, string subtrahend) => minuend + FormatOperator(ExpressionType.Subtract) + subtrahend;
 
         /// <inheritdoc />
         protected override string CreateConditional((string condition, string consequent)[] conditions, string alternative) =>
@@ -53,10 +54,10 @@
         protected override string CreateRadical(string expression) => "√" + expression;
 
         /// <inheritdoc />
-        protected override string CreateEquality(string left, ExpressionType op, string right) => left + OperatorFormatter.FormatEqualityOperator(op) + right;
+        protected override string CreateEquality(string left, ExpressionType op, string right) => left + FormatOperator(op) + right;
 
         /// <inheritdoc />
-        protected override string CreateLambda(string name, string[] parameters, string body) => name + "(" + string.Join(", ", parameters) + ")" + OperatorFormatter.FormatEqualityOperator(ExpressionType.Equal) + body;
+        protected override string CreateLambda(string name, string[] parameters, string body) => name + "(" + string.Join(", ", parameters) + ")" + FormatOperator(ExpressionType.Equal) + body;
 
         /// <inheritdoc />
         protected override string FormatBoolean(bool boolean) => boolean ? "true" : "false";

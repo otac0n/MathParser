@@ -82,13 +82,13 @@ namespace MathParser.Drawing
         protected override VisualNode CreateRadical(VisualNode expression) => new RadicalVisualNode(expression);
 
         /// <inheritdoc />
-        protected override VisualNode CreateEquality(VisualNode left, ExpressionType op, VisualNode right) => new BaselineAlignedVisualNode(left, new StringVisualNode(OperatorFormatter.FormatEqualityOperator(op)), right);
+        protected override VisualNode CreateEquality(VisualNode left, ExpressionType op, VisualNode right) => new BaselineAlignedVisualNode(left, new StringVisualNode(OperatorFormatter.FormatOperator(op)), right);
 
         /// <inheritdoc />
         protected override VisualNode CreateLambda(string name, VisualNode[] parameters, VisualNode body)
         {
             var argumentNodes = Enumerable.Range(0, parameters.Length * 2 - 1).Select(i => i % 2 == 0 ? parameters[i / 2] : new StringVisualNode(",")).ToArray();
-            return new BaselineAlignedVisualNode(new StringVisualNode(name), new BracketedVisualNode("(", new BaselineAlignedVisualNode(argumentNodes), ")"), new StringVisualNode(OperatorFormatter.FormatEqualityOperator(ExpressionType.Equal)), body);
+            return new BaselineAlignedVisualNode(new StringVisualNode(name), new BracketedVisualNode("(", new BaselineAlignedVisualNode(argumentNodes), ")"), new StringVisualNode(OperatorFormatter.FormatOperator(ExpressionType.Equal)), body);
         }
 
         /// <inheritdoc />
