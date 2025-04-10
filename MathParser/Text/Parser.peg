@@ -99,9 +99,8 @@ power <Expression> -memoize
     / primary
 
 primary <Expression> -memoize
-    = decimal
+    = "iif(" _ condition:disjunction _ "," _ consequent:conditional _ "," _ alternative:conditional _ ")" { Scope.Conditional(condition, consequent, alternative) }
     / namedConstant
-    / "iif(" _ condition:disjunction _ "," _ consequent:conditional _ "," _ alternative:conditional _ ")" { Scope.Conditional(condition, consequent, alternative) }
     / name:identifier "(" _ arguments:conditional<0,,_ "," _> _ ")" { Scope.Function(name, arguments) }
     / variable
     / "√" _ negation:negationPrimary { Scope.Sqrt(negation) }
@@ -109,6 +108,15 @@ primary <Expression> -memoize
     / "|" _ conditional:conditional _ "|" { Scope.Abs(conditional) }
     / "⌈" _ conditional:conditional _ "⌉" { Scope.Ceiling(conditional) }
     / "⌊" _ conditional:conditional _ "⌋" { Scope.Floor(conditional) }
+    / matrix
+    / decimal
+
+matrix <Expression>
+    = "[" rows:vector "]" {  Expression.NewArrayInit(typeof(Complex[]), rows) }
+    / column:vector
+
+vector <Expression>
+    = "[" cells:conditional<0,,_ "," _> "]" { Expression.NewArrayInit(typeof(Complex), cells) }
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
