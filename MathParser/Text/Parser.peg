@@ -100,6 +100,7 @@ power <Expression> -memoize
 
 primary <Expression> -memoize
     = decimal
+    / summation
     / namedConstant
     / "iif(" _ condition:disjunction _ "," _ consequent:conditional _ "," _ alternative:conditional _ ")" { Scope.Conditional(condition, consequent, alternative) }
     / name:identifier "(" _ arguments:conditional<0,,_ "," _> _ ")" { Scope.Function(name, arguments) }
@@ -109,6 +110,9 @@ primary <Expression> -memoize
     / "|" _ conditional:conditional _ "|" { Scope.Abs(conditional) }
     / "⌈" _ conditional:conditional _ "⌉" { Scope.Ceiling(conditional) }
     / "⌊" _ conditional:conditional _ "⌋" { Scope.Floor(conditional) }
+
+summation <Expression>
+    = "Σ" _ variable:variable "=" _ "[" _ min:conditional _ "," _ max:conditional _ "]" _ expr:conditional { Scope.Summation(min, max, variable, expr) }
 
 decimal <Expression>
     = value:([0-9]+ ("." [0-9]+)?) { Expression.Constant(double.Parse(value)) }
@@ -121,8 +125,8 @@ namedConstant <Expression>
     / "∞" { Scope.Inf() }
     / "i" !idChar { Scope.I() }
 
-variable <Expression>
-    = name:identifier #{ CreateVariable(state, name); } { (Expression)state[name] }
+variable <ParameterExpression>
+    = name:identifier #{ CreateVariable(state, name); } { (ParameterExpression)state[name] }
 
 identifier
     = !keyword [_a-z]i idChar*

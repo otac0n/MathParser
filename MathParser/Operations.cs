@@ -30,6 +30,13 @@ namespace MathParser
             return new DerivativeVisitor(scope, variable).Visit(expression);
         }
 
+        public static Expression Summation(this Scope scope, Expression min, Expression max, ParameterExpression variable, Expression body)
+        {
+            var lambda = Expression.Lambda(scope.LowerToReal(body), variable);
+            var range = Expression.Call(typeof(Enumerable).GetMethod(nameof(Enumerable.Range))!, Expression.Convert(scope.LowerToReal(min), typeof(int)), Expression.Convert(scope.LowerToReal(max), typeof(int)));
+            return Expression.Call(typeof(Enumerable), nameof(Enumerable.Sum), [typeof(int), lambda.Body.Type], range, lambda);
+        }
+
         public static Expression Zero(this Scope scope) => scope.BindConstant(WKC.Zero);
 
         public static Expression One(this Scope scope) => scope.BindConstant(WKC.One);
