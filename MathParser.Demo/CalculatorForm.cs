@@ -72,13 +72,24 @@ namespace MathParser.Demo
             this.resultDisplay.Text = this.display.ResultText;
             this.expressionDisplay.Image = this.display.ExpressionImage;
 
+            var renderExpression = this.expression;
             this.plotView.Model = null;
-            if (this.expression != null)
+            if (renderExpression != null)
             {
-                if (this.expression is LambdaExpression lambda && lambda.Parameters.Count == 1)
-                {
-                    Func<double, double> plot = null;
+                Func<double, double> plot = null;
 
+                if (renderExpression is not LambdaExpression)
+                {
+                    var searcher = new ParameterVisitor();
+                    var parameters = searcher.Search(renderExpression);
+                    if (parameters.Count == 1)
+                    {
+                        renderExpression = Expression.Lambda(renderExpression, parameters);
+                    }
+                }
+
+                if (renderExpression is LambdaExpression lambda && lambda.Parameters.Count == 1)
+                {
                     try
                     {
                         var compiled = lambda.Compile();
@@ -112,13 +123,13 @@ namespace MathParser.Demo
                     catch (Exception)
                     {
                     }
+                }
 
-                    if (plot != null)
-                    {
-                        var model = new PlotModel();
-                        model.Series.Add(new FunctionSeries(plot, -10, 10, 0.01, this.display.ExpressionText));
-                        this.plotView.Model = model;
-                    }
+                if (plot != null)
+                {
+                    var model = new PlotModel();
+                    model.Series.Add(new FunctionSeries(plot, -10, 10, 0.01, this.display.ExpressionText));
+                    this.plotView.Model = model;
                 }
             }
         }
