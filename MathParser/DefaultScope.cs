@@ -24,6 +24,8 @@ namespace MathParser
             .AddSystemDouble()
             .AddSystemNumericsComplex()
             .AddSystemSingle()
+            .AddSystemNumericsVector()
+            .AddSystemNumericsMatrix()
             .Freeze();
 
         public static Scope AddWellKnownObjects(this Scope scope)
@@ -159,6 +161,23 @@ namespace MathParser
                 .Add((Complex x) => x.Imaginary, WKF.Complex.ImaginaryPart)
                 .Add((Complex x) => x.Phase, WKF.Complex.Argument)
                 .Add((Complex x) => Complex.Conjugate(x), WKF.Complex.Conjugate);
+            return scope;
+        }
+
+        public static Scope AddSystemNumericsVector(this Scope scope)
+        {
+            scope
+                .Add(typeof(Vector2))
+                .Add(typeof(Vector3))
+                .Add(typeof(Vector4));
+            return scope;
+        }
+
+        public static Scope AddSystemNumericsMatrix(this Scope scope)
+        {
+            scope
+                .Add(typeof(Matrix3x2))
+                .Add(typeof(Matrix4x4));
             return scope;
         }
     }

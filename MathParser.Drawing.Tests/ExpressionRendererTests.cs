@@ -20,6 +20,8 @@ namespace MathParser.Drawing.Tests
         }
 
         [TestCaseSource(typeof(TestData), nameof(TestData.ComplexExpressions))]
+        [TestCaseSource(typeof(TestData), nameof(TestData.MatrixExpressions))]
+        [TestCaseSource(typeof(TestData), nameof(TestData.VectorExpressions))]
         public void MeasureAndDrawExpression_ApprovalTest(LambdaExpression lambda)
         {
             ExpressionRendererTestHelper(lambda.Body, DefaultScope.Instance);

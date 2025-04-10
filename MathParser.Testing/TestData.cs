@@ -99,6 +99,42 @@ namespace MathParser.Testing
             () => Complex.Reciprocal(Complex.One + Complex.One),
         ];
 
+        public static LambdaExpression[] VectorExpressions =>
+        [
+            () => default(Vector2),
+            () => new Vector2(),
+            () => new Vector2(0, 1),
+            (float x) => new Vector2(x),
+            (float x) => Vector2.Create(x),
+            () => Vector2.Create(0, 1),
+            () => Vector2.NegativeInfinity,
+            () => Vector2.PositiveInfinity,
+            () => default(Vector3),
+            () => new Vector3(),
+            () => new Vector3(0, 1, 2),
+            (float x) => new Vector3(x),
+            (float x) => Vector3.Create(x),
+            () => Vector3.Create(0, 1, 2),
+            () => Vector3.NegativeInfinity,
+            () => Vector3.PositiveInfinity,
+            () => default(Vector4),
+            () => new Vector4(),
+            () => new Vector4(0, 1, 2, 3),
+            (float x) => new Vector4(x),
+            (float x) => Vector4.Create(x),
+            () => Vector4.Create(0, 1, 2, 3),
+            () => Vector4.NegativeInfinity,
+            () => Vector4.PositiveInfinity,
+        ];
+
+        public static LambdaExpression[] MatrixExpressions =>
+        [
+            () => Matrix3x2.Identity,
+            () => new Matrix3x2(0, 1, 2, 3, 4, 5),
+            () => Matrix4x4.Identity,
+            () => new Matrix4x4(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15),
+        ];
+
         public static string[] ExpressionStrings =>
         [
             "τ+π",
