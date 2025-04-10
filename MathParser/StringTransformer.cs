@@ -94,9 +94,9 @@
             if (scope.MatchSqrt(outer, out _))
             {
                 var outerPrecedence = Precedence.Exponential;
-                var innerPrecedence = GetPrecedence(innerEffectiveType);
+                var innerPrecedence = scope.GetPrecedence(innerEffectiveType);
                 var exposed = this.GetLeftExposedType(innerEffectiveType, inner); // Assumed to be a lower precedence than innerEffectiveType if changed.
-                var exposedPrecedence = GetPrecedence(exposed);
+                var exposedPrecedence = scope.GetPrecedence(exposed);
 
                 if (exposedPrecedence != innerPrecedence)
                 {

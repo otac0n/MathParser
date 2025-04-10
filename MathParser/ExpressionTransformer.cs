@@ -12,27 +12,6 @@ namespace MathParser
     using WKF = WellKnownFunctions;
 
     /// <summary>
-    /// Indicates the associativity of an operator.
-    /// </summary>
-    public enum Associativity
-    {
-        /// <summary>
-        /// The operator is not associative.
-        /// </summary>
-        None = 0,
-
-        /// <summary>
-        /// The operator is left-associative.
-        /// </summary>
-        Left,
-
-        /// <summary>
-        /// The operator is right-associative.
-        /// </summary>
-        Right,
-    }
-
-    /// <summary>
     /// An expression visitor that formats a mathematical expression as it goes.
     /// </summary>
     /// <typeparam name="T">The type of nodes in the mathematical expression.</typeparam>
@@ -51,120 +30,6 @@ namespace MathParser
         /// Gets the scope in which the transformations are performed.
         /// </summary>
         public Scope Scope => scope;
-
-        /// <summary>
-        /// Gets the associativity of the operator given its precedence.
-        /// </summary>
-        /// <param name="precedence">The precedence obtained by calling <see cref="GetPrecedence(ExpressionType)"/>.</param>
-        /// <returns>The operator's associativity.</returns>
-        protected static Associativity GetAssociativity(Precedence precedence)
-        {
-            switch (precedence)
-            {
-                case Precedence.Disjunction:
-                case Precedence.Conjunction:
-                case Precedence.Additive:
-                case Precedence.Multiplicative:
-                    return Associativity.Left;
-
-                case Precedence.Exponential:
-                    return Associativity.Right;
-
-                default:
-                    return Associativity.None;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating the precedence of the specified operator type.
-        /// </summary>
-        /// <param name="effectiveType">The operator type.</param>
-        /// <returns>A value indicating the precedence of the specified operator type.</returns>
-        protected static Precedence GetPrecedence(ExpressionType effectiveType)
-        {
-            switch (effectiveType)
-            {
-                case ExpressionType.Conditional:
-                    return Precedence.Conditional;
-
-                case ExpressionType.Or:
-                    return Precedence.Disjunction;
-
-                case ExpressionType.And:
-                    return Precedence.Conjunction;
-
-                case ExpressionType.Equal:
-                case ExpressionType.NotEqual:
-                case ExpressionType.GreaterThan:
-                case ExpressionType.GreaterThanOrEqual:
-                case ExpressionType.LessThan:
-                case ExpressionType.LessThanOrEqual:
-                    return Precedence.Comparison;
-
-                case ExpressionType.Add:
-                case ExpressionType.Subtract:
-                    return Precedence.Additive;
-
-                case ExpressionType.Multiply:
-                case ExpressionType.Divide:
-                case ExpressionType.Modulo:
-                    return Precedence.Multiplicative;
-
-                case ExpressionType.Negate:
-                case ExpressionType.Not:
-                    return Precedence.Unary;
-
-                case ExpressionType.Power:
-                    return Precedence.Exponential;
-
-                case ExpressionType.Call:
-                    return Precedence.Primary;
-
-                default:
-                    return Precedence.Unknown;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indicating the whether or not the two specified operator types are fully associative.
-        /// </summary>
-        /// <param name="left">The left operator type.</param>
-        /// <param name="right">The right operator type.</param>
-        /// <returns>A value indicating the whether or not the two specified operator types are fully associative.</returns>
-        protected static bool IsFullyAssociative(ExpressionType left, ExpressionType right)
-        {
-            if (left == ExpressionType.And && right == ExpressionType.And)
-            {
-                return true;
-            }
-
-            if (left == ExpressionType.Or && right == ExpressionType.Or)
-            {
-                return true;
-            }
-
-            if (left == ExpressionType.Not && right == ExpressionType.Not)
-            {
-                return true;
-            }
-
-            if (left == ExpressionType.Add && right == ExpressionType.Add)
-            {
-                return true;
-            }
-
-            if (left == ExpressionType.Multiply && right == ExpressionType.Multiply)
-            {
-                return true;
-            }
-
-            if (left == ExpressionType.Negate && right == ExpressionType.Negate)
-            {
-                return true;
-            }
-
-            return false;
-        }
 
         /// <summary>
         /// Constructs a bracketed expression.
@@ -378,12 +243,12 @@ namespace MathParser
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
         protected virtual bool NeedsLeftBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
-            var outerPrecedence = GetPrecedence(outerEffectiveType);
-            var innerPrecedence = GetPrecedence(innerEffectiveType);
-            var innerAssociativity = GetAssociativity(innerPrecedence);
-            var fullyAssociative = IsFullyAssociative(innerEffectiveType, outerEffectiveType);
+            var outerPrecedence = scope.GetPrecedence(outerEffectiveType);
+            var innerPrecedence = scope.GetPrecedence(innerEffectiveType);
+            var innerAssociativity = scope.GetAssociativity(innerPrecedence);
+            var fullyAssociative = scope.IsFullyAssociative(innerEffectiveType, outerEffectiveType);
             var exposed = this.GetRightExposedType(innerEffectiveType, inner); // Assumed to be a lower precedence than innerEffectiveType if changed.
-            var exposedPrecedence = GetPrecedence(exposed);
+            var exposedPrecedence = scope.GetPrecedence(exposed);
 
             if (exposedPrecedence != innerPrecedence)
             {
@@ -416,12 +281,12 @@ namespace MathParser
         /// <returns><c>true</c>, if brackets should be used; <c>false</c>, otherwise.</returns>
         protected virtual bool NeedsRightBrackets(ExpressionType outerEffectiveType, Expression outer, ExpressionType innerEffectiveType, Expression inner)
         {
-            var outerPrecedence = GetPrecedence(outerEffectiveType);
-            var innerPrecedence = GetPrecedence(innerEffectiveType);
-            var innerAssociativity = GetAssociativity(innerPrecedence);
-            var fullyAssociative = IsFullyAssociative(outerEffectiveType, innerEffectiveType);
+            var outerPrecedence = scope.GetPrecedence(outerEffectiveType);
+            var innerPrecedence = scope.GetPrecedence(innerEffectiveType);
+            var innerAssociativity = scope.GetAssociativity(innerPrecedence);
+            var fullyAssociative = scope.IsFullyAssociative(outerEffectiveType, innerEffectiveType);
             var exposed = this.GetLeftExposedType(innerEffectiveType, inner); // Assumed to be a lower precedence than innerEffectiveType if changed.
-            var exposedPrecedence = GetPrecedence(exposed);
+            var exposedPrecedence = scope.GetPrecedence(exposed);
 
             if (exposedPrecedence != innerPrecedence)
             {
@@ -853,21 +718,13 @@ namespace MathParser
         {
             ArgumentNullException.ThrowIfNull(expression);
 
-            var actualType = expression.NodeType;
-
-            if (scope.TryBindFunction(expression, out var knownMethod, out _))
+            var effectiveType = scope.GetEffectiveType(ref expression, out var knownObject);
+            if (knownObject == WKF.Exponential.Exp)
             {
-                if (WKF.ExpressionTypeLookup.TryGetValue(knownMethod, out var knownType))
-                {
-                    return knownType;
-                }
-                else if (knownMethod == WKF.Exponential.Exp)
-                {
-                    return ExpressionType.Power;
-                }
+                return ExpressionType.Power;
             }
 
-            if (actualType == ExpressionType.New && expression.Type == typeof(Complex))
+            if (effectiveType == ExpressionType.New && expression.Type == typeof(Complex))
             {
                 var node = (NewExpression)expression;
                 if (node.Arguments.Count == 2 && node.Arguments[0].NodeType == ExpressionType.Constant && node.Arguments[1].NodeType == ExpressionType.Constant)
@@ -877,9 +734,8 @@ namespace MathParser
                     return this.GetEffectiveTypeComplex(real, imaginary);
                 }
             }
-            else if (actualType == ExpressionType.Constant)
+            else if (effectiveType == ExpressionType.Constant && expression is ConstantExpression constantExpression)
             {
-                var constantExpression = (ConstantExpression)expression;
                 if (expression.Type == typeof(double) || expression.Type == typeof(float) || expression.Type == typeof(int) || expression.Type == typeof(uint) || expression.Type == typeof(long) || expression.Type == typeof(ulong) || expression.Type == typeof(short) || expression.Type == typeof(ushort))
                 {
                     return this.GetEffectiveTypeComplex(Convert.ToDouble(constantExpression.Value, CultureInfo.InvariantCulture), 0);
@@ -890,14 +746,8 @@ namespace MathParser
                     return this.GetEffectiveTypeComplex(value.Real, value.Imaginary);
                 }
             }
-            else if (
-                actualType == ExpressionType.Convert ||
-                actualType == ExpressionType.ConvertChecked)
-            {
-                return this.GetEffectiveNodeType(((UnaryExpression)expression).Operand);
-            }
 
-            return actualType;
+            return effectiveType;
         }
     }
 }

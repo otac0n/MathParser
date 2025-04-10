@@ -66,6 +66,152 @@
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
+        /// <summary>
+        /// Gets the associativity of the operator given its precedence.
+        /// </summary>
+        /// <param name="precedence">The precedence obtained by calling <see cref="GetPrecedence(ExpressionType)"/>.</param>
+        /// <returns>The operator's associativity.</returns>
+        public Associativity GetAssociativity(Precedence precedence)
+        {
+            switch (precedence)
+            {
+                case Precedence.Disjunction:
+                case Precedence.Conjunction:
+                case Precedence.Additive:
+                case Precedence.Multiplicative:
+                    return Associativity.Left;
+
+                case Precedence.Exponential:
+                    return Associativity.Right;
+
+                default:
+                    return Associativity.None;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating the precedence of the specified operator type.
+        /// </summary>
+        /// <param name="effectiveType">The operator type.</param>
+        /// <returns>A value indicating the precedence of the specified operator type.</returns>
+        public Precedence GetPrecedence(ExpressionType effectiveType)
+        {
+            switch (effectiveType)
+            {
+                case ExpressionType.Conditional:
+                    return Precedence.Conditional;
+
+                case ExpressionType.Or:
+                    return Precedence.Disjunction;
+
+                case ExpressionType.And:
+                    return Precedence.Conjunction;
+
+                case ExpressionType.Equal:
+                case ExpressionType.NotEqual:
+                case ExpressionType.GreaterThan:
+                case ExpressionType.GreaterThanOrEqual:
+                case ExpressionType.LessThan:
+                case ExpressionType.LessThanOrEqual:
+                    return Precedence.Comparison;
+
+                case ExpressionType.Add:
+                case ExpressionType.Subtract:
+                    return Precedence.Additive;
+
+                case ExpressionType.Multiply:
+                case ExpressionType.Divide:
+                case ExpressionType.Modulo:
+                    return Precedence.Multiplicative;
+
+                case ExpressionType.Negate:
+                case ExpressionType.Not:
+                    return Precedence.Unary;
+
+                case ExpressionType.Power:
+                    return Precedence.Exponential;
+
+                case ExpressionType.Call:
+                case ExpressionType.Constant:
+                case ExpressionType.Parameter:
+                    return Precedence.Primary;
+
+                default:
+                    return Precedence.Unknown;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating the whether or not the two specified operator types are fully associative.
+        /// </summary>
+        /// <param name="left">The left operator type.</param>
+        /// <param name="right">The right operator type.</param>
+        /// <returns>A value indicating the whether or not the two specified operator types are fully associative.</returns>
+        public bool IsFullyAssociative(ExpressionType left, ExpressionType right)
+        {
+            if (left == ExpressionType.And && right == ExpressionType.And)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Or && right == ExpressionType.Or)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Not && right == ExpressionType.Not)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Add && right == ExpressionType.Add)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Multiply && right == ExpressionType.Multiply)
+            {
+                return true;
+            }
+
+            if (left == ExpressionType.Negate && right == ExpressionType.Negate)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public ExpressionType GetEffectiveType(ref Expression expression, out IKnownObject? knownObject)
+        {
+            if (expression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked)
+            {
+                // TODO: Handle explicit casts. e.g. (int)double -> WKF.Piecewice.Truncate
+                expression = ((UnaryExpression)expression).Operand;
+                return this.GetEffectiveType(ref expression, out knownObject);
+            }
+
+            if (this.TryBindConstant(expression, out var knownConstant))
+            {
+                knownObject = knownConstant;
+                return ExpressionType.Constant;
+            }
+            else if (this.TryBindFunction(expression, out var knownMethod, out _))
+            {
+                knownObject = knownMethod;
+                if (WKF.ExpressionTypeLookup.TryGetValue(knownMethod, out var knownType))
+                {
+                    return knownType;
+                }
+            }
+            else
+            {
+                knownObject = null;
+            }
+
+            return expression.NodeType;
+        }
+
         public Type? FindLargest(Type a, Type b)
         {
             if (a == b)
