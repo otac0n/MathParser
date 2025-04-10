@@ -15,7 +15,7 @@
         /// <summary>
         /// Gets the scope in which the transformations are performed.
         /// </summary>
-        //public Scope Scope => scope;
+        public Scope Scope => scope;
 
         /// <inheritdoc/>
         [return: NotNullIfNotNull(nameof(node))]
@@ -713,17 +713,92 @@
             return false;
         }
 
-        private int CompareNodes(Expression a, Expression b, bool constantsFirst = false)
+        /// <remarks>
+        /// - Sort constants:
+        ///   - After  all others, except in multiplication. (`x + 2` and `2 * x`)
+        ///   - Symbolic ahead of literal, except in multiplication. (`x + π + 2` and `2 * π * x`)
+        ///   - In order by magnitude (`∞ + 8 + 1 + 0` and `∞ * 8 * 1 * 0`)
+        ///       - Ties won by positive values, except in multiplication. (`∞ + -∞ + 8 + -8` and `-∞ * ∞ * -8 * 8`)
+        ///   - In multiplication:
+        ///     - Sort constants first. `3 * x^2 * (x + 1) * sin(f())`
+        ///   - In all other cases: (including outside of an operator!)
+        ///     - Sort constants last. `x^x + x^2 + x + 1`
+        /// - Sort variables:
+        ///    - Ahead of functions.
+        ///    - Lexicographically.
+        ///    - By power.
+		/// Sort operations by precedence.
+        /// Sort anything to a power by its base then its exponent.
+        /// </remarks>
+        private int CompareNodes(Expression a, Expression b, bool constantsLargest = false)
         {
-            var constantA = scope.IsConstantValue(a, out _);
-            var constantB = scope.IsConstantValue(b, out _);
+            var aType = scope.GetEffectiveType(ref a, out var aObject);
+            var bType = scope.GetEffectiveType(ref b, out var bObject);
+
+            // Constants highest priority.
+            var constantA = aType == ExpressionType.Constant;
+            var constantB = bType == ExpressionType.Constant;
             if (constantA && constantB)
             {
-                return 0;
+                var symbolA = aObject as KnownConstant;
+                var symbolB = bObject as KnownConstant;
+                var symbolicA = symbolA is not null;
+                var symbolicB = symbolB is not null;
+                if (symbolicA && symbolicB)
+                {
+                    // TODO: Bind to a name?
+                    return string.Compare(symbolB!.Name, symbolA!.Name, StringComparison.Ordinal);
+                }
+                else if (!symbolicA && !symbolicB)
+                {
+                    // TODO: In order by magnitude.
+                    return 0;
+                }
+                else
+                {
+                    // Literal ahead of symbolic.
+                    return (symbolicA ? 1 : -1) * (constantsLargest ? -1 : 1);
+                }
             }
             else if (constantA ^ constantB)
             {
-                return (constantA ? -1 : 1) * (constantsFirst ? -1 : 1);
+                // Constants first or last, per the provided argument.
+                return (constantA ? -1 : 1) * (constantsLargest ? -1 : 1);
+            }
+
+            // Variables second priority.
+            var isParameterA = aType == ExpressionType.Parameter;
+            var isParameterB = bType == ExpressionType.Parameter;
+            if (isParameterA && isParameterB)
+            {
+                var paramA = (ParameterExpression)a;
+                var paramB = (ParameterExpression)b;
+                return string.Compare(paramB.Name, paramA.Name, StringComparison.Ordinal);
+            }
+            else if (isParameterA ^ isParameterB)
+            {
+                return isParameterA ? 1 : -1;
+            }
+
+            var aPrecedence = scope.GetPrecedence(aType);
+            var bPrecedence = scope.GetPrecedence(bType);
+
+            if (aPrecedence != bPrecedence)
+            {
+                return aPrecedence.CompareTo(bPrecedence);
+            }
+
+            // Power expressions.
+            if (scope.MatchPower(a, out var baseA, out var expA) &&
+                scope.MatchPower(b, out var baseB, out var expB))
+            {
+                var comparison = this.CompareNodes(baseA, baseB, constantsLargest);
+                if (comparison == 0)
+                {
+                    comparison = this.CompareNodes(expA, expB, false);
+                }
+
+                return comparison;
             }
 
             return 0;
@@ -821,8 +896,10 @@
             return false;
         }
 
-        private void GetFactorAndCoefficient(Expression expr, out Expression factor, out Expression? coefficient, bool negate = false)
+        private void GetFactorAndCoefficient(Expression expr, out Expression factor, out Expression? coefficient, bool negate = false, bool allowAdditiveFactor = false)
         {
+            bool RejectAdditiveFactors(Expression f) => !allowAdditiveFactor && scope.MatchAdd(f, out _, out _);
+
             // Correct, but causes infinte loop with distribution of negate through addition.
             if (false && scope.MatchNegate(expr, out var operand))
             {
@@ -832,13 +909,13 @@
 
             if (scope.MatchMultiply(expr, out var left, out var right))
             {
-                if (scope.IsConstantValue(left, out _))
+                if (!RejectAdditiveFactors(right) && scope.IsConstantValue(left, out _))
                 {
                     coefficient = negate ? this.SimplifyNegate(left) : left;
                     factor = right;
                     return;
                 }
-                else if (scope.IsConstantValue(right, out _))
+                else if (!RejectAdditiveFactors(left) && scope.IsConstantValue(right, out _))
                 {
                     coefficient = negate ? this.SimplifyNegate(right) : right;
                     factor = left;
