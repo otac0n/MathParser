@@ -34,8 +34,8 @@
             this.expressionDisplay = new System.Windows.Forms.PictureBox();
             this.resultDisplay = new System.Windows.Forms.TextBox();
             this.FontDialog = new System.Windows.Forms.FontDialog();
-            this.keyPad = new KeyPad();
             this.plotView = new OxyPlot.WindowsForms.PlotView();
+            this.keyPadButton = new System.Windows.Forms.Button();
             this.resultPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)this.expressionDisplay).BeginInit();
             this.SuspendLayout();
@@ -70,13 +70,6 @@
             this.resultDisplay.ReadOnly = true;
             this.resultDisplay.PreviewKeyDown += this.Control_PreviewKeyDown;
             // 
-            // keyPad
-            // 
-            resources.ApplyResources(this.keyPad, "keyPad");
-            this.keyPad.Name = "keyPad";
-            this.keyPad.KeyPress += this.KeyPad_KeyPress;
-            this.keyPad.PreviewKeyDown += this.Control_PreviewKeyDown;
-            // 
             // plotView
             // 
             resources.ApplyResources(this.plotView, "plotView");
@@ -86,13 +79,19 @@
             this.plotView.ZoomRectangleCursor = System.Windows.Forms.Cursors.SizeNWSE;
             this.plotView.ZoomVerticalCursor = System.Windows.Forms.Cursors.SizeNS;
             // 
+            // keyPadButton
+            // 
+            resources.ApplyResources(this.keyPadButton, "keyPadButton");
+            this.keyPadButton.Name = "keyPadButton";
+            this.keyPadButton.UseVisualStyleBackColor = true;
+            // 
             // CalculatorForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.keyPadButton);
             this.Controls.Add(this.plotView);
             this.Controls.Add(this.resultPanel);
-            this.Controls.Add(this.keyPad);
             this.Controls.Add(this.resultDisplay);
             this.Controls.Add(this.inputBox);
             this.KeyPreview = true;
@@ -115,8 +114,8 @@
         private System.Windows.Forms.PictureBox expressionDisplay;
         private System.Windows.Forms.TextBox resultDisplay;
         private System.Windows.Forms.FontDialog FontDialog;
-        private KeyPad keyPad;
         private OxyPlot.WindowsForms.PlotView plotView;
+        private System.Windows.Forms.Button keyPadButton;
     }
 }
 

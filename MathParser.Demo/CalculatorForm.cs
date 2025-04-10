@@ -18,6 +18,11 @@ namespace MathParser.Demo
         public CalculatorForm()
         {
             this.InitializeComponent();
+
+            this.keyPadButton.AttachDropDownContext(() =>
+                ControlExtensions.Construct<KeyPad>(keyPad =>
+                    keyPad.KeyPress += this.KeyPad_KeyPress));
+
             this.InputBox_TextChanged(this, null);
         }
 
