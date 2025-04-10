@@ -112,7 +112,7 @@ primary <Expression> -memoize
     / decimal
 
 matrix <Expression>
-    = "[" rows:vector+ "]" {  Expression.NewArrayInit(typeof(Complex[]), rows) }
+    = "[" rows:vector<1,,_ ("," _)?> "]" {  Expression.NewArrayInit(typeof(Complex[]), rows) }
     / column:vector
 
 vector <Expression>
