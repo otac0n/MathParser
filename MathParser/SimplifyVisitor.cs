@@ -103,7 +103,19 @@
                 return this.SimplifyDivide(scope.One(), converted[0]);
             }
 
-            return scope.BindFunction(function, converted);
+            var newFunction = scope.BindFunction(function, converted);
+
+            // TODO: Check that function is deterministic.
+            if (function is not null)
+            {
+                if (converted.All(scope.IsConstant))
+                {
+                    // Convert abs(x), ceil(x), floor(x), Re(a), ... -> 0.000
+                    return this.EvaluateAsConstant(newFunction);
+                }
+            }
+
+            return newFunction;
         }
 
         /// <inheritdoc/>
@@ -564,6 +576,15 @@
             if (scope.IsZero(dividend))
             {
                 return dividend;
+            }
+
+            if (scope.IsConstant(dividend))
+            {
+                if (scope.IsConstant(divisor))
+                {
+                    // Convert "1 / 2" into "0.5"
+                    return this.EvaluateAsConstant(scope.Divide(dividend, divisor));
+                }
             }
 
             // Convert "-a / b" into "-(a / b)"
