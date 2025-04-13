@@ -36,8 +36,13 @@
             this.FontDialog = new System.Windows.Forms.FontDialog();
             this.plotView = new OxyPlot.WindowsForms.PlotView();
             this.keyPadButton = new System.Windows.Forms.Button();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.resultPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)this.expressionDisplay).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)this.splitContainer1).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // inputBox
@@ -63,9 +68,9 @@
             // 
             // resultDisplay
             // 
-            resources.ApplyResources(this.resultDisplay, "resultDisplay");
             this.resultDisplay.BackColor = System.Drawing.SystemColors.Window;
             this.resultDisplay.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            resources.ApplyResources(this.resultDisplay, "resultDisplay");
             this.resultDisplay.Name = "resultDisplay";
             this.resultDisplay.ReadOnly = true;
             this.resultDisplay.PreviewKeyDown += this.Control_PreviewKeyDown;
@@ -85,14 +90,26 @@
             this.keyPadButton.Name = "keyPadButton";
             this.keyPadButton.UseVisualStyleBackColor = true;
             // 
+            // splitContainer1
+            // 
+            resources.ApplyResources(this.splitContainer1, "splitContainer1");
+            this.splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.resultPanel);
+            this.splitContainer1.Panel1.Controls.Add(this.resultDisplay);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.plotView);
+            // 
             // CalculatorForm
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.keyPadButton);
-            this.Controls.Add(this.plotView);
-            this.Controls.Add(this.resultPanel);
-            this.Controls.Add(this.resultDisplay);
             this.Controls.Add(this.inputBox);
             this.KeyPreview = true;
             this.MaximizeBox = false;
@@ -103,6 +120,11 @@
             this.resultPanel.ResumeLayout(false);
             this.resultPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)this.expressionDisplay).EndInit();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)this.splitContainer1).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -116,6 +138,7 @@
         private System.Windows.Forms.FontDialog FontDialog;
         private OxyPlot.WindowsForms.PlotView plotView;
         private System.Windows.Forms.Button keyPadButton;
+        private System.Windows.Forms.SplitContainer splitContainer1;
     }
 }
 
